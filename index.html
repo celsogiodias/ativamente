@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ativamente - Plataforma</title>
+    <link rel="stylesheet" href="/assets/styles/style.css">
+    <!-- Firebase compat SDK (v9+) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <style>
+        /* Estilos básicos para funcionalidade, complementando style.css */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; min-height: 100vh; }
+        .auth-section { display: flex; justify-content: center; align-items: center; width: 100%; }
+        .auth-form { background: #f4f4f4; padding: 2rem; border-radius: 8px; width: 300px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .auth-form h2 { text-align: center; margin-top: 0; }
+        .auth-form input { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
+        .auth-form button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .auth-form .toggle-link { color: #007bff; cursor: pointer; text-align: center; display: block; margin-top: 10px; }
+        .main-section { display: none; width: 100%; }
+        .navbar { display: flex; align-items: center; background: #1e3a5f; color: white; padding: 10px 20px; }
+        .navbar img { height: 40px; margin-right: 15px; }
+        .navbar h1 { margin: 0; flex: 1; }
+        .navbar button { background: transparent; color: white; border: 1px solid white; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
+        .sidebar { width: 200px; background: #2c3e50; color: white; padding-top: 20px; min-height: calc(100vh - 60px); }
+        .sidebar a { display: block; padding: 15px; color: white; text-decoration: none; cursor: pointer; }
+        .sidebar a:hover { background: #34495e; }
+        .content { flex: 1; padding: 20px; background: #ecf0f1; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px; }
+        .indicator.red { background: red; }
+        .indicator.yellow { background: yellow; }
+        .indicator.green { background: green; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 400px; max-width: 90%; }
+        .modal-content h2 { margin-top: 0; }
+        .modal-content input, .modal-content textarea { width: 100%; padding: 8px; margin: 5px 0; box-sizing: border-box; }
+        .modal-content button { margin-top: 10px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .modal-content .close { float: right; cursor: pointer; font-size: 1.5em; }
+    </style>
+</head>
+<body>
+    <!-- Seção de Autenticação -->
+    <div id="authSection" class="auth-section">
+        <div class="auth-form">
+            <h2 id="authTitle">Login</h2>
+            <form id="authForm">
+                <input type="email" id="authEmail" placeholder="Email" required>
+                <input type="password" id="authPassword" placeholder="Senha" required>
+                <button type="submit" id="authButton">Entrar</button>
+            </form>
+            <span class="toggle-link" id="toggleAuth">Não tem conta? Cadastre-se</span>
+            <div id="authError" style="color: red; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- Seção Principal -->
+    <div id="mainSection" class="main-section">
+        <!-- Navbar -->
+        <div class="navbar">
+            <img src="/assets/logo.png" alt="Ativamente Logo">
+            <h1>Ativamente</h1>
+            <button id="logoutBtn">Sair</button>
+        </div>
+        <div style="display: flex;">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <a onclick="showPage('dashboard')">Dashboard</a>
+                <a onclick="showPage('pacientes')">Pacientes</a>
+                <a onclick="showPage('agenda')">Agenda</a>
+                <a onclick="showPage('prontuarios')">Prontuários</a>
+                <a onclick="showPage('configuracoes')">Configurações</a>
+            </div>
+            <!-- Conteúdo -->
+            <div class="content">
+                <!-- Dashboard -->
+                <div id="pageDashboard" class="page active">
+                    <h2>Dashboard</h2>
+                    <div id="dashboardSummary">Carregando...</div>
+                </div>
+                <!-- Pacientes -->
+                <div id="pagePacientes" class="page">
+                    <h2>Pacientes</h2>
+                    <button onclick="openModal('pacienteModal')">+ Novo Paciente</button>
+                    <div id="pacientesList"></div>
+                </div>
+                <!-- Agenda -->
+                <div id="pageAgenda" class="page">
+                    <h2>Agenda</h2>
+                    <button onclick="openModal('agendamentoModal')">+ Novo Agendamento</button>
+                    <div id="agendaList"></div>
+                </div>
+                <!-- Prontuários -->
+                <div id="pageProntuarios" class="page">
+                    <h2>Prontuários</h2>
+                    <p>Conteúdo em breve.</p>
+                </div>
+                <!-- Configurações -->
+                <div id="pageConfiguracoes" class="page">
+                    <h2>Configurações</h2>
+                    <p>Conteúdo em breve.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Paciente -->
+    <div id="pacienteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('pacienteModal')">&times;</span>
+            <h2>Novo Paciente</h2>
+            <form id="pacienteForm">
+                <input type="text" id="pacNome" placeholder="Nome" required>
+                <input type="email" id="pacEmail" placeholder="Email">
+                <input type="tel" id="pacTel" placeholder="Telefone">
+                <button type="submit">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Agendamento -->
+    <div id="agendamentoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('agendamentoModal')">&times;</span>
+            <h2>Novo Agendamento</h2>
+            <form id="agendamentoForm">
+                <input type="text" id="agePaciente" placeholder="Nome do Paciente" required>
+                <input type="date" id="ageData" required>
+                <input type="time" id="ageHora" required>
+                <textarea id="ageObs" placeholder="Observações"></textarea>
+                <button type="submit">Agendar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBz9lD7M6Z1qT5v3X0GcWrQpXmJkFyN4Hc",
+            authDomain: "espaco-ativamente-psi.firebaseapp.com",
+            projectId: "espaco-ativamente-psi",
+            storageBucket: "espaco-ativamente-psi.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abc123def456"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Estado da UI
+        let isLogin = true;
+        const authSection = document.getElementById('authSection');
+        const mainSection = document.getElementById('mainSection');
+        const authTitle = document.getElementById('authTitle');
+        const authButton = document.getElementById('authButton');
+        const toggleAuth = document.getElementById('toggleAuth');
+        const authError = document.getElementById('authError');
+        const authForm = document.getElementById('authForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Alternar entre login e registro
+        toggleAuth.addEventListener('click', () => {
+            isLogin = !isLogin;
+            authTitle.textContent = isLogin ? 'Login' : 'Cadastro';
+            authButton.textContent = isLogin ? 'Entrar' : 'Cadastrar';
+            toggleAuth.textContent = isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Faça login';
+        });
+
+        // Autenticação
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            try {
+                if (isLogin) {
+                    await auth.signInWithEmailAndPassword(email, password);
+                } else {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                }
+                authError.textContent = '';
+            } catch (error) {
+                authError.textContent = error.message;
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        // Observar estado de autenticação
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                authSection.style.display = 'none';
+                mainSection.style.display = 'block';
+                carregarDashboard();
+                carregarPacientes();
+                carregarAgenda();
+            } else {
+                authSection.style.display = 'flex';
+                mainSection.style.display = 'none';
+                // Limpar formulário
+                document.getElementById('authEmail').value = '';
+                document.getElementById('authPassword').value = '';
+            }
+        });
+
+        // Navegação entre páginas
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page' + pageId.charAt(0).toUpperCase() + pageId.slice(1)).classList.add('active');
+        }
+
+        // Modais
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // --- Dashboard ---
+        async function carregarDashboard() {
+            const summaryDiv = document.getElementById('dashboardSummary');
+            try {
+                const pacientesSnapshot = await db.collection('pacientes').get();
+                const totalPacientes = pacientesSnapshot.size;
+                // Simular próximas sessões (pegar 3 próximos agendamentos)
+                const agora = new Date();
+                const agendamentosSnapshot = await db.collection('agendamentos')
+                    .where('dataHora', '>=', agora)
+                    .orderBy('dataHora')
+                    .limit(3)
+                    .get();
+                let proximasSessoes = '';
+                agendamentosSnapshot.forEach(doc => {
+                    const d = doc.data();
+                    const date = d.dataHora.toDate();
+                    proximasSessoes += `<p>${date.toLocaleDateString()} às ${date.toLocaleTimeString()} - ${d.paciente}</p>`;
+                });
+                // Faturamento (soma de valores dos agendamentos concluídos, por simplicidade)
+                const concluidosSnapshot = await db.collection('agendamentos')
+                    .where('status', '==', 'concluido')
+                    .get();
+                let faturamento = 0;
+                concluidosSnapshot.forEach(doc => {
+                    faturamento += doc.data().valor || 0;
+                });
+                summaryDiv.innerHTML = `
+                    <div style="display: flex; gap: 20px;">
+                        <div style="flex:1; background: white; padding: 15px; border-radius: 8px;">
+                            <h3>Próximas Sessões</h3>
+                            ${proximasSessoes || '<p>Nenhuma sessão futura.</p>'}
+                        </div>
+                        <div style="flex:1; background: white; padding: 15px; border-radius: 8px;">
+                            <h3>Total Pacientes</h3>
+                            <p style="font-size: 2em;">${totalPacientes}</p>
+                        </div>
+                        <div style="flex:1; background: white; padding: 15px; border-radius: 8px;">
+                            <h3>Faturamento</h3>
+                            <p style="font-size: 2em;">R$ ${faturamento.toFixed(2)}</p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                summaryDiv.innerHTML = `<p style="color: red;">Erro ao carregar dashboard: ${error.message}</p>`;
+            }
+        }
+
+        // --- Pacientes ---
+        async function carregarPacientes() {
+            const list = document.getElementById('pacientesList');
+            list.innerHTML = '';
+            try {
+                const snapshot = await db.collection('pacientes').get();
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const div = document.createElement('div');
+                    div.style.background = 'white';
+                    div.style.padding = '10px';
+                    div.style.margin = '5px 0';
+                    div.style.borderRadius = '4px';
+                    div.innerHTML = `<span class="indicator green"></span><strong>${data.nome}</strong> - ${data.email || 'sem email'} - ${data.tel || 'sem telefone'}`;
+                    list.appendChild(div);
+                });
+            } catch (error) {
+                list.innerHTML = `<p style="color: red;">Erro ao carregar pacientes: ${error.message}</p>`;
+            }
+        }
+
+        // Cadastro paciente via modal
+        document.getElementById('pacienteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('pacNome').value;
+            const email = document.getElementById('pacEmail').value;
+            const tel = document.getElementById('pacTel').value;
+            try {
+                await db.collection('pacientes').add({
+                    nome,
+                    email,
+                    tel
+                });
+                closeModal('pacienteModal');
+                document.getElementById('pacienteForm').reset();
+                carregarPacientes();
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
+        });
+
+        // --- Agenda ---
+        async function carregarAgenda() {
+            const list = document.getElementById('agendaList');
+            list.innerHTML = '';
+            try {
+                const snapshot = await db.collection('agendamentos').orderBy('dataHora').get();
+                const agora = new Date();
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const dataHora = data.dataHora.toDate();
+                    const status = dataHora < agora ? 'concluido' : (data.status || 'pendente');
+                    let cor = 'green';
+                    if (status === 'pendente') cor = 'yellow';
+                    else if (status === 'concluido') cor = 'red';
+                    const div = document.createElement('div');
+                    div.style.background = 'white';
+                    div.style.padding = '10px';
+                    div.style.margin = '5px 0';
+                    div.style.borderRadius = '4px';
+                    div.innerHTML = `<span class="indicator ${cor}"></span><strong>${data.paciente}</strong> - ${dataHora.toLocaleDateString()} ${dataHora.toLocaleTimeString()} ${data.obs ? '- ' + data.obs : ''}`;
+                    list.appendChild(div);
+                });
+            } catch (error) {
+                list.innerHTML = `<p style="color: red;">Erro ao carregar agenda: ${error.message}</p>`;
+            }
+        }
+
+        // Cadastro agendamento via modal
+        document.getElementById('agendamentoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const paciente = document.getElementById('agePaciente').value;
+            const data = document.getElementById('ageData').value;
+            const hora = document.getElementById('ageHora').value;
+            const obs = document.getElementById('ageObs').value;
+            const dataHora = new Date(data + 'T' + hora);
+            try {
+                await db.collection('agendamentos').add({
+                    paciente,
+                    dataHora: firebase.firestore.Timestamp.fromDate(dataHora),
+                    obs,
+                    status: 'pendente',
+                    valor: 0
+                });
+                closeModal('agendamentoModal');
+                document.getElementById('agendamentoForm').reset();
+                carregarAgenda();
+                carregarDashboard();
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
+        });
+
+        // Inicializar exibição
+        if (auth.currentUser) {
+            authSection.style.display = 'none';
+            mainSection.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
