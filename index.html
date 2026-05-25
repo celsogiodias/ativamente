@@ -1,748 +1,616 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ativamente - Sistema</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f4f6f8; display: flex; }
-        .sidebar { width: 250px; background: #2a6e4b; color: white; height: 100vh; position: fixed; overflow-y: auto; transition: 0.3s; z-index: 1000; }
-        .sidebar .logo { padding: 20px; text-align: center; font-size: 1.4em; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        .sidebar .logo span { display: block; font-size: 0.7em; font-weight: normal; }
-        .sidebar ul { list-style: none; padding: 10px 0; }
-        .sidebar ul li a { display: block; padding: 12px 20px; color: white; text-decoration: none; transition: 0.2s; }
-        .sidebar ul li a:hover { background: rgba(255,255,255,0.1); border-left: 4px solid #fff; }
-        .sidebar ul li a.active { background: rgba(255,255,255,0.2); border-left: 4px solid #fff; }
-        .sidebar .user-info { padding: 20px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 0.9em; }
-        .sidebar .user-info button { background: transparent; border: 1px solid white; color: white; padding: 5px 10px; cursor: pointer; border-radius: 4px; margin-top: 10px; }
-        .main-content { margin-left: 250px; padding: 20px; width: calc(100% - 250px); }
-        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .card-header { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .card-header button { background: #2a6e4b; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.95em; }
-        th { background: #f8f9fa; font-weight: 600; }
-        tr:hover { background: #f1f3f5; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; }
-        .badge-success { background: #d4edda; color: #155724; }
-        .badge-danger { background: #f8d7da; color: #721c24; }
-        .badge-warning { background: #fff3cd; color: #856404; }
-        .btn-edit { background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
-        .btn-delete { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
-        .modal-content h2 { margin-bottom: 20px; }
-        .modal-content form label { display: block; margin-top: 10px; font-weight: 600; }
-        .modal-content form input, .modal-content form select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
-        .modal-content form button { margin-top: 20px; padding: 10px 20px; background: #2a6e4b; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .modal-content .close { float: right; font-size: 1.5em; cursor: pointer; }
-        .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .dashboard-cards .card { text-align: center; padding: 15px; }
-        .dashboard-cards .card .number { font-size: 2em; font-weight: bold; margin: 10px 0; }
-        .dashboard-cards .card .label { color: #666; }
-        .financial-bar { height: 30px; background: #e9ecef; border-radius: 15px; overflow: hidden; margin: 10px 0; }
-        .financial-bar .fill { height: 100%; border-radius: 15px; transition: width 0.5s; }
-        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .calendar .day { background: white; border-radius: 4px; padding: 10px; text-align: center; cursor: pointer; min-height: 80px; border: 1px solid #dee2e6; }
-        .calendar .day:hover { background: #f1f3f5; }
-        .calendar .day.other-month { color: #aaa; }
-        .calendar .day.today { background: #cce5ff; }
-        .calendar .day .appointments { font-size: 0.8em; margin-top: 5px; }
-        .calendar .day .appointments span { display: block; padding: 2px; border-radius: 3px; margin-bottom: 2px; font-size: 0.8em; }
-        .color-agendado { background: #e2e3e5; color: #383d41; }
-        .color-confirmado { background: #d4edda; color: #155724; }
-        .color-cancelado { background: #f8d7da; color: #721c24; }
-        @media (max-width: 768px) { .sidebar { width: 60px; } .sidebar .logo span, .sidebar .user-info, .sidebar ul li a span { display: none; } .main-content { margin-left: 60px; width: calc(100% - 60px); } }
-        #loginScreen { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f6f8; position: fixed; top: 0; left: 0; width: 100%; z-index: 3000; }
-        #loginScreen .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 20px rgba(0,0,0,0.1); width: 350px; }
-        #loginScreen .login-box h1 { text-align: center; margin-bottom: 20px; color: #2a6e4b; }
-        #loginScreen .login-box input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
-        #loginScreen .login-box button { width: 100%; padding: 10px; background: #2a6e4b; color: white; border: none; border-radius: 4px; font-size: 1em; cursor: pointer; }
-        #loginScreen .login-box .error { color: red; text-align: center; margin-top: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ativamente - Plataforma de Gestão</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+    .container { width: 1200px; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); overflow: hidden; }
+    header { background: #2c3e50; color: #fff; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 24px; }
+    nav { display: flex; gap: 20px; background: #ecf0f1; padding: 10px 30px; border-bottom: 1px solid #bdc3c7; flex-wrap: wrap; }
+    nav button { background: none; border: none; padding: 8px 16px; cursor: pointer; font-size: 14px; color: #2c3e50; border-radius: 6px; transition: 0.2s; }
+    nav button:hover { background: #bdc3c7; }
+    nav button.ativo { background: #3498db; color: #fff; }
+    main { padding: 30px; min-height: 500px; }
+    .tab-content { display: none; }
+    .tab-content.ativo { display: block; }
+    h2 { margin-bottom: 20px; color: #2c3e50; }
+    .card { background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; font-size: 14px; }
+    th { background: #ecf0f1; font-weight: 600; }
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; margin: 2px; }
+    .btn-primary { background: #3498db; color: #fff; }
+    .btn-danger { background: #e74c3c; color: #fff; }
+    .btn-success { background: #2ecc71; color: #fff; }
+    .btn-warning { background: #f39c12; color: #fff; }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    form input, form select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+    form .full { grid-column: span 2; }
+    .dialogo { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+    .dialogo-content { background: #fff; padding: 30px; border-radius: 12px; max-width: 600px; width: 90%; }
+    .dialogo-content h3 { margin-bottom: 20px; }
+    .fechar { float: right; cursor: pointer; font-size: 20px; }
+    .upload-area { border: 2px dashed #ccc; padding: 30px; text-align: center; border-radius: 8px; margin-top: 10px; }
+    .upload-area.dragover { background: #e0f7fa; border-color: #3498db; }
+    #listaDocumentos { margin-top: 15px; }
+  </style>
 </head>
 <body>
-    <div id="loginScreen">
-        <div class="login-box">
-            <h1>🔐 Ativamente</h1>
-            <input type="email" id="emailInput" placeholder="Email" value="admin@ativamente.com">
-            <input type="password" id="passwordInput" placeholder="Senha" value="123456">
-            <button onclick="login()">Entrar</button>
-            <div class="error" id="loginError"></div>
-        </div>
+<div class="container">
+  <header>
+    <h1>Ativamente</h1>
+    <span id="nomeClinica">Clínica Padrão</span>
+  </header>
+  <nav id="navTabs">
+    <button data-tab="pacientes" class="ativo">Pacientes</button>
+    <button data-tab="profissionais">Profissionais</button>
+    <button data-tab="agenda">Agenda</button>
+    <button data-tab="financeiro">Financeiro</button>
+    <button data-tab="documentos">Documentos</button>
+    <button data-tab="configuracoes">Configurações</button>
+  </nav>
+  <main>
+    <!-- Pacientes -->
+    <div id="tabPacientes" class="tab-content ativo">
+      <h2>Pacientes</h2>
+      <button class="btn btn-primary" onclick="abrirDialogo('paciente')">+ Novo Paciente</button>
+      <div class="card">
+        <table id="tabelaPacientes">
+          <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
-
-    <div class="sidebar" id="sidebar">
-        <div class="logo">
-            🏥 Ativamente
-            <span id="userRoleDisplay"></span>
-        </div>
-        <ul id="menu">
-        </ul>
-        <div class="user-info">
-            <div id="userNameDisplay"></div>
-            <button onclick="logout()">🚪 Sair</button>
-        </div>
+    <!-- Profissionais -->
+    <div id="tabProfissionais" class="tab-content">
+      <h2>Profissionais</h2>
+      <button class="btn btn-primary" onclick="abrirDialogo('profissional')">+ Novo Profissional</button>
+      <div class="card">
+        <table id="tabelaProfissionais">
+          <thead><tr><th>Nome</th><th>Especialidade</th><th>Telefone</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
-
-    <div class="main-content" id="mainContent">
-        <div id="pageContent"></div>
+    <!-- Agenda -->
+    <div id="tabAgenda" class="tab-content">
+      <h2>Agenda</h2>
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <input id="filtroDataAgenda" type="date" onchange="viewDayAppointments()">
+        <button class="btn btn-primary" onclick="abrirDialogo('agenda')">+ Novo Agendamento</button>
+      </div>
+      <div class="card" id="agendaCard">
+        <p id="agendaInfo">Selecione uma data para ver os agendamentos.</p>
+        <table id="tabelaAgenda"><thead><tr><th>Horário</th><th>Paciente</th><th>Profissional</th><th>Ações</th></tr></thead><tbody></tbody></table>
+      </div>
     </div>
-
-    <!-- Modal genérico -->
-    <div class="modal" id="genericModal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modalBody"></div>
-        </div>
+    <!-- Financeiro -->
+    <div id="tabFinanceiro" class="tab-content">
+      <h2>Financeiro</h2>
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="btn btn-success" onclick="abrirDialogo('receita')">+ Nova Receita</button>
+        <button class="btn btn-danger" onclick="abrirDialogo('despesa')">+ Nova Despesa</button>
+      </div>
+      <div class="card">
+        <h3>Receitas</h3>
+        <table id="tabelaReceitas"><thead><tr><th>Descrição</th><th>Valor</th><th>Data</th><th>Ações</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="card">
+        <h3>Despesas</h3>
+        <table id="tabelaDespesas"><thead><tr><th>Descrição</th><th>Valor</th><th>Data</th><th>Ações</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="card" style="display: flex; gap: 20px;">
+        <p><strong>Total Receitas:</strong> <span id="totalReceitas">0.00</span></p>
+        <p><strong>Total Despesas:</strong> <span id="totalDespesas">0.00</span></p>
+        <p><strong>Saldo:</strong> <span id="saldo">0.00</span></p>
+      </div>
     </div>
+    <!-- Documentos -->
+    <div id="tabDocumentos" class="tab-content">
+      <h2>Documentos</h2>
+      <div class="upload-area" id="uploadArea">
+        <p>Arraste e solte arquivos aqui ou clique para selecionar</p>
+        <input type="file" id="fileInput" multiple style="display:none" onchange="uploadFiles(event)">
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">Selecionar Arquivos</button>
+      </div>
+      <div class="card" id="listaDocumentos">
+        <h3>Documentos Salvos</h3>
+        <ul id="ulDocumentos"></ul>
+      </div>
+    </div>
+    <!-- Configurações -->
+    <div id="tabConfiguracoes" class="tab-content">
+      <h2>Configurações da Clínica</h2>
+      <form id="formConfig">
+        <div><label>Nome da Clínica</label><input type="text" id="cfgNome" required></div>
+        <div><label>Telefone</label><input type="text" id="cfgTelefone"></div>
+        <div class="full"><label>Endereço</label><input type="text" id="cfgEndereco" style="width:100%"></div>
+        <div class="full"><button type="submit" class="btn btn-primary">Salvar Configurações</button></div>
+      </form>
+    </div>
+  </main>
+</div>
 
-    <script>
-        // Dados iniciais
-        const users = [
-            { email: 'admin@ativamente.com', password: '123456', name: 'Administrador', role: 'admin' },
-            { email: 'psico@ativamente.com', password: '123456', name: 'Psicólogo', role: 'psicologo' },
-            { email: 'secretaria@ativamente.com', password: '123456', name: 'Secretária', role: 'secretaria' },
-            { email: 'terapeuta@ativamente.com', password: '123456', name: 'Terapeuta Ocupacional', role: 'terapeuta' },
-            { email: 'fono@ativamente.com', password: '123456', name: 'Fonoaudiólogo', role: 'fono' },
-            { email: 'fisio@ativamente.com', password: '123456', name: 'Fisioterapeuta', role: 'fisio' },
-            { email: 'neuroped@ativamente.com', password: '123456', name: 'Neuropedagoga', role: 'neuroped' },
-            { email: 'neuropsi@ativamente.com', password: '123456', name: 'Neuropsicólogo', role: 'neuropsi' },
-            { email: 'medico@ativamente.com', password: '123456', name: 'Médico', role: 'medico' }
-        ];
+<!-- Diálogos -->
+<div id="dialogo" class="dialogo" style="display:none">
+  <div class="dialogo-content">
+    <span class="fechar" onclick="fecharDialogo()">&times;</span>
+    <h3 id="dialogoTitulo">Título</h3>
+    <form id="dialogoForm" onsubmit="salvarDialogo(event)">
+      <div id="dialogoCampos"></div>
+      <div class="full" style="margin-top: 10px;">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <button type="button" class="btn btn-warning" onclick="fecharDialogo()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-        let currentUser = null;
-        let patients = JSON.parse(localStorage.getItem('patients')) || [];
-        let professionals = JSON.parse(localStorage.getItem('professionals')) || [];
-        let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
-        let finances = JSON.parse(localStorage.getItem('finances')) || [];
+<script>
+  // Dados persistentes via localStorage
+  let dados = {
+    pacientes: [],
+    profissionais: [],
+    agendamentos: [],
+    receitas: [],
+    despesas: [],
+    documentos: [],
+    configuracoes: { nomeClinica: 'Clínica Padrão', telefone: '', endereco: '' }
+  };
 
-        // Dados de exemplo
-        if (patients.length === 0) {
-            patients = [
-                { id: 1, name: 'João Silva', cpf: '111.111.111-11', address: 'Rua A, 100', phone: '(11) 99999-0001', isMinor: false, responsible: '', responsibleContact: '', professionalId: 1, inadiplente: false },
-                { id: 2, name: 'Maria Souza (menor)', cpf: '222.222.222-22', address: 'Rua B, 200', phone: '(11) 99999-0002', isMinor: true, responsible: 'Ana Souza', responsibleContact: '(11) 98888-0002', professionalId: 2, inadiplente: true }
-            ];
+  // Carregar dados iniciais
+  function carregarDados() {
+    const stored = localStorage.getItem('ativamente_dados');
+    if (stored) {
+      try { dados = JSON.parse(stored); } catch(e) { inicializarExemplos(); }
+    } else {
+      inicializarExemplos();
+    }
+    // Atualizar interface
+    renderPatientsTable();
+    renderProfessionalsTable();
+    viewDayAppointments();
+    renderFinanceiro();
+    renderDocumentos();
+    carregarConfiguracoes();
+  }
+
+  function salvarDados() {
+    localStorage.setItem('ativamente_dados', JSON.stringify(dados));
+  }
+
+  function inicializarExemplos() {
+    dados.pacientes = [
+      { id: 1, nome: 'João Silva', telefone: '(11) 99999-8888', email: 'joao@email.com' },
+      { id: 2, nome: 'Maria Oliveira', telefone: '(11) 98888-7777', email: 'maria@email.com' }
+    ];
+    dados.profissionais = [
+      { id: 1, nome: 'Dr. Carlos', especialidade: 'Psicologia', telefone: '(11) 97777-6666' },
+      { id: 2, nome: 'Dra. Ana', especialidade: 'Fisioterapia', telefone: '(11) 96666-5555' }
+    ];
+    dados.agendamentos = [
+      { id: 1, data: new Date().toISOString().slice(0,10), horario: '09:00', pacienteId: 1, profissionalId: 1 },
+      { id: 2, data: new Date().toISOString().slice(0,10), horario: '10:00', pacienteId: 2, profissionalId: 2 }
+    ];
+    dados.receitas = [
+      { id: 1, descricao: 'Consulta particular', valor: 200, data: new Date().toISOString().slice(0,10) },
+      { id: 2, descricao: 'Plano de saúde', valor: 150, data: new Date().toISOString().slice(0,10) }
+    ];
+    dados.despesas = [
+      { id: 1, descricao: 'Aluguel', valor: 1200, data: new Date().toISOString().slice(0,10) },
+      { id: 2, descricao: 'Material', valor: 300, data: new Date().toISOString().slice(0,10) }
+    ];
+    dados.documentos = [];
+    dados.configuracoes = { nomeClinica: 'Clínica Padrão', telefone: '(11) 99999-0000', endereco: 'Rua Exemplo, 123' };
+    salvarDados();
+  }
+
+  // Renderização
+  function renderPatientsTable() {
+    const tbody = document.querySelector('#tabelaPacientes tbody');
+    tbody.innerHTML = dados.pacientes.map(p => `
+      <tr>
+        <td>${p.nome}</td>
+        <td>${p.telefone}</td>
+        <td>${p.email}</td>
+        <td>
+          <button class="btn btn-warning" onclick="editarRegistro('paciente', ${p.id})">Editar</button>
+          <button class="btn btn-danger" onclick="deletarRegistro('paciente', ${p.id})">Excluir</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function renderProfessionalsTable() {
+    const tbody = document.querySelector('#tabelaProfissionais tbody');
+    tbody.innerHTML = dados.profissionais.map(p => `
+      <tr>
+        <td>${p.nome}</td>
+        <td>${p.especialidade}</td>
+        <td>${p.telefone}</td>
+        <td>
+          <button class="btn btn-warning" onclick="editarRegistro('profissional', ${p.id})">Editar</button>
+          <button class="btn btn-danger" onclick="deletarRegistro('profissional', ${p.id})">Excluir</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function viewDayAppointments() {
+    const data = document.getElementById('filtroDataAgenda').value || new Date().toISOString().slice(0,10);
+    document.getElementById('filtroDataAgenda').value = data;
+    const agendamentosDoDia = dados.agendamentos.filter(a => a.data === data);
+    const tbody = document.querySelector('#tabelaAgenda tbody');
+    const info = document.getElementById('agendaInfo');
+    if (agendamentosDoDia.length === 0) {
+      info.textContent = 'Nenhum agendamento nesta data.';
+      tbody.innerHTML = '';
+    } else {
+      info.textContent = '';
+      tbody.innerHTML = agendamentosDoDia.map(a => {
+        const paciente = dados.pacientes.find(p => p.id === a.pacienteId);
+        const profissional = dados.profissionais.find(p => p.id === a.profissionalId);
+        const nomePac = paciente ? paciente.nome : 'Desconhecido';
+        const nomeProf = profissional ? profissional.nome : 'Desconhecido';
+        return `<tr>
+          <td>${a.horario}</td>
+          <td>${nomePac}</td>
+          <td>${nomeProf}</td>
+          <td>
+            <button class="btn btn-warning" onclick="editarRegistro('agenda', ${a.id})">Editar</button>
+            <button class="btn btn-danger" onclick="deletarRegistro('agenda', ${a.id})">Excluir</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  function renderFinanceiro() {
+    // Receitas
+    const tbodyRec = document.querySelector('#tabelaReceitas tbody');
+    tbodyRec.innerHTML = dados.receitas.map(r => `
+      <tr>
+        <td>${r.descricao}</td>
+        <td>R$ ${r.valor.toFixed(2)}</td>
+        <td>${r.data}</td>
+        <td>
+          <button class="btn btn-warning" onclick="editarRegistro('receita', ${r.id})">Editar</button>
+          <button class="btn btn-danger" onclick="deletarRegistro('receita', ${r.id})">Excluir</button>
+        </td>
+      </tr>
+    `).join('');
+    // Despesas
+    const tbodyDesp = document.querySelector('#tabelaDespesas tbody');
+    tbodyDesp.innerHTML = dados.despesas.map(d => `
+      <tr>
+        <td>${d.descricao}</td>
+        <td>R$ ${d.valor.toFixed(2)}</td>
+        <td>${d.data}</td>
+        <td>
+          <button class="btn btn-warning" onclick="editarRegistro('despesa', ${d.id})">Editar</button>
+          <button class="btn btn-danger" onclick="deletarRegistro('despesa', ${d.id})">Excluir</button>
+        </td>
+      </tr>
+    `).join('');
+    // Totais
+    const totalRec = dados.receitas.reduce((acc, r) => acc + r.valor, 0);
+    const totalDesp = dados.despesas.reduce((acc, d) => acc + d.valor, 0);
+    document.getElementById('totalReceitas').textContent = totalRec.toFixed(2);
+    document.getElementById('totalDespesas').textContent = totalDesp.toFixed(2);
+    document.getElementById('saldo').textContent = (totalRec - totalDesp).toFixed(2);
+  }
+
+  function renderDocumentos() {
+    const ul = document.getElementById('ulDocumentos');
+    if (dados.documentos.length === 0) {
+      ul.innerHTML = '<li>Nenhum documento salvo.</li>';
+    } else {
+      ul.innerHTML = dados.documentos.map((doc, index) => `
+        <li>
+          ${doc.nome} (${(doc.tamanho / 1024).toFixed(1)} KB)
+          <button class="btn btn-danger btn-sm" onclick="deletarDocumento(${index})">Excluir</button>
+        </li>
+      `).join('');
+    }
+  }
+
+  function carregarConfiguracoes() {
+    const cfg = dados.configuracoes;
+    document.getElementById('cfgNome').value = cfg.nomeClinica;
+    document.getElementById('cfgTelefone').value = cfg.telefone;
+    document.getElementById('cfgEndereco').value = cfg.endereco;
+    document.getElementById('nomeClinica').textContent = cfg.nomeClinica;
+  }
+
+  // CRUD via diálogo genérico
+  let tipoDialogo = '';
+  let editandoId = null;
+
+  function abrirDialogo(tipo) {
+    tipoDialogo = tipo;
+    editandoId = null;
+    const titulo = document.getElementById('dialogoTitulo');
+    const campos = document.getElementById('dialogoCampos');
+    let html = '';
+    switch(tipo) {
+      case 'paciente':
+        titulo.textContent = 'Novo Paciente';
+        html = `
+          <input type="text" id="campoNome" placeholder="Nome" required>
+          <input type="text" id="campoTelefone" placeholder="Telefone">
+          <input type="email" id="campoEmail" placeholder="Email" class="full">
+        `;
+        break;
+      case 'profissional':
+        titulo.textContent = 'Novo Profissional';
+        html = `
+          <input type="text" id="campoNome" placeholder="Nome" required>
+          <input type="text" id="campoEspecialidade" placeholder="Especialidade" required>
+          <input type="text" id="campoTelefone" placeholder="Telefone" class="full">
+        `;
+        break;
+      case 'agenda':
+        titulo.textContent = 'Novo Agendamento';
+        const pacientesOptions = dados.pacientes.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+        const profissionaisOptions = dados.profissionais.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+        html = `
+          <input type="date" id="campoData" required>
+          <input type="time" id="campoHorario" required>
+          <select id="campoPaciente" required><option value="">Selecione Paciente</option>${pacientesOptions}</select>
+          <select id="campoProfissional" required><option value="">Selecione Profissional</option>${profissionaisOptions}</select>
+        `;
+        break;
+      case 'receita':
+        titulo.textContent = 'Nova Receita';
+        html = `
+          <input type="text" id="campoDescricao" placeholder="Descrição" required class="full">
+          <input type="number" id="campoValor" placeholder="Valor (R$)" step="0.01" required>
+          <input type="date" id="campoData" required>
+        `;
+        break;
+      case 'despesa':
+        titulo.textContent = 'Nova Despesa';
+        html = `
+          <input type="text" id="campoDescricao" placeholder="Descrição" required class="full">
+          <input type="number" id="campoValor" placeholder="Valor (R$)" step="0.01" required>
+          <input type="date" id="campoData" required>
+        `;
+        break;
+    }
+    campos.innerHTML = html;
+    document.getElementById('dialogo').style.display = 'flex';
+  }
+
+  function fecharDialogo() {
+    document.getElementById('dialogo').style.display = 'none';
+  }
+
+  function salvarDialogo(event) {
+    event.preventDefault();
+    let obj = {};
+    let id = editandoId || Date.now();
+    switch(tipoDialogo) {
+      case 'paciente':
+        obj = { id, nome: document.getElementById('campoNome').value, telefone: document.getElementById('campoTelefone').value, email: document.getElementById('campoEmail').value };
+        if (editandoId) {
+          const idx = dados.pacientes.findIndex(p => p.id === editandoId);
+          if (idx !== -1) dados.pacientes[idx] = obj;
+        } else {
+          dados.pacientes.push(obj);
         }
-        if (professionals.length === 0) {
-            professionals = [
-                { id: 1, name: 'Dr. Carlos', cpf: '333.333.333-33', council: 'CRM-12345', specialty: 'Médico', phone: '(11) 97777-0001', email: 'carlos@teste.com' },
-                { id: 2, name: 'Psicóloga Ana', cpf: '444.444.444-44', council: 'CRP-67890', specialty: 'Psicologia', phone: '(11) 96666-0002', email: 'ana@teste.com' }
-            ];
+        salvarDados();
+        renderPatientsTable();
+        break;
+      case 'profissional':
+        obj = { id, nome: document.getElementById('campoNome').value, especialidade: document.getElementById('campoEspecialidade').value, telefone: document.getElementById('campoTelefone').value };
+        if (editandoId) {
+          const idx = dados.profissionais.findIndex(p => p.id === editandoId);
+          if (idx !== -1) dados.profissionais[idx] = obj;
+        } else {
+          dados.profissionais.push(obj);
         }
-        if (appointments.length === 0) {
-            const today = new Date();
-            appointments = [
-                { id: 1, date: today.toISOString().split('T')[0], time: '09:00', patientId: 1, professionalId: 1, status: 'agendado' },
-                { id: 2, date: today.toISOString().split('T')[0], time: '10:00', patientId: 2, professionalId: 2, status: 'confirmado' }
-            ];
+        salvarDados();
+        renderProfessionalsTable();
+        break;
+      case 'agenda':
+        obj = {
+          id,
+          data: document.getElementById('campoData').value,
+          horario: document.getElementById('campoHorario').value,
+          pacienteId: parseInt(document.getElementById('campoPaciente').value),
+          profissionalId: parseInt(document.getElementById('campoProfissional').value)
+        };
+        if (editandoId) {
+          const idx = dados.agendamentos.findIndex(a => a.id === editandoId);
+          if (idx !== -1) dados.agendamentos[idx] = obj;
+        } else {
+          dados.agendamentos.push(obj);
         }
-        if (finances.length === 0) {
-            finances = [
-                { id: 1, date: '2025-01-15', patientId: 1, value: 150, type: 'receita', method: 'Pix', status: 'pago' },
-                { id: 2, date: '2025-01-16', patientId: 2, value: 200, type: 'receita', method: 'Dinheiro', status: 'pendente' },
-                { id: 3, date: '2025-01-17', description: 'Aluguel', value: 1000, type: 'despesa', status: 'pago' }
-            ];
+        salvarDados();
+        viewDayAppointments();
+        break;
+      case 'receita':
+        obj = { id, descricao: document.getElementById('campoDescricao').value, valor: parseFloat(document.getElementById('campoValor').value), data: document.getElementById('campoData').value };
+        if (editandoId) {
+          const idx = dados.receitas.findIndex(r => r.id === editandoId);
+          if (idx !== -1) dados.receitas[idx] = obj;
+        } else {
+          dados.receitas.push(obj);
         }
-        saveData();
+        salvarDados();
+        renderFinanceiro();
+        break;
+      case 'despesa':
+        obj = { id, descricao: document.getElementById('campoDescricao').value, valor: parseFloat(document.getElementById('campoValor').value), data: document.getElementById('campoData').value };
+        if (editandoId) {
+          const idx = dados.despesas.findIndex(d => d.id === editandoId);
+          if (idx !== -1) dados.despesas[idx] = obj;
+        } else {
+          dados.despesas.push(obj);
+        }
+        salvarDados();
+        renderFinanceiro();
+        break;
+    }
+    fecharDialogo();
+  }
 
-        function saveData() {
-            localStorage.setItem('patients', JSON.stringify(patients));
-            localStorage.setItem('professionals', JSON.stringify(professionals));
-            localStorage.setItem('appointments', JSON.stringify(appointments));
-            localStorage.setItem('finances', JSON.stringify(finances));
+  function editarRegistro(tipo, id) {
+    abrirDialogo(tipo);
+    editandoId = id;
+    const titulo = document.getElementById('dialogoTitulo');
+    titulo.textContent = `Editando ${tipo}`;
+    let registro;
+    switch(tipo) {
+      case 'paciente':
+        registro = dados.pacientes.find(p => p.id === id);
+        if (registro) {
+          document.getElementById('campoNome').value = registro.nome;
+          document.getElementById('campoTelefone').value = registro.telefone;
+          document.getElementById('campoEmail').value = registro.email;
         }
-
-        function login() {
-            const email = document.getElementById('emailInput').value.trim();
-            const password = document.getElementById('passwordInput').value.trim();
-            const user = users.find(u => u.email === email && u.password === password);
-            if (user) {
-                currentUser = user;
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('userRoleDisplay').textContent = user.name;
-                document.getElementById('userNameDisplay').textContent = '👤 ' + user.name;
-                renderMenu();
-                navigateTo('dashboard');
-            } else {
-                document.getElementById('loginError').textContent = 'Email ou senha inválidos.';
-            }
+        break;
+      case 'profissional':
+        registro = dados.profissionais.find(p => p.id === id);
+        if (registro) {
+          document.getElementById('campoNome').value = registro.nome;
+          document.getElementById('campoEspecialidade').value = registro.especialidade;
+          document.getElementById('campoTelefone').value = registro.telefone;
         }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('emailInput').value = '';
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('loginError').textContent = '';
+        break;
+      case 'agenda':
+        registro = dados.agendamentos.find(a => a.id === id);
+        if (registro) {
+          document.getElementById('campoData').value = registro.data;
+          document.getElementById('campoHorario').value = registro.horario;
+          document.getElementById('campoPaciente').value = registro.pacienteId;
+          document.getElementById('campoProfissional').value = registro.profissionalId;
         }
-
-        function getMenuItems() {
-            const role = currentUser.role;
-            if (role === 'admin') return ['Dashboard', 'Pacientes', 'Profissionais', 'Agenda', 'Financeiro', 'Documentos', 'Config'];
-            if (role === 'secretaria') return ['Agenda', 'Recebimento'];
-            if (['psicologo','medico','neuropsi'].includes(role)) return ['Dashboard','Pacientes','Agenda','Prontuários','Financeiro'];
-            return ['Dashboard','Pacientes','Agenda','Prontuários'];
+        break;
+      case 'receita':
+        registro = dados.receitas.find(r => r.id === id);
+        if (registro) {
+          document.getElementById('campoDescricao').value = registro.descricao;
+          document.getElementById('campoValor').value = registro.valor;
+          document.getElementById('campoData').value = registro.data;
         }
-
-        function renderMenu() {
-            const menu = document.getElementById('menu');
-            menu.innerHTML = '';
-            const items = getMenuItems();
-            items.forEach(item => {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = '#';
-                a.textContent = getIcon(item) + ' ' + item;
-                a.onclick = () => navigateTo(item.toLowerCase());
-                li.appendChild(a);
-                menu.appendChild(li);
-            });
+        break;
+      case 'despesa':
+        registro = dados.despesas.find(d => d.id === id);
+        if (registro) {
+          document.getElementById('campoDescricao').value = registro.descricao;
+          document.getElementById('campoValor').value = registro.valor;
+          document.getElementById('campoData').value = registro.data;
         }
+        break;
+    }
+  }
 
-        function getIcon(name) {
-            const icons = {
-                'Dashboard': '📊', 'Pacientes': '👥', 'Profissionais': '💼',
-                'Agenda': '📅', 'Financeiro': '💰', 'Documentos': '📄',
-                'Config': '⚙️', 'Recebimento': '🧾', 'Prontuários': '📋'
-            };
-            return icons[name] || '📌';
-        }
+  function deletarRegistro(tipo, id) {
+    if (!confirm('Tem certeza que deseja excluir este registro?')) return;
+    switch(tipo) {
+      case 'paciente':
+        dados.pacientes = dados.pacientes.filter(p => p.id !== id);
+        salvarDados();
+        renderPatientsTable();
+        break;
+      case 'profissional':
+        dados.profissionais = dados.profissionais.filter(p => p.id !== id);
+        salvarDados();
+        renderProfessionalsTable();
+        break;
+      case 'agenda':
+        dados.agendamentos = dados.agendamentos.filter(a => a.id !== id);
+        salvarDados();
+        viewDayAppointments();
+        break;
+      case 'receita':
+        dados.receitas = dados.receitas.filter(r => r.id !== id);
+        salvarDados();
+        renderFinanceiro();
+        break;
+      case 'despesa':
+        dados.despesas = dados.despesas.filter(d => d.id !== id);
+        salvarDados();
+        renderFinanceiro();
+        break;
+    }
+  }
 
-        function navigateTo(page) {
-            const content = document.getElementById('pageContent');
-            switch(page) {
-                case 'dashboard': renderDashboard(content); break;
-                case 'pacientes': renderPatients(content); break;
-                case 'profissionais': renderProfessionals(content); break;
-                case 'agenda': renderAgenda(content); break;
-                case 'financeiro': renderFinanceiro(content); break;
-                case 'recebimento': renderRecebimento(content); break;
-                case 'documentos': content.innerHTML = '<div class="card"><h2>📄 Documentos</h2><p>Em breve...</p></div>'; break;
-                case 'config': content.innerHTML = '<div class="card"><h2>⚙️ Configurações</h2><p>Em breve...</p></div>'; break;
-                case 'prontuários': content.innerHTML = '<div class="card"><h2>📋 Prontuários</h2><p>Em breve...</p></div>'; break;
-                default: content.innerHTML = '<div class="card"><h2>Página não encontrada</h2></div>';
-            }
-            // Atualizar active no menu
-            document.querySelectorAll('#menu a').forEach(a => a.classList.remove('active'));
-            const active = Array.from(document.querySelectorAll('#menu a')).find(a => a.textContent.includes(page.charAt(0).toUpperCase() + page.slice(1)));
-            if (active) active.classList.add('active');
-        }
+  // Upload de documentos
+  document.getElementById('uploadArea').addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.classList.add('dragover');
+  });
+  document.getElementById('uploadArea').addEventListener('dragleave', function() {
+    this.classList.remove('dragover');
+  });
+  document.getElementById('uploadArea').addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    handleFiles(files);
+  });
 
-        // ============= DASHBOARD =============
-        function renderDashboard(el) {
-            let html = '<div class="dashboard-cards">';
-            // Cards dependendo do role
-            if (currentUser.role === 'admin') {
-                html += `<div class="card"><div class="number">${patients.length}</div><div class="label">👥 Pacientes</div></div>`;
-                html += `<div class="card"><div class="number">${professionals.length}</div><div class="label">💼 Profissionais</div></div>`;
-                html += `<div class="card"><div class="number">${appointments.length}</div><div class="label">📅 Consultas</div></div>`;
-                const totalReceitas = finances.filter(f => f.type === 'receita' && f.status === 'pago').reduce((s,f)=>s+f.value,0);
-                const totalDespesas = finances.filter(f => f.type === 'despesa' && f.status === 'pago').reduce((s,f)=>s+f.value,0);
-                html += `<div class="card"><div class="number">R$ ${(totalReceitas - totalDespesas).toFixed(2)}</div><div class="label">💰 Lucro</div></div>`;
-            } else {
-                // Para outros, mostrar apenas pacientes e consultas
-                html += `<div class="card"><div class="number">${patients.length}</div><div class="label">👥 Pacientes</div></div>`;
-                html += `<div class="card"><div class="number">${appointments.length}</div><div class="label">📅 Consultas</div></div>`;
-            }
-            html += '</div>';
-            // Barra financeira para admin
-            if (currentUser.role === 'admin' || ['psicologo','medico','neuropsi'].includes(currentUser.role)) {
-                const receitas = finances.filter(f => f.type === 'receita' && f.status === 'pago').reduce((s,f)=>s+f.value,0);
-                const despesas = finances.filter(f => f.type === 'despesa' && f.status === 'pago').reduce((s,f)=>s+f.value,0);
-                const lucro = receitas - despesas;
-                const total = receitas + despesas || 1;
-                const percentLucro = Math.max(0, lucro / total * 100);
-                const barColor = lucro >= 0 ? '#28a745' : '#dc3545';
-                html += `
-                    <div class="card">
-                        <div class="card-header">💰 Financeiro</div>
-                        <p>Receitas: R$ ${receitas.toFixed(2)} | Despesas: R$ ${despesas.toFixed(2)} | Lucro: R$ ${lucro.toFixed(2)}</p>
-                        <div class="financial-bar">
-                            <div class="fill" style="width: ${percentLucro}%; background: ${barColor};"></div>
-                        </div>
-                    </div>
-                `;
-            }
-            el.innerHTML = html;
-        }
+  function uploadFiles(event) {
+    const files = event.target.files;
+    handleFiles(files);
+  }
 
-        // ============= PACIENTES =============
-        function renderPatients(el) {
-            let html = `
-                <div class="card">
-                    <div class="card-header">👥 Pacientes <button onclick="openModal('paciente')">+ Novo</button></div>
-                    <div style="margin-bottom:10px;"><input type="text" id="searchPatient" placeholder="🔍 Buscar por nome..." oninput="renderPatientsTable()"></div>
-                    <div id="patientsTable"></div>
-                </div>
-            `;
-            el.innerHTML = html;
-            renderPatientsTable();
-        }
+  function handleFiles(files) {
+    for (let file of files) {
+      const doc = {
+        nome: file.name,
+        tamanho: file.size,
+        tipo: file.type,
+        data: new Date().toISOString().slice(0,10)
+      };
+      dados.documentos.push(doc);
+    }
+    salvarDados();
+    renderDocumentos();
+    document.getElementById('fileInput').value = '';
+  }
 
-        function renderPatientsTable() {
-            const search = document.getElementById('searchPatient')?.value.toLowerCase() || '';
-            const filtered = patients.filter(p => p.name.toLowerCase().includes(search));
-            let html = '<table><thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Profissional</th><th>Inadiplente</th><th>Ações</th></tr></thead><tbody>';
-            filtered.forEach(p => {
-                const prof = professionals.find(pr => pr.id === p.professionalId);
-                html += `<tr>
-                    <td>${p.name}${p.isMinor ? ' (Menor)' : ''}</td>
-                    <td>${p.cpf}</td>
-                    <td>${p.phone}</td>
-                    <td>${prof ? prof.name : 'N/A'}</td>
-                    <td>${p.inadiplente ? '⚠️ Sim' : '✅ Não'}</td>
-                    <td><button class="btn-edit" onclick="editPatient(${p.id})">✏️</button><button class="btn-delete" onclick="deletePatient(${p.id})">🗑️</button></td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            document.getElementById('patientsTable').innerHTML = html;
-        }
+  function deletarDocumento(index) {
+    if (!confirm('Excluir este documento?')) return;
+    dados.documentos.splice(index, 1);
+    salvarDados();
+    renderDocumentos();
+  }
 
-        function openModal(type, data) {
-            const modal = document.getElementById('genericModal');
-            modal.classList.add('active');
-            const body = document.getElementById('modalBody');
-            if (type === 'paciente') {
-                const profOptions = professionals.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-                const isEdit = data ? true : false;
-                const paciente = data || { id: Date.now(), name: '', cpf: '', address: '', phone: '', isMinor: false, responsible: '', responsibleContact: '', professionalId: professionals[0]?.id || '', inadiplente: false };
-                body.innerHTML = `
-                    <h2>${isEdit ? '✏️ Editar' : '➕ Novo'} Paciente</h2>
-                    <form id="pacienteForm">
-                        <input type="hidden" name="id" value="${paciente.id}">
-                        <label>Nome*</label><input name="name" value="${paciente.name}" required>
-                        <label>CPF</label><input name="cpf" value="${paciente.cpf}">
-                        <label>Endereço</label><input name="address" value="${paciente.address}">
-                        <label>Telefone</label><input name="phone" value="${paciente.phone}">
-                        <label><input type="checkbox" name="isMinor" ${paciente.isMinor ? 'checked' : ''} onchange="toggleMinorFields()"> É menor de idade</label>
-                        <div id="minorFields" style="${paciente.isMinor ? '' : 'display:none'}">
-                            <label>Responsável</label><input name="responsible" value="${paciente.responsible}">
-                            <label>Contato do Responsável</label><input name="responsibleContact" value="${paciente.responsibleContact}">
-                        </div>
-                        <label>Profissional Responsável</label>
-                        <select name="professionalId">${profOptions}</select>
-                        <label><input type="checkbox" name="inadiplente" ${paciente.inadiplente ? 'checked' : ''}> Inadiplente</label>
-                        <button type="submit">${isEdit ? 'Salvar' : 'Adicionar'}</button>
-                    </form>
-                `;
-                document.getElementById('pacienteForm').onsubmit = function(e) {
-                    e.preventDefault();
-                    const form = e.target;
-                    const data = {
-                        id: parseInt(form.id.value),
-                        name: form.name.value,
-                        cpf: form.cpf.value,
-                        address: form.address.value,
-                        phone: form.phone.value,
-                        isMinor: form.isMinor.checked,
-                        responsible: form.responsible.value,
-                        responsibleContact: form.responsibleContact.value,
-                        professionalId: parseInt(form.professionalId.value),
-                        inadiplente: form.inadiplente.checked
-                    };
-                    const index = patients.findIndex(p => p.id === data.id);
-                    if (index !== -1) {
-                        patients[index] = data;
-                    } else {
-                        patients.push(data);
-                    }
-                    saveData();
-                    closeModal();
-                    renderPatientsTable();
-                };
-            } else if (type === 'profissional') {
-                const isEdit = data ? true : false;
-                const prof = data || { id: Date.now(), name: '', cpf: '', council: '', specialty: '', phone: '', email: '' };
-                body.innerHTML = `
-                    <h2>${isEdit ? '✏️ Editar' : '➕ Novo'} Profissional</h2>
-                    <form id="profissionalForm">
-                        <input type="hidden" name="id" value="${prof.id}">
-                        <label>Nome*</label><input name="name" value="${prof.name}" required>
-                        <label>CPF</label><input name="cpf" value="${prof.cpf}">
-                        <label>Conselho (CRP/CRM/etc)</label><input name="council" value="${prof.council}">
-                        <label>Especialidade</label><input name="specialty" value="${prof.specialty}">
-                        <label>Telefone</label><input name="phone" value="${prof.phone}">
-                        <label>Email</label><input type="email" name="email" value="${prof.email}">
-                        <button type="submit">${isEdit ? 'Salvar' : 'Adicionar'}</button>
-                    </form>
-                `;
-                document.getElementById('profissionalForm').onsubmit = function(e) {
-                    e.preventDefault();
-                    const form = e.target;
-                    const data = {
-                        id: parseInt(form.id.value),
-                        name: form.name.value,
-                        cpf: form.cpf.value,
-                        council: form.council.value,
-                        specialty: form.specialty.value,
-                        phone: form.phone.value,
-                        email: form.email.value
-                    };
-                    const index = professionals.findIndex(p => p.id === data.id);
-                    if (index !== -1) {
-                        professionals[index] = data;
-                    } else {
-                        professionals.push(data);
-                    }
-                    saveData();
-                    closeModal();
-                    renderProfessionalsTable();
-                };
-            } else if (type === 'consulta') {
-                const isEdit = data ? true : false;
-                const appointment = data || { id: Date.now(), date: '', time: '', patientId: '', professionalId: '', status: 'agendado' };
-                const patientOptions = patients.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-                const profOptions = professionals.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-                body.innerHTML = `
-                    <h2>${isEdit ? '✏️ Editar' : '➕ Nova'} Consulta</h2>
-                    <form id="consultaForm">
-                        <input type="hidden" name="id" value="${appointment.id}">
-                        <label>Data*</label><input type="date" name="date" value="${appointment.date}" required>
-                        <label>Horário*</label><input type="time" name="time" value="${appointment.time}" required>
-                        <label>Paciente*</label>
-                        <select name="patientId">${patientOptions}</select>
-                        <label>Profissional*</label>
-                        <select name="professionalId">${profOptions}</select>
-                        <label>Status</label>
-                        <select name="status">
-                            <option value="agendado" ${appointment.status === 'agendado' ? 'selected' : ''}>Agendado</option>
-                            <option value="confirmado" ${appointment.status === 'confirmado' ? 'selected' : ''}>Confirmado</option>
-                            <option value="cancelado" ${appointment.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-                        </select>
-                        <button type="submit">${isEdit ? 'Salvar' : 'Adicionar'}</button>
-                    </form>
-                `;
-                document.getElementById('consultaForm').onsubmit = function(e) {
-                    e.preventDefault();
-                    const form = e.target;
-                    const data = {
-                        id: parseInt(form.id.value),
-                        date: form.date.value,
-                        time: form.time.value,
-                        patientId: parseInt(form.patientId.value),
-                        professionalId: parseInt(form.professionalId.value),
-                        status: form.status.value
-                    };
-                    const index = appointments.findIndex(a => a.id === data.id);
-                    if (index !== -1) {
-                        appointments[index] = data;
-                    } else {
-                        appointments.push(data);
-                    }
-                    saveData();
-                    closeModal();
-                    // Se estiver na agenda, recarrega
-                    const content = document.getElementById('pageContent');
-                    renderAgenda(content);
-                };
-            } else if (type === 'recebimento') {
-                const patientOptions = patients.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-                body.innerHTML = `
-                    <h2>🧾 Novo Recebimento</h2>
-                    <form id="recebimentoForm">
-                        <label>Data*</label><input type="date" name="date" required>
-                        <label>Paciente*</label>
-                        <select name="patientId">${patientOptions}</select>
-                        <label>Valor*</label><input type="number" step="0.01" name="value" required>
-                        <label>Forma de Pagamento</label>
-                        <select name="method">
-                            <option value="Pix">Pix</option>
-                            <option value="Dinheiro">Dinheiro</option>
-                            <option value="Crédito">Crédito</option>
-                            <option value="Débito">Débito</option>
-                        </select>
-                        <label>Status</label>
-                        <select name="status">
-                            <option value="pago">Pago</option>
-                            <option value="pendente">Pendente</option>
-                        </select>
-                        <button type="submit">Adicionar</button>
-                    </form>
-                `;
-                document.getElementById('recebimentoForm').onsubmit = function(e) {
-                    e.preventDefault();
-                    const form = e.target;
-                    const data = {
-                        id: Date.now(),
-                        date: form.date.value,
-                        patientId: parseInt(form.patientId.value),
-                        value: parseFloat(form.value.value),
-                        type: 'receita',
-                        method: form.method.value,
-                        status: form.status.value
-                    };
-                    finances.push(data);
-                    saveData();
-                    closeModal();
-                    // Renderizar recebimento novamente
-                    const content = document.getElementById('pageContent');
-                    renderRecebimento(content);
-                };
-            }
-        }
+  // Configurações - salvar
+  document.getElementById('formConfig').addEventListener('submit', function(e) {
+    e.preventDefault();
+    dados.configuracoes = {
+      nomeClinica: document.getElementById('cfgNome').value,
+      telefone: document.getElementById('cfgTelefone').value,
+      endereco: document.getElementById('cfgEndereco').value
+    };
+    salvarDados();
+    document.getElementById('nomeClinica').textContent = dados.configuracoes.nomeClinica;
+    alert('Configurações salvas com sucesso!');
+  });
 
-        function closeModal() {
-            document.getElementById('genericModal').classList.remove('active');
-        }
+  // Navegação entre abas
+  document.querySelectorAll('#navTabs button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const tab = this.dataset.tab;
+      document.querySelectorAll('#navTabs button').forEach(b => b.classList.remove('ativo'));
+      this.classList.add('ativo');
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('ativo'));
+      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('ativo');
+    });
+  });
 
-        function toggleMinorFields() {
-            const div = document.getElementById('minorFields');
-            div.style.display = document.querySelector('[name="isMinor"]').checked ? 'block' : 'none';
-        }
-
-        function editPatient(id) {
-            const p = patients.find(p => p.id === id);
-            if (p) openModal('paciente', p);
-        }
-
-        function deletePatient(id) {
-            if (confirm('Tem certeza que deseja excluir este paciente?')) {
-                patients = patients.filter(p => p.id !== id);
-                saveData();
-                renderPatientsTable();
-            }
-        }
-
-        // ============= PROFISSIONAIS =============
-        function renderProfessionals(el) {
-            let html = `
-                <div class="card">
-                    <div class="card-header">💼 Profissionais <button onclick="openModal('profissional')">+ Novo</button></div>
-                    <div style="margin-bottom:10px;"><input type="text" id="searchProfessional" placeholder="🔍 Buscar..." oninput="renderProfessionalsTable()"></div>
-                    <div id="professionalsTable"></div>
-                </div>
-            `;
-            el.innerHTML = html;
-            renderProfessionalsTable();
-        }
-
-        function renderProfessionalsTable() {
-            const search = document.getElementById('searchProfessional')?.value.toLowerCase() || '';
-            const filtered = professionals.filter(p => p.name.toLowerCase().includes(search));
-            let html = '<table><thead><tr><th>Nome</th><th>CPF</th><th>Conselho</th><th>Especialidade</th><th>Telefone</th><th>Email</th><th>Ações</th></tr></thead><tbody>';
-            filtered.forEach(p => {
-                html += `<tr>
-                    <td>${p.name}</td>
-                    <td>${p.cpf}</td>
-                    <td>${p.council}</td>
-                    <td>${p.specialty}</td>
-                    <td>${p.phone}</td>
-                    <td>${p.email}</td>
-                    <td><button class="btn-edit" onclick="editProfessional(${p.id})">✏️</button><button class="btn-delete" onclick="deleteProfessional(${p.id})">🗑️</button></td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            document.getElementById('professionalsTable').innerHTML = html;
-        }
-
-        function editProfessional(id) {
-            const p = professionals.find(p => p.id === id);
-            if (p) openModal('profissional', p);
-        }
-
-        function deleteProfessional(id) {
-            if (confirm('Tem certeza?')) {
-                professionals = professionals.filter(p => p.id !== id);
-                saveData();
-                renderProfessionalsTable();
-            }
-        }
-
-        // ============= AGENDA =============
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
-
-        function renderAgenda(el) {
-            const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            const today = new Date();
-            let html = `
-                <div class="card">
-                    <div class="card-header">
-                        📅 ${monthNames[currentMonth]} ${currentYear}
-                        <div>
-                            <button onclick="changeMonth(-1)">◀</button>
-                            <button onclick="changeMonth(1)">▶</button>
-                            <button onclick="openModal('consulta')">+ Nova Consulta</button>
-                        </div>
-                    </div>
-                    <div class="calendar">
-                        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-            `;
-            // Dias vazios antes do primeiro dia
-            for (let i = 0; i < firstDay; i++) {
-                html += '<div class="day other-month"></div>';
-            }
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                const dayAppointments = appointments.filter(a => a.date === dateStr);
-                const isToday = today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === d;
-                html += `<div class="day ${isToday ? 'today' : ''}" onclick="viewDayAppointments('${dateStr}')">`;
-                html += `<strong>${d}</strong>`;
-                if (dayAppointments.length > 0) {
-                    html += '<div class="appointments">';
-                    dayAppointments.slice(0,3).forEach(a => {
-                        const statusClass = a.status === 'agendado' ? 'color-agendado' : a.status === 'confirmado' ? 'color-confirmado' : 'color-cancelado';
-                        html += `<span class="${statusClass}">${a.time}</span>`;
-                    });
-                    if (dayAppointments.length > 3) html += `<span>+${dayAppointments.length - 3}</span>`;
-                    html += '</div>';
-                }
-                html += '</div>';
-            }
-            html += '</div></div>';
-            // Adicionar lista de consultas do dia se nenhuma selecionada
-            html += '<div id="dayAppointments"></div>';
-            el.innerHTML = html;
-            // Mostrar consultas de hoje
-            const todayStr = today.toISOString().split('T')[0];
-            viewDayAppointments(todayStr);
-        }
-
-        function changeMonth(delta) {
-            currentMonth += delta;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            const content = document.getElementById('pageContent');
-            renderAgenda(content);
-        }
-
-        function viewDayAppointments(dateStr) {
-            const dayAppointmentsDiv = document.getElementById('dayAppointments');
-            if (!dayAppointmentsDiv) return;
-            const dayApps = appointments.filter(a => a.date === dateStr);
-            let html = `<div class="card"><div class="card-header">📅 Consultas do dia ${dateStr} <button onclick="openModal('consulta', {date: '${dateStr}'})">+ Nova</button></div>`;
-            if (dayApps.length === 0) {
-                html += '<p>Nenhuma consulta agendada.</p>';
-            } else {
-                html += '<table><thead><tr><th>Horário</th><th>Paciente</th><th>Profissional</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
-                dayApps.forEach(a => {
-                    const patient = patients.find(p => p.id === a.patientId);
-                    const prof = professionals.find(p => p.id === a.professionalId);
-                    const statusBadge = a.status === 'agendado' ? 'badge-warning' : a.status === 'confirmado' ? 'badge-success' : 'badge-danger';
-                    html += `<tr>
-                        <td>${a.time}</td>
-                        <td>${patient ? patient.name : 'N/A'}</td>
-                        <td>${prof ? prof.name : 'N/A'}</td>
-                        <td><span class="badge ${statusBadge}">${a.status}</span></td>
-                        <td><button class="btn-edit" onclick="editAppointment(${a.id})">✏️</button><button class="btn-delete" onclick="deleteAppointment(${a.id})">🗑️</button></td>
-                    </tr>`;
-                });
-                html += '</tbody></table>';
-            }
-            html += '</div>';
-            dayAppointmentsDiv.innerHTML = html;
-        }
-
-        function editAppointment(id) {
-            const a = appointments.find(a => a.id === id);
-            if (a) openModal('consulta', a);
-        }
-
-        function deleteAppointment(id) {
-            if (confirm('Excluir esta consulta?')) {
-                appointments = appointments.filter(a => a.id !== id);
-                saveData();
-                const content = document.getElementById('pageContent');
-                renderAgenda(content);
-            }
-        }
-
-        // ============= FINANCEIRO =============
-        function renderFinanceiro(el) {
-            const receitasPagas = finances.filter(f => f.type === 'receita' && f.status === 'pago').reduce((s,f)=>s+f.value,0);
-            const receitasPendentes = finances.filter(f => f.type === 'receita' && f.status === 'pendente').reduce((s,f)=>s+f.value,0);
-            const despesasPagas = finances.filter(f => f.type === 'despesa' && f.status === 'pago').reduce((s,f)=>s+f.value,0);
-            const despesasPendentes = finances.filter(f => f.type === 'despesa' && f.status === 'pendente').reduce((s,f)=>s+f.value,0);
-            const lucro = receitasPagas - despesasPagas;
-            const totalReceitas = receitasPagas + receitasPendentes;
-            const totalDespesas = despesasPagas + despesasPendentes;
-            const inadiplentes = patients.filter(p => p.inadiplente).length;
-            const inadiplentesValor = finances.filter(f => f.type === 'receita' && f.status === 'pendente').reduce((s,f)=>s+f.value,0);
-            let html = `
-                <div class="dashboard-cards">
-                    <div class="card"><div class="number">R$ ${receitasPagas.toFixed(2)}</div><div class="label">✅ Receitas Pagas</div></div>
-                    <div class="card"><div class="number">R$ ${receitasPendentes.toFixed(2)}</div><div class="label">⏳ Receitas Pendentes</div></div>
-                    <div class="card"><div class="number">R$ ${despesasPagas.toFixed(2)}</div><div class="label">⬇️ Despesas Pagas</div></div>
-                    <div class="card"><div class="number">R$ ${despesasPendentes.toFixed(2)}</div><div class="label">⬇️ Despesas Pendentes</div></div>
-                    <div class="card"><div class="number" style="color: ${lucro >=0 ? '#28a745' : '#dc3545'}">R$ ${lucro.toFixed(2)}</div><div class="label">💰 Lucro/Prejuízo</div></div>
-                    <div class="card"><div class="number">${inadiplentes}</div><div class="label">⚠️ Inadiplentes</div></div>
-                </div>
-                <div class="card">
-                    <div class="card-header">📊 Barra Financeira</div>
-                    <div class="financial-bar">
-                        <div class="fill" style="width: ${totalReceitas+totalDespesas > 0 ? (receitasPagas/(totalReceitas+totalDespesas)*100).toFixed(2) : 0}%; background: #28a745;"></div>
-                    </div>
-                    <p style="font-size:0.9em;">Verde = Receitas Pagas em relação ao total (Receitas+Despesas)</p>
-                </div>
-                <div class="card">
-                    <div class="card-header">📋 Últimos Registros</div>
-                    <table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Status</th></tr></thead><tbody>
-            `;
-            const lastFinances = finances.slice().reverse().slice(0,10);
-            lastFinances.forEach(f => {
-                const desc = f.description || (f.patientId ? patients.find(p=>p.id===f.patientId)?.name || 'Paciente' : 'Receita');
-                html += `<tr><td>${f.date}</td><td>${f.type === 'receita' ? '🧾 Receita' : '💸 Despesa'}</td><td>${desc}</td><td>R$ ${f.value.toFixed(2)}</td><td><span class="badge ${f.status==='pago' ? 'badge-success' : 'badge-warning'}">${f.status}</span></td></tr>`;
-            });
-            html += '</tbody></table></div>';
-            el.innerHTML = html;
-        }
-
-        // ============= RECEBIMENTO (Secretária) =============
-        function renderRecebimento(el) {
-            let html = `
-                <div class="card">
-                    <div class="card-header">🧾 Recebimentos <button onclick="openModal('recebimento')">+ Novo</button></div>
-                    <div id="recebimentoTable"></div>
-                </div>
-            `;
-            el.innerHTML = html;
-            const receitas = finances.filter(f => f.type === 'receita');
-            let table = '<table><thead><tr><th>Data</th><th>Paciente</th><th>Valor</th><th>Forma</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
-            receitas.forEach(r => {
-                const patient = patients.find(p => p.id === r.patientId);
-                table += `<tr>
-                    <td>${r.date}</td>
-                    <td>${patient ? patient.name : 'N/A'}</td>
-                    <td>R$ ${r.value.toFixed(2)}</td>
-                    <td>${r.method}</td>
-                    <td><span class="badge ${r.status==='pago' ? 'badge-success' : 'badge-warning'}">${r.status}</span></td>
-                    <td><button class="btn-edit" onclick="gerarRecibo(${r.id})">📄 Recibo</button></td>
-                </tr>`;
-            });
-            table += '</tbody></table>';
-            document.getElementById('recebimentoTable').innerHTML = table;
-        }
-
-        function gerarRecibo(id) {
-            const f = finances.find(f => f.id === id);
-            if (!f) return;
-            const patient = patients.find(p => p.id === f.patientId);
-            const text = `Recibo - Ativamente
-Data: ${f.date}
-Paciente: ${patient ? patient.name : 'N/A'}
-Valor: R$ ${f.value.toFixed(2)}
-Forma: ${f.method}
-Status: ${f.status}
-
-Obrigado!`;
-            const blob = new Blob([text], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `recibo_${f.id}.txt`;
-            a.click();
-            URL.revokeObjectURL(a.href);
-        }
-
-        // Inicializar se já houver sessão (apenas para recarregar)
-        if (currentUser) {
-            renderMenu();
-            navigateTo('dashboard');
-        }
-    </script>
+  // Inicializar
+  carregarDados();
+  // Preencher data de hoje na agenda
+  document.getElementById('filtroDataAgenda').value = new Date().toISOString().slice(0,10);
+</script>
 </body>
 </html>
