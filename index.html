@@ -1,417 +1,570 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ativamente+ Clinic - Pacientes</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Poppins', sans-serif; background: #f5f7fa; color: #333; }
-    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-    h1 { color: #00204A; margin-bottom: 20px; font-weight: 600; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 10px 20px; border: none; border-radius: 6px;
-      font-family: 'Poppins', sans-serif; font-weight: 500;
-      cursor: pointer; transition: all 0.3s ease;
-    }
-    .btn-primary { background: #FF6B35; color: #fff; }
-    .btn-primary:hover { background: #e55a2b; }
-    .btn-secondary { background: #008080; color: #fff; }
-    .btn-secondary:hover { background: #006666; }
-    .btn-danger { background: #dc3545; color: #fff; }
-    .btn-danger:hover { background: #c82333; }
-    .btn-outline { background: transparent; border: 2px solid #008080; color: #008080; }
-    .btn-outline:hover { background: #008080; color: #fff; }
-    .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
-    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-    .table-wrapper { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e0e0e0; }
-    th { background: #00204A; color: #fff; font-weight: 500; }
-    tr:hover { background: #f0f4f8; }
-    .actions { display: flex; gap: 6px; justify-content: center; }
-    .modal-overlay {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: flex-start;
-      padding: 40px 20px; overflow-y: auto;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal {
-      background: #fff; border-radius: 12px; width: 100%; max-width: 600px;
-      padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin: auto;
-    }
-    .modal h2 { color: #00204A; margin-bottom: 24px; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-weight: 500; margin-bottom: 6px; color: #333; }
-    .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 1rem; transition: border-color 0.3s; }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: #008080; }
-    .form-group.checkbox { display: flex; align-items: center; gap: 8px; }
-    .form-group.checkbox input { width: auto; }
-    .responsavel-section { border-left: 3px solid #FF6B35; padding-left: 16px; margin-top: 16px; }
-    .responsavel-section h3 { color: #FF6B35; margin-bottom: 12px; font-size: 1.1rem; }
-    .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
-    .drawer-overlay {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5); z-index: 1001;
-    }
-    .drawer-overlay.active { display: block; }
-    .drawer {
-      position: fixed; top: 0; right: -100%; width: 90%; max-width: 800px; height: 100%;
-      background: #fff; z-index: 1002; transition: right 0.3s ease;
-      display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.2);
-    }
-    .drawer.open { right: 0; }
-    .drawer-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 20px 24px; background: #00204A; color: #fff;
-    }
-    .drawer-header h2 { font-weight: 600; }
-    .drawer-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
-    .drawer-tabs {
-      display: flex; flex-wrap: wrap; background: #f0f4f8; border-bottom: 2px solid #ddd;
-    }
-    .drawer-tab {
-      padding: 12px 20px; cursor: pointer; font-weight: 500; transition: background 0.3s;
-      border-bottom: 3px solid transparent; flex: 1 1 auto; text-align: center; min-width: 100px;
-    }
-    .drawer-tab:hover { background: #e0e8f0; }
-    .drawer-tab.active { background: #fff; border-bottom-color: #008080; color: #008080; }
-    .drawer-content { flex: 1; overflow-y: auto; padding: 24px; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .error { color: #dc3545; font-size: 0.85rem; margin-top: 4px; display: none; }
-    .error.show { display: block; }
-    @media (max-width: 768px) {
-      .btn-group { flex-direction: column; }
-      .modal { padding: 20px; }
-      .drawer { width: 100%; max-width: 100%; }
-      .drawer-tab { min-width: 80px; padding: 10px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Pacientes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            padding: 20px;
+        }
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00204A;
+            font-size: 28px;
+            margin-bottom: 24px;
+            border-left: 5px solid #FF6B35;
+            padding-left: 15px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #FF6B35; color: #fff; }
+        .btn-primary:hover { background: #e55a2b; }
+        .btn-secondary { background: #008080; color: #fff; }
+        .btn-secondary:hover { background: #006666; }
+        .btn-danger { background: #d9534f; color: #fff; }
+        .btn-danger:hover { background: #c9302c; }
+        .btn-edit { background: #5bc0de; color: #fff; }
+        .btn-edit:hover { background: #46b8da; }
+        .drawer-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #00204A;
+            color: #fff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 90%;
+            max-width: 700px;
+            height: 100vh;
+            background: #fff;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.2);
+            transition: right 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .drawer.open { right: 0; }
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #00204A;
+            padding-bottom: 10px;
+        }
+        .drawer-header h2 { color: #00204A; font-size: 22px; }
+        .close-drawer { font-size: 30px; cursor: pointer; color: #00204A; }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 20px;
+            background: #e0e0e0;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { background: #008080; color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .crud-container { margin-top: 10px; }
+        .crud-container input, .crud-container textarea {
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        .crud-container textarea { resize: vertical; min-height: 60px; }
+        .item-list {
+            margin-top: 15px;
+        }
+        .item-card {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid #008080;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-actions button { margin-left: 8px; }
+        .chart-container {
+            margin-top: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        @media (max-width: 768px) {
+            .drawer { width: 100%; max-width: none; }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Pacientes</h1>
-    <div class="btn-group">
-      <button class="btn btn-primary" onclick="openModal()">+ Incluir Paciente</button>
+<div class="app-container">
+    <h1>👥 Gestão de Pacientes</h1>
+    <button class="btn btn-primary" onclick="openDrawer()">Abrir Drawer</button>
+    <div id="patientDashboard">
+        <p>Selecione um paciente ou crie um novo no Drawer.</p>
     </div>
-    <div class="table-wrapper">
-      <table id="patientsTable">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Documento</th>
-            <th>Data Nascimento</th>
-            <th>Telefone</th>
-            <th>Responsável</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="patientsBody">
-        </tbody>
-      </table>
-    </div>
-    <p id="noPatients" style="text-align:center; color:#888; margin-top:20px;">Nenhum paciente cadastrado</p>
-  </div>
+</div>
 
-  <!-- Modal Incluir/Editar -->
-  <div class="modal-overlay" id="patientModal">
-    <div class="modal">
-      <h2 id="modalTitle">Incluir Paciente</h2>
-      <form id="patientForm" onsubmit="return false;">
-        <input type="hidden" id="editId" value="">
-        <div class="form-group">
-          <label for="nome">Nome Completo *</label>
-          <input type="text" id="nome" required>
-          <span class="error" id="errorNome">Campo obrigatório</span>
-        </div>
-        <div class="form-group">
-          <label for="documento">Documento (CPF/RG) *</label>
-          <input type="text" id="documento" required>
-          <span class="error" id="errorDocumento">Campo obrigatório</span>
-        </div>
-        <div class="form-group">
-          <label for="dataNascimento">Data de Nascimento *</label>
-          <input type="date" id="dataNascimento" required>
-          <span class="error" id="errorDataNascimento">Campo obrigatório</span>
-        </div>
-        <div class="form-group">
-          <label for="telefone">Telefone *</label>
-          <input type="tel" id="telefone" required>
-          <span class="error" id="errorTelefone">Campo obrigatório</span>
-        </div>
-        <div class="form-group checkbox">
-          <input type="checkbox" id="isMenor">
-          <label for="isMenor">Paciente é menor de idade</label>
-        </div>
-        <div class="responsavel-section" id="responsavelSection" style="display: none;">
-          <h3>Dados do Responsável</h3>
-          <div class="form-group">
-            <label for="respNome">Nome do Responsável *</label>
-            <input type="text" id="respNome">
-            <span class="error" id="errorRespNome">Campo obrigatório</span>
-          </div>
-          <div class="form-group">
-            <label for="respDocumento">Documento do Responsável *</label>
-            <input type="text" id="respDocumento">
-            <span class="error" id="errorRespDocumento">Campo obrigatório</span>
-          </div>
-          <div class="form-group">
-            <label for="respDataNascimento">Data de Nascimento do Responsável *</label>
-            <input type="date" id="respDataNascimento">
-            <span class="error" id="errorRespDataNascimento">Campo obrigatório</span>
-          </div>
-          <div class="form-group">
-            <label for="respTelefone">Telefone do Responsável *</label>
-            <input type="tel" id="respTelefone">
-            <span class="error" id="errorRespTelefone">Campo obrigatório</span>
-          </div>
-        </div>
-        <div class="modal-buttons">
-          <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-          <button class="btn btn-primary" onclick="savePatient()">Salvar</button>
-        </div>
-      </form>
-    </div>
-  </div>
+<div class="drawer-toggle" onclick="openDrawer()">📋</div>
 
-  <!-- Drawer Visualizar -->
-  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
-  <div class="drawer" id="drawer">
+<div id="drawer" class="drawer">
     <div class="drawer-header">
-      <h2 id="drawerPatientName">Paciente</h2>
-      <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+        <h2>Pacientes</h2>
+        <span class="close-drawer" onclick="closeDrawer()">&times;</span>
     </div>
-    <div class="drawer-tabs" id="drawerTabs">
-      <div class="drawer-tab active" data-tab="dados">Dados</div>
-      <div class="drawer-tab" data-tab="prontuarios">Prontuários</div>
-      <div class="drawer-tab" data-tab="evolucao">Evolução</div>
-      <div class="drawer-tab" data-tab="declaracao">Declaração</div>
-      <div class="drawer-tab" data-tab="atestado">Atestado</div>
-      <div class="drawer-tab" data-tab="relatorio-psicologico">Relatório Psicológico</div>
-      <div class="drawer-tab" data-tab="relatorio-multiprofissional">Relatório Multiprofissional</div>
-      <div class="drawer-tab" data-tab="laudo-psicologico">Laudo Psicológico</div>
-      <div class="drawer-tab" data-tab="parecer-psicologico">Parecer Psicológico</div>
+    <div class="tabs" id="tabButtons">
+        <button class="tab-btn active" data-tab="tab-dados">Dados</button>
+        <button class="tab-btn" data-tab="tab-prontuarios">Prontuários</button>
+        <button class="tab-btn" data-tab="tab-evolucao">Evolução</button>
+        <button class="tab-btn" data-tab="tab-declaracao">Declaração Psicológica</button>
+        <button class="tab-btn" data-tab="tab-atestado">Atestado Psicológico</button>
+        <button class="tab-btn" data-tab="tab-relatorio">Relatório Psicológico</button>
+        <button class="tab-btn" data-tab="tab-relmult">Relatório Multiprofissional</button>
+        <button class="tab-btn" data-tab="tab-laudo">Laudo Psicológico</button>
+        <button class="tab-btn" data-tab="tab-parecer">Parecer Psicológico</button>
     </div>
-    <div class="drawer-content" id="drawerContent">
-      <div class="tab-content active" id="tab-dados">
-        <h3>Informações do Paciente</h3>
-        <p id="drawerPatientInfo"></p>
-        <h3>Responsável</h3>
-        <p id="drawerResponsavelInfo"></p>
-      </div>
-      <div class="tab-content" id="tab-prontuarios">
-        <p>Timeline de anotações do profissional (em breve).</p>
-      </div>
-      <div class="tab-content" id="tab-evolucao">
-        <p>Análise de IA de progresso (em breve).</p>
-      </div>
-      <div class="tab-content" id="tab-declaracao">
-        <p>Documento psicológico (em breve).</p>
-      </div>
-      <div class="tab-content" id="tab-atestado">
-        <p>Atestado psicológico (em breve).</p>
-      </div>
-      <div class="tab-content" id="tab-relatorio-psicologico">
-        <p>Relatório psicológico (em breve).</p>
-      </div>
-      <div class="tab-content" id="tab-relatorio-multiprofissional">
-        <p>Relatório multiprofissional (em breve).</p>
-      </div>
-      <div class="tab-content" id="tab-laudo-psicologico">
-        <p>Laudo psicológico (em breve).</p>
-      </div>
-      <div class="tab-content" id="tab-parecer-psicologico">
-        <p>Parecer psicológico (em breve).</p>
-      </div>
+    <div id="tabContents">
+        <div id="tab-dados" class="tab-content active">
+            <div class="crud-container">
+                <h3>Dados do Paciente</h3>
+                <input type="text" id="dados-nome" placeholder="Nome completo">
+                <input type="text" id="dados-documento" placeholder="CPF/RG">
+                <input type="date" id="dados-dataNasc">
+                <input type="tel" id="dados-telefone" placeholder="Telefone">
+                <input type="text" id="dados-responsavel" placeholder="Responsável (se menor)">
+                <button class="btn btn-primary" onclick="salvarDados()">Salvar</button>
+                <div class="item-list" id="dados-list"></div>
+            </div>
+        </div>
+        <div id="tab-prontuarios" class="tab-content">
+            <div class="crud-container">
+                <h3>Prontuários (Timeline)</h3>
+                <textarea id="pront-text" placeholder="Anotação profissional"></textarea>
+                <button class="btn btn-primary" onclick="salvarProntuario()">Adicionar</button>
+                <div class="item-list" id="pront-list"></div>
+            </div>
+        </div>
+        <div id="tab-evolucao" class="tab-content">
+            <div class="crud-container">
+                <h3>Evolução (com gráfico)</h3>
+                <div>
+                    <input type="date" id="evol-data">
+                    <input type="number" id="evol-valor" min="0" max="100" placeholder="Valor (0-100)">
+                    <button class="btn btn-primary" onclick="salvarEvolucao()">Adicionar</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="evolChart"></canvas>
+                </div>
+                <div class="item-list" id="evol-list"></div>
+            </div>
+        </div>
+        <div id="tab-declaracao" class="tab-content">
+            <div class="crud-container">
+                <h3>Declaração Psicológica</h3>
+                <textarea id="decl-text" placeholder="Conteúdo da declaração"></textarea>
+                <button class="btn btn-primary" onclick="salvarDeclaracao()">Salvar</button>
+                <div class="item-list" id="decl-list"></div>
+            </div>
+        </div>
+        <div id="tab-atestado" class="tab-content">
+            <div class="crud-container">
+                <h3>Atestado Psicológico</h3>
+                <textarea id="atest-text" placeholder="Conteúdo do atestado"></textarea>
+                <button class="btn btn-primary" onclick="salvarAtestado()">Salvar</button>
+                <div class="item-list" id="atest-list"></div>
+            </div>
+        </div>
+        <div id="tab-relatorio" class="tab-content">
+            <div class="crud-container">
+                <h3>Relatório Psicológico</h3>
+                <textarea id="rel-text" placeholder="Conteúdo do relatório"></textarea>
+                <button class="btn btn-primary" onclick="salvarRelatorio()">Salvar</button>
+                <div class="item-list" id="rel-list"></div>
+            </div>
+        </div>
+        <div id="tab-relmult" class="tab-content">
+            <div class="crud-container">
+                <h3>Relatório Multiprofissional</h3>
+                <textarea id="relmult-text" placeholder="Conteúdo do relatório multiprofissional"></textarea>
+                <button class="btn btn-primary" onclick="salvarRelMult()">Salvar</button>
+                <div class="item-list" id="relmult-list"></div>
+            </div>
+        </div>
+        <div id="tab-laudo" class="tab-content">
+            <div class="crud-container">
+                <h3>Laudo Psicológico</h3>
+                <textarea id="laudo-text" placeholder="Conteúdo do laudo técnico"></textarea>
+                <button class="btn btn-primary" onclick="salvarLaudo()">Salvar</button>
+                <div class="item-list" id="laudo-list"></div>
+            </div>
+        </div>
+        <div id="tab-parecer" class="tab-content">
+            <div class="crud-container">
+                <h3>Parecer Psicológico</h3>
+                <textarea id="parecer-text" placeholder="Conteúdo do parecer profissional"></textarea>
+                <button class="btn btn-primary" onclick="salvarParecer()">Salvar</button>
+                <div class="item-list" id="parecer-list"></div>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 
-  <script>
-    function getPatients() {
-      const data = localStorage.getItem('pacientes');
-      return data ? JSON.parse(data) : [];
-    }
-    function setPatients(patients) {
-      localStorage.setItem('pacientes', JSON.stringify(patients));
-    }
-    function renderTable() {
-      const patients = getPatients();
-      const tbody = document.getElementById('patientsBody');
-      const noMsg = document.getElementById('noPatients');
-      if (patients.length === 0) {
-        tbody.innerHTML = '';
-        noMsg.style.display = 'block';
-        return;
-      }
-      noMsg.style.display = 'none';
-      tbody.innerHTML = patients.map((p, index) => {
-        const respName = p.isMenor ? (p.responsavel?.nome || 'Menor sem responsável') : 'N/A';
-        return `<tr>
-          <td>${p.nome}</td>
-          <td>${p.documento}</td>
-          <td>${p.dataNascimento}</td>
-          <td>${p.telefone}</td>
-          <td>${respName}</td>
-          <td class="actions">
-            <button class="btn btn-secondary btn-sm" onclick="openDrawer(${index})">Visualizar</button>
-            <button class="btn btn-primary btn-sm" onclick="editPatient(${index})">Editar</button>
-            <button class="btn btn-danger btn-sm" onclick="deletePatient(${index})">Excluir</button>
-          </td>
-        </tr>`;
-      }).join('');
-    }
-    function openModal(editIndex = null) {
-      document.getElementById('patientModal').classList.add('active');
-      if (editIndex !== null) {
-        const patients = getPatients();
-        const p = patients[editIndex];
-        document.getElementById('editId').value = editIndex;
-        document.getElementById('modalTitle').textContent = 'Editar Paciente';
-        document.getElementById('nome').value = p.nome;
-        document.getElementById('documento').value = p.documento;
-        document.getElementById('dataNascimento').value = p.dataNascimento;
-        document.getElementById('telefone').value = p.telefone;
-        document.getElementById('isMenor').checked = p.isMenor;
-        if (p.isMenor && p.responsavel) {
-          document.getElementById('respNome').value = p.responsavel.nome;
-          document.getElementById('respDocumento').value = p.responsavel.documento;
-          document.getElementById('respDataNascimento').value = p.responsavel.dataNascimento;
-          document.getElementById('respTelefone').value = p.responsavel.telefone;
-        }
-        toggleResponsavel();
-      } else {
-        document.getElementById('editId').value = '';
-        document.getElementById('modalTitle').textContent = 'Incluir Paciente';
-        document.getElementById('patientForm').reset();
-        document.getElementById('responsavelSection').style.display = 'none';
-        document.getElementById('isMenor').checked = false;
-      }
-      hideAllErrors();
-    }
-    function closeModal() {
-      document.getElementById('patientModal').classList.remove('active');
-    }
-    function toggleResponsavel() {
-      const isMenor = document.getElementById('isMenor').checked;
-      const section = document.getElementById('responsavelSection');
-      section.style.display = isMenor ? 'block' : 'none';
-    }
-    document.getElementById('isMenor').addEventListener('change', toggleResponsavel);
-    function hideAllErrors() {
-      document.querySelectorAll('.error').forEach(el => el.classList.remove('show'));
-    }
-    function showError(id) {
-      document.getElementById(id).classList.add('show');
-    }
-    function validateForm() {
-      let valid = true;
-      hideAllErrors();
-      const nome = document.getElementById('nome').value.trim();
-      const documento = document.getElementById('documento').value.trim();
-      const dataNascimento = document.getElementById('dataNascimento').value;
-      const telefone = document.getElementById('telefone').value.trim();
-      if (!nome) { showError('errorNome'); valid = false; }
-      if (!documento) { showError('errorDocumento'); valid = false; }
-      if (!dataNascimento) { showError('errorDataNascimento'); valid = false; }
-      if (!telefone) { showError('errorTelefone'); valid = false; }
-      const isMenor = document.getElementById('isMenor').checked;
-      if (isMenor) {
-        const respNome = document.getElementById('respNome').value.trim();
-        const respDocumento = document.getElementById('respDocumento').value.trim();
-        const respDataNascimento = document.getElementById('respDataNascimento').value;
-        const respTelefone = document.getElementById('respTelefone').value.trim();
-        if (!respNome) { showError('errorRespNome'); valid = false; }
-        if (!respDocumento) { showError('errorRespDocumento'); valid = false; }
-        if (!respDataNascimento) { showError('errorRespDataNascimento'); valid = false; }
-        if (!respTelefone) { showError('errorRespTelefone'); valid = false; }
-      }
-      return valid;
-    }
-    function savePatient() {
-      if (!validateForm()) return;
-      const patients = getPatients();
-      const editId = document.getElementById('editId').value;
-      const isMenor = document.getElementById('isMenor').checked;
-      const patientData = {
-        nome: document.getElementById('nome').value.trim(),
-        documento: document.getElementById('documento').value.trim(),
-        dataNascimento: document.getElementById('dataNascimento').value,
-        telefone: document.getElementById('telefone').value.trim(),
-        isMenor: isMenor,
-        responsavel: isMenor ? {
-          nome: document.getElementById('respNome').value.trim(),
-          documento: document.getElementById('respDocumento').value.trim(),
-          dataNascimento: document.getElementById('respDataNascimento').value,
-          telefone: document.getElementById('respTelefone').value.trim()
-        } : null
-      };
-      if (editId !== '') {
-        patients[editId] = patientData;
-      } else {
-        patients.push(patientData);
-      }
-      setPatients(patients);
-      renderTable();
-      closeModal();
-    }
-    function editPatient(index) {
-      openModal(index);
-    }
-    function deletePatient(index) {
-      if (!confirm('Tem certeza que deseja excluir este paciente?')) return;
-      const patients = getPatients();
-      patients.splice(index, 1);
-      setPatients(patients);
-      renderTable();
-    }
-    function openDrawer(index) {
-      const patients = getPatients();
-      const p = patients[index];
-      document.getElementById('drawerPatientName').textContent = p.nome;
-      document.getElementById('drawerPatientInfo').innerHTML = `
-        <strong>Nome:</strong> ${p.nome}<br>
-        <strong>Documento:</strong> ${p.documento}<br>
-        <strong>Data de Nascimento:</strong> ${p.dataNascimento}<br>
-        <strong>Telefone:</strong> ${p.telefone}<br>
-        <strong>Menor de Idade:</strong> ${p.isMenor ? 'Sim' : 'Não'}
-      `;
-      if (p.isMenor && p.responsavel) {
-        document.getElementById('drawerResponsavelInfo').innerHTML = `
-          <strong>Nome:</strong> ${p.responsavel.nome}<br>
-          <strong>Documento:</strong> ${p.responsavel.documento}<br>
-          <strong>Data de Nascimento:</strong> ${p.responsavel.dataNascimento}<br>
-          <strong>Telefone:</strong> ${p.responsavel.telefone}
-        `;
-      } else {
-        document.getElementById('drawerResponsavelInfo').textContent = 'N/A';
-      }
-      // Reset tabs to first
-      document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelector('.drawer-tab[data-tab="dados"]').classList.add('active');
-      document.getElementById('tab-dados').classList.add('active');
-      document.getElementById('drawer').classList.add('open');
-      document.getElementById('drawerOverlay').classList.add('active');
+<script>
+    // Dados iniciais
+    let evolChart = null;
+    let editingIndex = -1;
+    let currentTab = 'dados';
+
+    // Abrir/fechar drawer
+    function openDrawer() {
+        document.getElementById('drawer').classList.add('open');
+        carregarDados();
     }
     function closeDrawer() {
-      document.getElementById('drawer').classList.remove('open');
-      document.getElementById('drawerOverlay').classList.remove('active');
+        document.getElementById('drawer').classList.remove('open');
     }
-    // Tab switching in drawer
-    document.querySelectorAll('.drawer-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        const tabId = this.getAttribute('data-tab');
-        document.getElementById('tab-' + tabId).classList.add('active');
-      });
+
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const tabId = this.getAttribute('data-tab');
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            currentTab = tabId.replace('tab-', '');
+            carregarDados();
+        });
     });
-    // Initial render
-    renderTable();
-  </script>
+
+    // Funções genéricas CRUD
+    function getStorageKey() { return 'pacientes_' + currentTab; }
+    function getData() { return JSON.parse(localStorage.getItem(getStorageKey()) || '[]'); }
+    function saveData(data) { localStorage.setItem(getStorageKey(), JSON.stringify(data)); }
+
+    function renderList(items, renderFn) {
+        const listId = currentTab + '-list';
+        const container = document.getElementById(listId);
+        if (!container) return;
+        container.innerHTML = items.map((item, index) => renderFn(item, index)).join('');
+    }
+
+    // Tab Dados
+    function salvarDados() {
+        const nome = document.getElementById('dados-nome').value.trim();
+        const documento = document.getElementById('dados-documento').value.trim();
+        const dataNasc = document.getElementById('dados-dataNasc').value;
+        const telefone = document.getElementById('dados-telefone').value.trim();
+        const responsavel = document.getElementById('dados-responsavel').value.trim();
+        if (!nome) { alert('Nome obrigatório'); return; }
+        let dados = getData();
+        if (editingIndex >= 0) {
+            dados[editingIndex] = { nome, documento, dataNasc, telefone, responsavel };
+            editingIndex = -1;
+        } else {
+            dados.push({ nome, documento, dataNasc, telefone, responsavel });
+        }
+        saveData(dados);
+        limparCamposDados();
+        renderDados();
+    }
+
+    function renderDados() {
+        const items = getData();
+        renderList(items, (item, idx) => `
+            <div class="item-card">
+                <div>
+                    <strong>${item.nome}</strong><br>
+                    ${item.documento} | ${item.dataNasc} | ${item.telefone} ${item.responsavel ? '| Resp: '+item.responsavel : ''}
+                </div>
+                <div class="item-actions">
+                    <button class="btn btn-edit" onclick="editarDados(${idx})">Editar</button>
+                    <button class="btn btn-danger" onclick="excluirDados(${idx})">Excluir</button>
+                </div>
+            </div>
+        `);
+    }
+
+    function editarDados(idx) {
+        const items = getData();
+        const item = items[idx];
+        document.getElementById('dados-nome').value = item.nome;
+        document.getElementById('dados-documento').value = item.documento;
+        document.getElementById('dados-dataNasc').value = item.dataNasc;
+        document.getElementById('dados-telefone').value = item.telefone;
+        document.getElementById('dados-responsavel').value = item.responsavel || '';
+        editingIndex = idx;
+    }
+
+    function excluirDados(idx) {
+        if (!confirm('Excluir este paciente?')) return;
+        let items = getData();
+        items.splice(idx, 1);
+        saveData(items);
+        renderDados();
+    }
+
+    function limparCamposDados() {
+        document.getElementById('dados-nome').value = '';
+        document.getElementById('dados-documento').value = '';
+        document.getElementById('dados-dataNasc').value = '';
+        document.getElementById('dados-telefone').value = '';
+        document.getElementById('dados-responsavel').value = '';
+        editingIndex = -1;
+    }
+
+    // Tab Prontuários (timeline)
+    function salvarProntuario() {
+        const text = document.getElementById('pront-text').value.trim();
+        if (!text) { alert('Digite uma anotação'); return; }
+        let items = getData();
+        const data = new Date().toLocaleString();
+        if (editingIndex >= 0) {
+            items[editingIndex].text = text;
+            items[editingIndex].data = data;
+            editingIndex = -1;
+        } else {
+            items.push({ text, data });
+        }
+        saveData(items);
+        document.getElementById('pront-text').value = '';
+        renderProntuarios();
+    }
+
+    function renderProntuarios() {
+        const items = getData();
+        renderList(items, (item, idx) => `
+            <div class="item-card">
+                <div>
+                    <small>${item.data}</small><br>
+                    ${item.text}
+                </div>
+                <div class="item-actions">
+                    <button class="btn btn-edit" onclick="editarProntuario(${idx})">Editar</button>
+                    <button class="btn btn-danger" onclick="excluirProntuario(${idx})">Excluir</button>
+                </div>
+            </div>
+        `);
+    }
+
+    function editarProntuario(idx) {
+        const items = getData();
+        document.getElementById('pront-text').value = items[idx].text;
+        editingIndex = idx;
+    }
+
+    function excluirProntuario(idx) {
+        if (!confirm('Excluir esta anotação?')) return;
+        let items = getData();
+        items.splice(idx, 1);
+        saveData(items);
+        renderProntuarios();
+    }
+
+    // Tab Evolução (com gráfico)
+    function salvarEvolucao() {
+        const data = document.getElementById('evol-data').value;
+        const valor = parseInt(document.getElementById('evol-valor').value);
+        if (!data || isNaN(valor) || valor < 0 || valor > 100) { alert('Preencha data e valor entre 0 e 100'); return; }
+        let items = getData();
+        if (editingIndex >= 0) {
+            items[editingIndex] = { data, valor };
+            editingIndex = -1;
+        } else {
+            items.push({ data, valor });
+        }
+        saveData(items);
+        document.getElementById('evol-data').value = '';
+        document.getElementById('evol-valor').value = '';
+        renderEvolucao();
+        updateEvolChart();
+    }
+
+    function renderEvolucao() {
+        const items = getData();
+        renderList(items, (item, idx) => `
+            <div class="item-card">
+                <div>
+                    <strong>${item.data}</strong> - ${item.valor}%
+                </div>
+                <div class="item-actions">
+                    <button class="btn btn-edit" onclick="editarEvolucao(${idx})">Editar</button>
+                    <button class="btn btn-danger" onclick="excluirEvolucao(${idx})">Excluir</button>
+                </div>
+            </div>
+        `);
+    }
+
+    function editarEvolucao(idx) {
+        const items = getData();
+        document.getElementById('evol-data').value = items[idx].data;
+        document.getElementById('evol-valor').value = items[idx].valor;
+        editingIndex = idx;
+    }
+
+    function excluirEvolucao(idx) {
+        if (!confirm('Excluir este registro?')) return;
+        let items = getData();
+        items.splice(idx, 1);
+        saveData(items);
+        renderEvolucao();
+        updateEvolChart();
+    }
+
+    function updateEvolChart() {
+        const items = getData();
+        const labels = items.map(i => i.data);
+        const data = items.map(i => i.valor);
+        const colors = data.map(v => v >= 50 ? '#008080' : '#FF6B35'); // Teal for progress, Orange for regress
+        if (evolChart) evolChart.destroy();
+        const ctx = document.getElementById('evolChart').getContext('2d');
+        evolChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Evolução',
+                    data: data,
+                    borderColor: '#008080',
+                    backgroundColor: 'rgba(0,128,128,0.1)',
+                    pointBackgroundColor: colors,
+                    pointBorderColor: colors,
+                    fill: false,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: { min: 0, max: 100 }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // Funções genéricas para as abas 4 a 9 (mesmo comportamento)
+    function salvarDeclaracao() { salvarTexto('decl-text', 'decl-list'); }
+    function salvarAtestado() { salvarTexto('atest-text', 'atest-list'); }
+    function salvarRelatorio() { salvarTexto('rel-text', 'rel-list'); }
+    function salvarRelMult() { salvarTexto('relmult-text', 'relmult-list'); }
+    function salvarLaudo() { salvarTexto('laudo-text', 'laudo-list'); }
+    function salvarParecer() { salvarTexto('parecer-text', 'parecer-list'); }
+
+    function salvarTexto(inputId, listId) {
+        const text = document.getElementById(inputId).value.trim();
+        if (!text) { alert('Preencha o texto'); return; }
+        let items = getData();
+        const data = new Date().toLocaleString();
+        if (editingIndex >= 0) {
+            items[editingIndex] = { text, data };
+            editingIndex = -1;
+        } else {
+            items.push({ text, data });
+        }
+        saveData(items);
+        document.getElementById(inputId).value = '';
+        renderTexto(listId);
+    }
+
+    function renderTexto(listId) {
+        const items = getData();
+        const container = document.getElementById(listId);
+        if (!container) return;
+        container.innerHTML = items.map((item, idx) => `
+            <div class="item-card">
+                <div>
+                    <small>${item.data}</small><br>
+                    ${item.text}
+                </div>
+                <div class="item-actions">
+                    <button class="btn btn-edit" onclick="editarTexto(${idx}, '${listId.replace('-list', '-text')}')">Editar</button>
+                    <button class="btn btn-danger" onclick="excluirTexto(${idx}, '${listId}')">Excluir</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function editarTexto(idx, inputId) {
+        const items = getData();
+        document.getElementById(inputId).value = items[idx].text;
+        editingIndex = idx;
+    }
+
+    function excluirTexto(idx, listId) {
+        if (!confirm('Excluir este registro?')) return;
+        let items = getData();
+        items.splice(idx, 1);
+        saveData(items);
+        renderTexto(listId);
+    }
+
+    // Carregar dados ao abrir drawer
+    function carregarDados() {
+        const tab = currentTab;
+        switch(tab) {
+            case 'dados': renderDados(); break;
+            case 'prontuarios': renderProntuarios(); break;
+            case 'evolucao': renderEvolucao(); updateEvolChart(); break;
+            case 'declaracao': renderTexto('decl-list'); break;
+            case 'atestado': renderTexto('atest-list'); break;
+            case 'relatorio': renderTexto('rel-list'); break;
+            case 'relmult': renderTexto('relmult-list'); break;
+            case 'laudo': renderTexto('laudo-list'); break;
+            case 'parecer': renderTexto('parecer-list'); break;
+        }
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Carrega dados iniciais
+    });
+</script>
 </body>
 </html>
