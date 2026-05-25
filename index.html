@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ativamente - Plataforma</title>
+<!-- Firebase SDKs (necessários para funcionamento) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body { background: #f5f5f5; display: flex; min-height: 100vh; }
+.sidebar { width: 250px; background: #2a6e4b; color: white; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+.logo { text-align: center; }
+.logo img { max-width: 100%; height: auto; }
+.menu { list-style: none; }
+.menu li { padding: 10px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
+.menu li:hover, .menu li.active { background: rgba(255,255,255,0.2); }
+.main { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+header h1 { color: #2a6e4b; }
+.user-info { display: flex; align-items: center; gap: 10px; }
+.section { display: none; }
+.section.active { display: block; }
+.card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.card h3 { color: #2a6e4b; margin-bottom: 10px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { background: #2a6e4b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+.btn:hover { opacity: 0.9; }
+input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+th { background: #2a6e4b; color: white; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+.modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 500px; }
+.modal-content h2 { margin-bottom: 10px; }
+.status-green { color: green; }
+.status-yellow { color: orange; }
+.status-red { color: red; }
+@media (max-width: 768px) {
+.sidebar { width: 60px; padding: 10px; }
+.sidebar .menu li span { display: none; }
+.logo img { width: 40px; }
+.header h1 { font-size: 1.2em; }
+}
+</style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+<div class="logo">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Logo Ativamente">
+</div>
+<ul class="menu" id="menu">
+<li class="active" onclick="showSection('dashboard')"><span>📊 Dashboard</span></li>
+<li onclick="showSection('patients')"><span>👥 Pacientes</span></li>
+<li onclick="showSection('agenda')"><span>📅 Agenda</span></li>
+<li onclick="showSection('prontuarios')"><span>📋 Prontuários</span></li>
+<li onclick="showSection('settings')"><span>⚙️ Configurações</span></li>
+</ul>
+</div>
+<!-- Main Content -->
+<div class="main">
+<header>
+<h1 id="pageTitle">Dashboard</h1>
+<div class="user-info">
+<span id="userEmail"></span>
+<button class="btn" onclick="logout()">Sair</button>
+</div>
+</header>
+<!-- Login screen (shown when not authenticated) -->
+<div id="loginScreen" style="display: none; max-width: 400px; margin: auto;">
+<div class="card">
+<h2>Login</h2>
+<form id="loginForm">
+<input type="email" id="loginEmail" placeholder="Email" required>
+<input type="password" id="loginPassword" placeholder="Senha" required>
+<button type="submit" class="btn" style="width:100%">Entrar</button>
+<p style="margin-top:10px;text-align:center;">Não tem conta? <a href="#" onclick="toggleAuthMode()">Registre-se</a></p>
+</form>
+</div>
+</div>
+<!-- Register screen -->
+<div id="registerScreen" style="display: none; max-width: 400px; margin: auto;">
+<div class="card">
+<h2>Registro</h2>
+<form id="registerForm">
+<input type="text" id="regName" placeholder="Nome" required>
+<input type="email" id="regEmail" placeholder="Email" required>
+<input type="password" id="regPassword" placeholder="Senha" required>
+<button type="submit" class="btn" style="width:100%">Registrar</button>
+<p style="margin-top:10px;text-align:center;">Já tem conta? <a href="#" onclick="toggleAuthMode()">Faça login</a></p>
+</form>
+</div>
+</div>
+<!-- Dashboard Section -->
+<div id="section-dashboard" class="section active">
+<div class="row">
+<div class="card" style="flex:1">
+<h3>Próximas Sessões</h3>
+<p id="proximasSessoes">Carregando...</p>
+</div>
+<div class="card" style="flex:1">
+<h3>Total Pacientes</h3>
+<p id="totalPacientes">0</p>
+</div>
+<div class="card" style="flex:1">
+<h3>Faturamento Mensal</h3>
+<p id="faturamento">R$ 0,00</p>
+</div>
+</div>
+</div>
+<!-- Patients Section -->
+<div id="section-patients" class="section">
+<div class="card">
+<h3>Pacientes</h3>
+<button class="btn" onclick="openModal('patientModal')">+ Novo Paciente</button>
+<table id="patientsTable">
+<thead><tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Ações</th></tr></thead>
+<tbody id="patientsBody"></tbody>
+</table>
+</div>
+</div>
+<!-- Agenda Section -->
+<div id="section-agenda" class="section">
+<div class="card">
+<h3>Agenda</h3>
+<button class="btn" onclick="openModal('appointmentModal')">+ Nova Sessão</button>
+<table id="appointmentsTable">
+<thead><tr><th>Paciente</th><th>Data</th><th>Horário</th><th>Status</th><th>Ações</th></tr></thead>
+<tbody id="appointmentsBody"></tbody>
+</table>
+</div>
+</div>
+<!-- Prontuários Section -->
+<div id="section-prontuarios" class="section">
+<div class="card">
+<h3>Prontuários</h3>
+<div id="prontuarioTemplate" style="position:relative; background: white; padding: 20px; border: 1px solid #ccc; min-height: 500px;">
+<img src="data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Papel Timbrado" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0.1; object-fit: cover;">
+<div style="position:relative; z-index:1;">
+<h4>Prontuário do Paciente</h4>
+<textarea style="width:100%; height:400px;" placeholder="Escreva o prontuário aqui..."></textarea>
+</div>
+</div>
+</div>
+</div>
+<!-- Settings Section -->
+<div id="section-settings" class="section">
+<div class="card">
+<h3>Configurações</h3>
+<p>Personalize sua plataforma em breve.</p>
+</div>
+</div>
+</div>
+<!-- Modals -->
+<div id="patientModal" class="modal">
+<div class="modal-content">
+<h2 id="patientModalTitle">Novo Paciente</h2>
+<form id="patientForm">
+<input type="hidden" id="patientId">
+<input type="text" id="patientName" placeholder="Nome" required>
+<input type="tel" id="patientPhone" placeholder="Telefone">
+<select id="patientStatus">
+<option value="Ativo">Ativo</option>
+<option value="Inativo">Inativo</option>
+<option value="Pendente">Pendente</option>
+</select>
+<button type="submit" class="btn">Salvar</button>
+<button type="button" class="btn" style="background:gray" onclick="closeModal('patientModal')">Cancelar</button>
+</form>
+</div>
+</div>
+<div id="appointmentModal" class="modal">
+<div class="modal-content">
+<h2 id="appointmentModalTitle">Nova Sessão</h2>
+<form id="appointmentForm">
+<input type="hidden" id="appointmentId">
+<select id="appointmentPatient" required><option value="">Selecione o paciente</option></select>
+<input type="date" id="appointmentDate" required>
+<input type="time" id="appointmentTime" required>
+<select id="appointmentStatus">
+<option value="Confirmada">Confirmada</option>
+<option value="Pendente">Pendente</option>
+<option value="Cancelada">Cancelada</option>
+</select>
+<button type="submit" class="btn">Salvar</button>
+<button type="button" class="btn" style="background:gray" onclick="closeModal('appointmentModal')">Cancelar</button>
+</form>
+</div>
+</div>
+<script>
+// Config Firebase
+firebase.initializeApp({
+apiKey: "AIzaSyDK5qXLqNcM6DKvB6ES_sDNtGAqmV25Iio",
+authDomain: "espaco-ativamente-psi.firebaseapp.com",
+projectId: "espaco-ativamente-psi",
+storageBucket: "espaco-ativamente-psi.firebasestorage.app",
+messagingSenderId: "922679253668",
+appId: "1:922679253668:web:fd2ac83d559c9af49f2431"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = null;
+
+// UI elements
+const loginScreen = document.getElementById('loginScreen');
+const registerScreen = document.getElementById('registerScreen');
+const userEmailSpan = document.getElementById('userEmail');
+const sections = document.querySelectorAll('.section');
+const sidebar = document.getElementById('sidebar');
+
+// Auth state
+firebase.auth().onAuthStateChanged(user => {
+if (user) {
+currentUser = user;
+userEmailSpan.textContent = user.email;
+loginScreen.style.display = 'none';
+registerScreen.style.display = 'none';
+sidebar.style.display = 'flex';
+document.querySelector('.main').style.display = 'flex';
+loadDashboard();
+loadPatients();
+loadAppointments();
+loadPatientSelect();
+} else {
+currentUser = null;
+loginScreen.style.display = 'block';
+registerScreen.style.display = 'none';
+sidebar.style.display = 'none';
+document.querySelector('.main').style.display = 'none';
+document.getElementById('loginScreen').style.display = 'block';
+}
+});
+
+// Toggle between login and register
+function toggleAuthMode() {
+loginScreen.style.display = loginScreen.style.display === 'none' ? 'block' : 'none';
+registerScreen.style.display = registerScreen.style.display === 'none' ? 'block' : 'none';
+}
+
+// Login
+ document.getElementById('loginForm').addEventListener('submit', async (e) => {
+e.preventDefault();
+const email = document.getElementById('loginEmail').value;
+const password = document.getElementById('loginPassword').value;
+try {
+await auth.signInWithEmailAndPassword(email, password);
+} catch (error) {
+alert(error.message);
+}
+});
+
+// Register
+ document.getElementById('registerForm').addEventListener('submit', async (e) => {
+e.preventDefault();
+const name = document.getElementById('regName').value;
+const email = document.getElementById('regEmail').value;
+const password = document.getElementById('regPassword').value;
+try {
+await auth.createUserWithEmailAndPassword(email, password);
+await db.collection('users').doc(auth.currentUser.uid).set({ name, email });
+} catch (error) {
+alert(error.message);
+}
+});
+
+// Logout
+function logout() {
+auth.signOut();
+}
+
+// Show section
+function showSection(sectionId) {
+sections.forEach(s => s.classList.remove('active'));
+document.getElementById('section-' + sectionId).classList.add('active');
+document.getElementById('pageTitle').textContent = 
+document.querySelector(`#menu li[onclick*="${sectionId}"] span`).textContent;
+document.querySelectorAll('#menu li').forEach(li => li.classList.remove('active'));
+document.querySelector(`#menu li[onclick*="${sectionId}"]`).classList.add('active');
+if (sectionId === 'dashboard') loadDashboard();
+if (sectionId === 'patients') loadPatients();
+if (sectionId === 'agenda') loadAppointments();
+if (sectionId === 'prontuarios') loadPatientSelect();
+}
+
+// Dashboard data
+async function loadDashboard() {
+document.getElementById('proximasSessoes').textContent = 'Carregando...';
+document.getElementById('totalPacientes').textContent = '...';
+document.getElementById('faturamento').textContent = '...';
+try {
+const user = auth.currentUser;
+if (!user) return;
+const patientsSnap = await db.collection('patients').where('userId', '==', user.uid).get();
+document.getElementById('totalPacientes').textContent = patientsSnap.size;
+const appointmentsSnap = await db.collection('appointments').where('userId', '==', user.uid).where('date', '>=', new Date().toISOString().split('T')[0]).get();
+const count = appointmentsSnap.size;
+document.getElementById('proximasSessoes').textContent = count > 0 ? count + ' sessões' : 'Nenhuma';
+// Faturamento: contar sessões concluídas no mês
+const now = new Date();
+const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+const monthEnd = new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().split('T')[0];
+const monthAppointments = await db.collection('appointments').where('userId', '==', user.uid).where('date', '>=', monthStart).where('date', '<=', monthEnd).get();
+// Assuming each session costs R$ 100, adjust as needed
+const faturamento = monthAppointments.size * 100;
+document.getElementById('faturamento').textContent = 'R$ ' + faturamento.toFixed(2);
+} catch (e) {
+console.error(e);
+}
+}
+
+// Patients CRUD
+async function loadPatients() {
+const tbody = document.getElementById('patientsBody');
+tbody.innerHTML = '';
+try {
+const user = auth.currentUser;
+if (!user) return;
+const snap = await db.collection('patients').where('userId', '==', user.uid).get();
+snap.forEach(doc => {
+const data = doc.data();
+const tr = document.createElement('tr');
+tr.innerHTML = `
+<td>${data.name}</td>
+<td>${data.phone || '-'}</td>
+<td class="status-${data.status === 'Ativo' ? 'green' : data.status === 'Inativo' ? 'red' : 'yellow'}">${data.status}</td>
+<td>
+<button onclick="editPatient('${doc.id}')">✏️</button>
+<button onclick="deletePatient('${doc.id}')">🗑️</button>
+</td>
+`;
+tbody.appendChild(tr);
+});
+} catch (e) {
+console.error(e);
+}
+}
+
+function openModal(id) {
+document.getElementById(id).style.display = 'flex';
+}
+function closeModal(id) {
+document.getElementById(id).style.display = 'none';
+}
+
+// Patient form submit
+document.getElementById('patientForm').addEventListener('submit', async (e) => {
+e.preventDefault();
+const id = document.getElementById('patientId').value;
+const name = document.getElementById('patientName').value;
+const phone = document.getElementById('patientPhone').value;
+const status = document.getElementById('patientStatus').value;
+const user = auth.currentUser;
+if (!user) return;
+try {
+if (id) {
+await db.collection('patients').doc(id).update({ name, phone, status });
+} else {
+await db.collection('patients').add({ name, phone, status, userId: user.uid });
+}
+closeModal('patientModal');
+document.getElementById('patientForm').reset();
+document.getElementById('patientId').value = '';
+loadPatients();
+loadDashboard();
+loadPatientSelect();
+} catch (e) {
+alert(e.message);
+}
+});
+
+async function editPatient(id) {
+const doc = await db.collection('patients').doc(id).get();
+const data = doc.data();
+document.getElementById('patientId').value = id;
+document.getElementById('patientName').value = data.name;
+document.getElementById('patientPhone').value = data.phone || '';
+document.getElementById('patientStatus').value = data.status;
+document.getElementById('patientModalTitle').textContent = 'Editar Paciente';
+openModal('patientModal');
+}
+
+async function deletePatient(id) {
+if (confirm('Tem certeza?')) {
+await db.collection('patients').doc(id).delete();
+loadPatients();
+loadDashboard();
+loadPatientSelect();
+}
+}
+
+// Load patient select for appointments
+async function loadPatientSelect() {
+const select = document.getElementById('appointmentPatient');
+select.innerHTML = '<option value="">Selecione o paciente</option>';
+try {
+const user = auth.currentUser;
+if (!user) return;
+const snap = await db.collection('patients').where('userId', '==', user.uid).get();
+snap.forEach(doc => {
+const opt = document.createElement('option');
+opt.value = doc.id;
+opt.textContent = doc.data().name;
+select.appendChild(opt);
+});
+} catch (e) {
+console.error(e);
+}
+}
+
+// Appointments CRUD
+async function loadAppointments() {
+const tbody = document.getElementById('appointmentsBody');
+tbody.innerHTML = '';
+try {
+const user = auth.currentUser;
+if (!user) return;
+const snap = await db.collection('appointments').where('userId', '==', user.uid).orderBy('date').get();
+snap.forEach(doc => {
+const data = doc.data();
+// get patient name
+let patientName = 'Desconhecido';
+db.collection('patients').doc(data.patientId).get().then(p => {
+if (p.exists) patientName = p.data().name;
+}).catch(() => {});
+const tr = document.createElement('tr');
+tr.innerHTML = `
+<td>${patientName}</td>
+<td>${data.date}</td>
+<td>${data.time}</td>
+<td class="status-${data.status === 'Confirmada' ? 'green' : data.status === 'Cancelada' ? 'red' : 'yellow'}">${data.status}</td>
+<td>
+<button onclick="editAppointment('${doc.id}')">✏️</button>
+<button onclick="deleteAppointment('${doc.id}')">🗑️</button>
+</td>
+`;
+tbody.appendChild(tr);
+});
+} catch (e) {
+console.error(e);
+}
+}
+
+// Appointment form submit
+document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
+e.preventDefault();
+const id = document.getElementById('appointmentId').value;
+const patientId = document.getElementById('appointmentPatient').value;
+const date = document.getElementById('appointmentDate').value;
+const time = document.getElementById('appointmentTime').value;
+const status = document.getElementById('appointmentStatus').value;
+const user = auth.currentUser;
+if (!user) return;
+try {
+if (id) {
+await db.collection('appointments').doc(id).update({ patientId, date, time, status });
+} else {
+await db.collection('appointments').add({ patientId, date, time, status, userId: user.uid });
+}
+closeModal('appointmentModal');
+document.getElementById('appointmentForm').reset();
+document.getElementById('appointmentId').value = '';
+loadAppointments();
+loadDashboard();
+} catch (e) {
+alert(e.message);
+}
+});
+
+async function editAppointment(id) {
+const doc = await db.collection('appointments').doc(id).get();
+const data = doc.data();
+document.getElementById('appointmentId').value = id;
+document.getElementById('appointmentPatient').value = data.patientId;
+document.getElementById('appointmentDate').value = data.date;
+document.getElementById('appointmentTime').value = data.time;
+document.getElementById('appointmentStatus').value = data.status;
+document.getElementById('appointmentModalTitle').textContent = 'Editar Sessão';
+openModal('appointmentModal');
+}
+
+async function deleteAppointment(id) {
+if (confirm('Tem certeza?')) {
+await db.collection('appointments').doc(id).delete();
+loadAppointments();
+loadDashboard();
+}
+}
+
+// Close modal on outside click
+window.onclick = function(event) {
+if (event.target.classList.contains('modal')) {
+event.target.style.display = 'none';
+}
+}
+</script>
+</body>
+</html>
