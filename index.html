@@ -1,1252 +1,433 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ativamente+ Clinic - Módulo 1</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%80%3C/text%3E%3C/svg%3E">
-    <style>
-        /* Reset e estilos globais */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        :root {
-            --navy: #00204A;
-            --orange: #FF6B35;
-            --teal: #008080;
-            --light-bg: #f4f7fb;
-            --white: #ffffff;
-            --shadow: 0 2px 10px rgba(0,0,0,0.1);
-            --radius: 8px;
-            --transition: 0.3s ease;
-        }
-
-        body {
-            background: var(--light-bg);
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background: var(--navy);
-            color: var(--white);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 100;
-        }
-
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .sidebar-logo svg {
-            width: 50px;
-            height: 50px;
-        }
-
-        .sidebar-logo span {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, var(--orange), var(--teal));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .sidebar nav a {
-            display: block;
-            padding: 12px 15px;
-            color: var(--white);
-            text-decoration: none;
-            border-radius: var(--radius);
-            transition: var(--transition);
-            margin-bottom: 5px;
-        }
-
-        .sidebar nav a:hover,
-        .sidebar nav a.active {
-            background: rgba(255,255,255,0.1);
-            transform: translateX(5px);
-        }
-
-        /* Main content */
-        .main-content {
-            margin-left: 250px;
-            flex: 1;
-            padding: 30px;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background: var(--white);
-            padding: 15px 30px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header-logo svg {
-            width: 40px;
-            height: 40px;
-        }
-
-        .header-logo h1 {
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, var(--orange), var(--teal));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-user {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .header-user button {
-            padding: 8px 16px;
-            background: var(--orange);
-            color: var(--white);
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .header-user button:hover {
-            background: #e55a2b;
-        }
-
-        /* Login overlay */
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .login-box {
-            background: var(--white);
-            padding: 40px;
-            border-radius: var(--radius);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            width: 350px;
-        }
-
-        .login-box h2 {
-            margin-bottom: 20px;
-            text-align: center;
-            color: var(--navy);
-        }
-
-        .login-box input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: var(--radius);
-        }
-
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            background: var(--teal);
-            color: var(--white);
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .login-box button:hover {
-            background: #006666;
-        }
-
-        /* Cards / Sections */
-        .section {
-            background: var(--white);
-            padding: 25px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-
-        .section h2 {
-            color: var(--navy);
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--orange);
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: var(--radius);
-            font-size: 1rem;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .btn-primary {
-            background: var(--teal);
-            color: var(--white);
-        }
-
-        .btn-primary:hover {
-            background: #006666;
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-            color: var(--white);
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-
-        .btn-warning {
-            background: var(--orange);
-            color: var(--white);
-        }
-
-        .btn-warning:hover {
-            background: #e55a2b;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        th {
-            background: var(--navy);
-            color: var(--white);
-        }
-
-        tr:hover {
-            background: #f1f1f1;
-        }
-
-        /* Modal/Drawer */
-        .drawer-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: flex-end;
-            z-index: 999;
-        }
-
-        .drawer {
-            width: 600px;
-            max-width: 90%;
-            background: var(--white);
-            height: 100%;
-            overflow-y: auto;
-            padding: 30px;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-        }
-
-        .drawer h2 {
-            color: var(--navy);
-            margin-bottom: 20px;
-        }
-
-        .tab-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .tab {
-            padding: 8px 16px;
-            cursor: pointer;
-            border-radius: var(--radius) var(--radius) 0 0;
-            transition: var(--transition);
-            background: #eee;
-        }
-
-        .tab.active {
-            background: var(--teal);
-            color: var(--white);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Responsável fields */
-        .responsavel-fields {
-            display: none;
-            margin-top: 10px;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: var(--radius);
-            border-left: 4px solid var(--orange);
-        }
-
-        .responsavel-fields.show {
-            display: block;
-        }
-
-        /* Análise IA */
-        .analise-card {
-            background: #f0f8ff;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: var(--radius);
-            border-left: 4px solid var(--teal);
-        }
-
-        .analise-card h4 {
-            color: var(--navy);
-            margin-bottom: 8px;
-        }
-
-        /* Calendário simples */
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin-top: 15px;
-        }
-
-        .calendar-day {
-            padding: 10px;
-            background: #f9f9f9;
-            text-align: center;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .calendar-day:hover {
-            background: var(--orange);
-            color: var(--white);
-        }
-
-        .calendar-day.has-appointment {
-            background: var(--teal);
-            color: var(--white);
-        }
-
-        /* Gráfico financeiro simples */
-        .chart-container {
-            display: flex;
-            align-items: flex-end;
-            gap: 10px;
-            height: 150px;
-            margin-top: 15px;
-        }
-
-        .chart-bar {
-            flex: 1;
-            background: var(--teal);
-            border-radius: var(--radius) var(--radius) 0 0;
-            min-width: 30px;
-            transition: var(--transition);
-        }
-
-        .chart-label {
-            text-align: center;
-            font-size: 0.8rem;
-            margin-top: 5px;
-        }
-
-        /* Responsivo */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
-            }
-            .main-content {
-                margin-left: 200px;
-                padding: 20px;
-            }
-            .drawer {
-                width: 100%;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ativamente+ Clinic</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body { background: #f4f6f9; }
+.login-container {
+  display: flex; justify-content: center; align-items: center; height: 100vh;
+  background: linear-gradient(135deg, #00204A 0%, #008080 100%);
+}
+.login-card {
+  background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  width: 360px; text-align: center;
+}
+.login-card h1 { color: #00204A; margin-bottom: 8px; }
+.login-card .subtitle { color: #666; margin-bottom: 24px; }
+.login-card select, .login-card input {
+  width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;
+}
+.login-card button {
+  width: 100%; padding: 14px; background: #FF6B35; color: #fff; border: none; border-radius: 8px;
+  font-size: 18px; cursor: pointer; margin-top: 16px; transition: 0.3s;
+}
+.login-card button:hover { background: #e55a2b; }
+.error-msg { color: red; margin-top: 8px; }
+.app { display: none; }
+.sidebar {
+  position: fixed; left: 0; top: 0; width: 250px; height: 100%; background: #00204A;
+  color: #fff; padding: 20px; overflow-y: auto; transition: 0.3s;
+}
+.sidebar .logo { font-size: 24px; font-weight: bold; margin-bottom: 30px; color: #FF6B35; }
+.sidebar .logo span { color: #fff; }
+.sidebar .user-info { margin-bottom: 20px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; }
+.sidebar .user-info p { margin: 4px 0; }
+.sidebar button.logout { width: 100%; padding: 10px; background: #FF6B35; border: none; border-radius: 8px; color: #fff; cursor: pointer; font-size: 16px; }
+.sidebar .nav-item { padding: 12px; margin: 4px 0; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+.sidebar .nav-item:hover { background: rgba(255,255,255,0.2); }
+.sidebar .nav-item.active { background: #FF6B35; }
+.main-content { margin-left: 250px; padding: 20px; }
+.header {
+  background: #fff; padding: 16px 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+}
+.header h2 { color: #00204A; }
+.cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;
+}
+.card {
+  background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;
+}
+.card h3 { color: #666; font-size: 14px; margin-bottom: 8px; }
+.card .value { font-size: 28px; font-weight: bold; color: #00204A; }
+.card .value.positive { color: #008080; }
+.card .value.negative { color: #FF6B35; }
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab { padding: 10px 20px; background: #e0e4ea; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+.tab:hover { background: #c8cdd6; }
+.tab.active { background: #00204A; color: #fff; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; margin-bottom: 4px; color: #333; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px;
+}
+.btn { padding: 10px 20px; background: #FF6B35; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.btn:hover { background: #e55a2b; }
+.btn-teal { background: #008080; }
+.btn-teal:hover { background: #006666; }
+.list-item { background: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.financial-chart { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+canvas { max-width: 100%; max-height: 300px; }
+@media (max-width: 768px) {
+  .sidebar { width: 100%; height: auto; position: relative; padding: 10px; }
+  .main-content { margin-left: 0; }
+}
+</style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-logo">
-            <svg viewBox="0 0 100 100">
-                <defs>
-                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#FF6B35"/>
-                        <stop offset="100%" stop-color="#008080"/>
-                    </linearGradient>
-                </defs>
-                <circle cx="50" cy="50" r="45" fill="#00204A"/>
-                <text x="50" y="55" font-size="40" font-weight="bold" fill="url(#logoGradient)" text-anchor="middle" dy=".1em">A+</text>
-            </svg>
-            <span>Ativamente+</span>
-        </div>
-        <nav>
-            <a href="#" class="active" data-section="dashboard">Dashboard</a>
-            <a href="#" data-section="profissionais">Profissionais</a>
-            <a href="#" data-section="pacientes">Pacientes</a>
-            <a href="#" data-section="agenda">Agenda</a>
-            <a href="#" data-section="financeiro">Financeiro</a>
-        </nav>
-    </aside>
+<div class="login-container" id="loginScreen">
+  <div class="login-card">
+    <h1>Ativamente+ Clinic</h1>
+    <p class="subtitle">Acesso Restrito</p>
+    <select id="userSelect">
+      <option value="admin">Admin</option>
+      <option value="psicologo">Psicólogo</option>
+      <option value="fisioterapeuta">Fisioterapeuta</option>
+      <option value="secretaria">Secretaria</option>
+    </select>
+    <input type="password" id="passwordInput" placeholder="Senha" />
+    <button onclick="login()">Entrar</button>
+    <p class="error-msg" id="loginError"></p>
+  </div>
+</div>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-logo">
-                <svg viewBox="0 0 100 100" width="40" height="40">
-                    <use href="#logoGradient"/>
-                    <circle cx="50" cy="50" r="45" fill="#00204A"/>
-                    <text x="50" y="55" font-size="40" font-weight="bold" fill="url(#logoGradient)" text-anchor="middle" dy=".1em">A+</text>
-                </svg>
-                <h1>Ativamente+ Clinic</h1>
-            </div>
-            <div class="header-user">
-                <span id="userDisplay">Usuário</span>
-                <button onclick="logout()">Sair</button>
-            </div>
-        </header>
+<div class="app" id="app">
+  <div class="sidebar" id="sidebar">
+    <div class="logo">A+ <span>Ativamente+</span></div>
+    <div class="user-info" id="userInfo"></div>
+    <div class="nav-item active" onclick="showSection('dashboard')">Dashboard Financeiro</div>
+    <div class="nav-item" onclick="showSection('pacientes')">Pacientes</div>
+    <div id="extraNav"></div>
+    <button class="logout" onclick="logout()">Sair</button>
+  </div>
+  <div class="main-content">
+    <div class="header"><h2 id="sectionTitle">Dashboard Financeiro</h2></div>
+    <div id="contentArea"></div>
+  </div>
+</div>
 
-        <!-- Dashboard Section -->
-        <section id="dashboard" class="section">
-            <h2>Dashboard</h2>
-            <p>Bem-vindo ao sistema Ativamente+ Clinic. Selecione uma opção no menu ao lado.</p>
-        </section>
+<script>
+// Mock data
+const users = {
+  admin: { password: '1234', role: 'admin', name: 'Admin' },
+  psicologo: { password: '1234', role: 'psicologo', name: 'Dr. Carlos (Psicólogo)' },
+  fisioterapeuta: { password: '1234', role: 'fisioterapeuta', name: 'Dr. Ana (Fisioterapeuta)' },
+  secretaria: { password: '1234', role: 'secretaria', name: 'Maria (Secretária)' }
+};
 
-        <!-- Profissionais Section -->
-        <section id="profissionais" class="section" style="display:none;">
-            <h2>Profissionais</h2>
-            <form id="profissionalForm">
-                <div class="form-group">
-                    <label>Nome</label>
-                    <input type="text" id="profNome" required>
-                </div>
-                <div class="form-group">
-                    <label>Especialidade</label>
-                    <input type="text" id="profEspecialidade" required>
-                </div>
-                <div class="form-group">
-                    <label>Registro (CRM/CRP)</label>
-                    <input type="text" id="profRegistro" required>
-                </div>
-                <div class="form-group">
-                    <label>Telefone</label>
-                    <input type="text" id="profTelefone">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="profEmail">
-                </div>
-                <button type="submit" class="btn btn-primary">Salvar Profissional</button>
-            </form>
-            <table id="profissionaisTable">
-                <thead>
-                    <tr><th>Nome</th><th>Especialidade</th><th>Registro</th><th>Telefone</th><th>Email</th><th>Ações</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </section>
+const pacientes = [
+  { id: 1, nome: 'João Silva', tipo: 'psicologico', responsavel: '', 
+    prontuarios: [
+      { data: '2024-10-01', profissional: 'Dr. Carlos', anotacao: 'Paciente relatou ansiedade.' },
+      { data: '2024-10-15', profissional: 'Dr. Carlos', anotacao: 'Melhora com terapia cognitiva.' }
+    ],
+    documentos: [
+      { tipo: 'Declaração', data: '2024-09-20', conteudo: 'Declaração de comparecimento.' },
+      { tipo: 'Relatório', data: '2024-10-10', conteudo: 'Relatório trimestral.' }
+    ],
+    analiseIA: 'Paciente apresenta evolução positiva, tendência de redução de sintomas ansiosos. Recomenda-se continuar terapia.'
+  },
+  { id: 2, nome: 'Maria Santos', tipo: 'fisioterapeutico', responsavel: '',
+    prontuarios: [
+      { data: '2024-09-05', profissional: 'Dr. Ana', anotacao: 'Paciente com dor lombar crônica.' },
+      { data: '2024-10-20', profissional: 'Dr. Ana', anotacao: 'Melhora com exercícios.' }
+    ],
+    documentos: [
+      { tipo: 'Atestado', data: '2024-10-01', conteudo: 'Atestado de comparecimento.' }
+    ],
+    analiseIA: 'Recuperação dentro do esperado, continuar fisioterapia.'
+  },
+  { id: 3, nome: 'Pedro Alves', tipo: 'psicologico', responsavel: 'Mãe: Teresa Alves',
+    prontuarios: [
+      { data: '2024-08-12', profissional: 'Dr. Carlos', anotacao: 'Primeira consulta, queixa de insônia.' }
+    ],
+    documentos: [],
+    analiseIA: 'Início de tratamento, monitorar evolução.'
+  }
+];
 
-        <!-- Pacientes Section -->
-        <section id="pacientes" class="section" style="display:none;">
-            <h2>Pacientes</h2>
-            <form id="pacienteForm">
-                <div class="form-group">
-                    <label>Nome</label>
-                    <input type="text" id="pacNome" required>
-                </div>
-                <div class="form-group">
-                    <label>CPF</label>
-                    <input type="text" id="pacCPF">
-                </div>
-                <div class="form-group">
-                    <label>Telefone</label>
-                    <input type="text" id="pacTelefone">
-                </div>
-                <div class="form-group">
-                    <label>Data de Nascimento</label>
-                    <input type="date" id="pacDataNasc">
-                </div>
-                <div class="form-group">
-                    <label>Endereço</label>
-                    <input type="text" id="pacEndereco">
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="pacMenor" onchange="toggleResponsavel()"> Menor de idade?
-                    </label>
-                </div>
-                <div class="responsavel-fields" id="responsavelFields">
-                    <div class="form-group">
-                        <label>Nome do Responsável</label>
-                        <input type="text" id="respNome">
-                    </div>
-                    <div class="form-group">
-                        <label>CPF do Responsável</label>
-                        <input type="text" id="respCPF">
-                    </div>
-                    <div class="form-group">
-                        <label>Telefone do Responsável</label>
-                        <input type="text" id="respTelefone">
-                    </div>
-                    <div class="form-group">
-                        <label>Email do Responsável</label>
-                        <input type="email" id="respEmail">
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Salvar Paciente</button>
-            </form>
-            <table id="pacientesTable">
-                <thead>
-                    <tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Responsável</th><th>Ações</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </section>
+let currentUser = null;
+let currentSection = 'dashboard';
+let currentPaciente = null;
+let currentTab = 0;
+let financialData = {
+  receitas: [5000, 6000, 4500, 7000, 8000, 7500],
+  despesas: [3000, 3500, 2800, 4000, 4500, 4200],
+  meses: ['Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out']
+};
 
-        <!-- Agenda Section -->
-        <section id="agenda" class="section" style="display:none;">
-            <h2>Agenda</h2>
-            <div class="form-group">
-                <label>Profissional</label>
-                <select id="agendaProfissional"></select>
-            </div>
-            <div class="form-group">
-                <label>Paciente</label>
-                <select id="agendaPaciente"></select>
-            </div>
-            <div class="form-group">
-                <label>Data e Hora</label>
-                <input type="datetime-local" id="agendaData">
-            </div>
-            <button onclick="agendar()" class="btn btn-primary">Agendar</button>
-            <div id="calendarContainer" class="calendar"></div>
-        </section>
+function login() {
+  const username = document.getElementById('userSelect').value;
+  const password = document.getElementById('passwordInput').value;
+  const user = users[username];
+  if (user && user.password === password) {
+    currentUser = user;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('userInfo').innerHTML = `<p><strong>${user.name}</strong></p><p>Perfil: ${user.role}</p>`;
+    showSection('dashboard');
+  } else {
+    document.getElementById('loginError').textContent = 'Usuário ou senha inválidos.';
+  }
+}
 
-        <!-- Financeiro Section -->
-        <section id="financeiro" class="section" style="display:none;">
-            <h2>Financeiro</h2>
-            <div class="form-group">
-                <label>Descrição</label>
-                <input type="text" id="finDescricao">
-            </div>
-            <div class="form-group">
-                <label>Valor</label>
-                <input type="number" id="finValor" step="0.01">
-            </div>
-            <div class="form-group">
-                <label>Tipo</label>
-                <select id="finTipo">
-                    <option value="receita">Receita</option>
-                    <option value="despesa">Despesa</option>
-                </select>
-            </div>
-            <button onclick="adicionarFinanceiro()" class="btn btn-primary">Adicionar</button>
-            <div class="chart-container" id="chartContainer"></div>
-            <table id="financeiroTable">
-                <thead>
-                    <tr><th>Descrição</th><th>Valor</th><th>Tipo</th><th>Data</th><th>Ações</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </section>
+function logout() {
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('passwordInput').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+function showSection(section) {
+  currentSection = section;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event.target.classList.add('active');
+  if (section === 'dashboard') {
+    document.getElementById('sectionTitle').textContent = 'Dashboard Financeiro';
+    renderDashboard();
+  } else if (section === 'pacientes') {
+    document.getElementById('sectionTitle').textContent = 'Pacientes';
+    renderPacientes();
+  }
+}
+
+function renderDashboard() {
+  const area = document.getElementById('contentArea');
+  let html = `
+    <div class="cards">
+      <div class="card"><h3>Total Receitas (6 meses)</h3><div class="value positive">R$ ${financialData.receitas.reduce((a,b)=>a+b,0).toFixed(2)}</div></div>
+      <div class="card"><h3>Total Despesas (6 meses)</h3><div class="value negative">R$ ${financialData.despesas.reduce((a,b)=>a+b,0).toFixed(2)}</div></div>
+      <div class="card"><h3>Saldo</h3><div class="value ${(financialData.receitas.reduce((a,b)=>a+b,0) - financialData.despesas.reduce((a,b)=>a+b,0)) >= 0 ? 'positive' : 'negative'}">R$ ${(financialData.receitas.reduce((a,b)=>a+b,0) - financialData.despesas.reduce((a,b)=>a+b,0)).toFixed(2)}</div></div>
     </div>
-
-    <!-- Drawer for patient details -->
-    <div class="drawer-overlay" id="drawerOverlay">
-        <div class="drawer" id="drawer">
-            <span style="cursor:pointer;float:right;font-size:1.5rem;" onclick="closeDrawer()">&times;</span>
-            <h2 id="drawerTitle">Paciente</h2>
-            <div class="tab-container">
-                <div class="tab active" onclick="switchTab('dados')" id="tabDados">Dados Paciente</div>
-                <div class="tab" onclick="switchTab('prontuarios')" id="tabProntuarios">Prontuários</div>
-                <div class="tab" onclick="switchTab('documentos')" id="tabDocumentos">Documentos</div>
-                <div class="tab" onclick="switchTab('analise')" id="tabAnalise">Análise IA</div>
-            </div>
-            <!-- Tab Dados -->
-            <div class="tab-content active" id="tabContentDados">
-                <p><strong>Nome:</strong> <span id="detNome"></span></p>
-                <p><strong>CPF:</strong> <span id="detCPF"></span></p>
-                <p><strong>Telefone:</strong> <span id="detTelefone"></span></p>
-                <p><strong>Endereço:</strong> <span id="detEndereco"></span></p>
-                <p><strong>Data Nasc:</strong> <span id="detDataNasc"></span></p>
-                <p><strong>Responsável:</strong> <span id="detResponsavel"></span></p>
-                <button onclick="editarPaciente()" class="btn btn-warning">Editar</button>
-            </div>
-            <!-- Tab Prontuários -->
-            <div class="tab-content" id="tabContentProntuarios">
-                <div id="timelineProntuarios"></div>
-                <div class="form-group">
-                    <label>Nova anotação</label>
-                    <textarea id="novaAnotacao" rows="4"></textarea>
-                </div>
-                <button onclick="salvarAnotacao()" class="btn btn-primary">Salvar anotação</button>
-            </div>
-            <!-- Tab Documentos -->
-            <div class="tab-content" id="tabContentDocumentos">
-                <div id="listaDocumentos"></div>
-                <div class="form-group">
-                    <label>Tipo</label>
-                    <select id="docTipo">
-                        <option value="Declaração">Declaração</option>
-                        <option value="Atestado">Atestado</option>
-                        <option value="Relatório">Relatório</option>
-                        <option value="Laudo">Laudo</option>
-                        <option value="Parecer">Parecer</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Conteúdo</label>
-                    <textarea id="docConteudo" rows="4"></textarea>
-                </div>
-                <button onclick="salvarDocumento()" class="btn btn-primary">Salvar documento</button>
-            </div>
-            <!-- Tab Análise IA -->
-            <div class="tab-content" id="tabContentAnalise">
-                <div id="analiseIA"></div>
-            </div>
-        </div>
+    <div class="financial-chart">
+      <canvas id="paretoChart"></canvas>
     </div>
-
-    <!-- Login overlay -->
-    <div class="login-overlay" id="loginOverlay">
-        <div class="login-box">
-            <h2>Login Ativamente+</h2>
-            <input type="text" id="loginUser" placeholder="Usuário" value="admin">
-            <input type="password" id="loginPass" placeholder="Senha" value="1234">
-            <button onclick="login()">Entrar</button>
-            <p style="text-align:center;margin-top:15px;">Usuário: admin | Senha: 1234</p>
-        </div>
+    <div style="margin-top: 20px;">
+      <h3>Adicionar Lançamento</h3>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="tipoLanc"><option value="receita">Receita</option><option value="despesa">Despesa</option></select>
+      </div>
+      <div class="form-group">
+        <label>Valor</label>
+        <input type="number" id="valorLanc" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>Mês (índice 0-5)</label>
+        <input type="number" id="mesLanc" min="0" max="5" />
+      </div>
+      <button class="btn" onclick="addLancamento()">Adicionar</button>
     </div>
+  `;
+  area.innerHTML = html;
+  drawChart();
+}
 
-    <script>
-        // ============================================================
-        // DADOS GLOBAIS (localStorage)
-        // ============================================================
-        const STORAGE_KEY = 'ativamente_clinic';
+function drawChart() {
+  const ctx = document.getElementById('paretoChart').getContext('2d');
+  const meses = financialData.meses;
+  const receitas = financialData.receitas;
+  const despesas = financialData.despesas;
+  const width = ctx.canvas.width;
+  const height = ctx.canvas.height;
+  ctx.clearRect(0, 0, width, height);
+  const barWidth = width / (meses.length * 2 + 2);
+  const maxVal = Math.max(...receitas, ...despesas) * 1.2;
+  // Draw bars
+  for (let i = 0; i < meses.length; i++) {
+    const x1 = i * (barWidth * 2) + barWidth;
+    const y1 = height - (receitas[i] / maxVal) * height * 0.8;
+    ctx.fillStyle = '#008080';
+    ctx.fillRect(x1, y1, barWidth, (receitas[i] / maxVal) * height * 0.8);
+    const x2 = x1 + barWidth;
+    const y2 = height - (despesas[i] / maxVal) * height * 0.8;
+    ctx.fillStyle = '#FF6B35';
+    ctx.fillRect(x2, y2, barWidth, (despesas[i] / maxVal) * height * 0.8);
+    ctx.fillStyle = '#00204A';
+    ctx.fillText(meses[i], x1, height - 5);
+  }
+  ctx.fillStyle = '#008080';
+  ctx.fillRect(10, 10, 10, 10);
+  ctx.fillStyle = '#000';
+  ctx.fillText('Receitas', 25, 20);
+  ctx.fillStyle = '#FF6B35';
+  ctx.fillRect(10, 30, 10, 10);
+  ctx.fillStyle = '#000';
+  ctx.fillText('Despesas', 25, 40);
+}
 
-        let data = loadData();
+function addLancamento() {
+  const tipo = document.getElementById('tipoLanc').value;
+  const valor = parseFloat(document.getElementById('valorLanc').value);
+  const mes = parseInt(document.getElementById('mesLanc').value);
+  if (!isNaN(valor) && mes >= 0 && mes < 6) {
+    if (tipo === 'receita') {
+      financialData.receitas[mes] += valor;
+    } else {
+      financialData.despesas[mes] += valor;
+    }
+    renderDashboard();
+  } else {
+    alert('Valor ou mês inválido.');
+  }
+}
 
-        function loadData() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                try {
-                    return JSON.parse(stored);
-                } catch(e) {}
-            }
-            return {
-                profissionais: [],
-                pacientes: [],
-                consultas: [],
-                financeiro: [],
-                prontuarios: {}, // chave: pacienteId, valor: array de anotações
-                documentos: {}   // chave: pacienteId, valor: array de documentos
-            };
-        }
+function renderPacientes() {
+  const area = document.getElementById('contentArea');
+  let filteredPacientes = pacientes;
+  if (currentUser.role === 'psicologo') {
+    filteredPacientes = pacientes.filter(p => p.tipo === 'psicologico');
+  } else if (currentUser.role === 'fisioterapeuta') {
+    filteredPacientes = pacientes.filter(p => p.tipo === 'fisioterapeutico');
+  } else if (currentUser.role === 'secretaria') {
+    filteredPacientes = []; // secretaria sees no patients (only agendamentos, not implemented)
+  }
+  let html = `<div class="cards">`;
+  filteredPacientes.forEach(p => {
+    html += `<div class="card" onclick="selectPaciente(${p.id})" style="cursor:pointer;"><h3>${p.nome}</h3><p>Tipo: ${p.tipo}</p></div>`;
+  });
+  html += `</div>`;
+  if (filteredPacientes.length === 0) html += '<p>Nenhum paciente disponível.</p>';
+  area.innerHTML = html;
+}
 
-        function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
+function selectPaciente(id) {
+  currentPaciente = pacientes.find(p => p.id === id);
+  if (!currentPaciente) return;
+  // Check if user can view this patient
+  if (currentUser.role === 'psicologo' && currentPaciente.tipo !== 'psicologico') {
+    alert('Acesso negado: este paciente não é psicológico.');
+    return;
+  }
+  if (currentUser.role === 'fisioterapeuta' && currentPaciente.tipo !== 'fisioterapeutico') {
+    alert('Acesso negado: este paciente não é fisioterapêutico.');
+    return;
+  }
+  if (currentUser.role === 'secretaria') {
+    alert('Acesso negado: secretaria não pode acessar pacientes.');
+    return;
+  }
+  document.getElementById('sectionTitle').textContent = `Paciente: ${currentPaciente.nome}`;
+  renderPacienteDetail();
+}
 
-        // ============================================================
-        // LOGIN
-        // ============================================================
-        let loggedUser = null;
+function renderPacienteDetail() {
+  const area = document.getElementById('contentArea');
+  let tabsHtml = '';
+  let tabsContent = '';
+  // Determine which tabs to show based on role
+  const showTab1 = true; // Dados do paciente always for allowed users
+  const showTab2 = (currentUser.role === 'admin' || currentUser.role === 'psicologo'); // Prontuários: admin/psicologo
+  const showTab3 = (currentUser.role === 'admin' || currentUser.role === 'psicologo'); // Documentos: admin/psicologo
+  const showTab4 = (currentUser.role === 'admin' || currentUser.role === 'psicologo'); // Análise IA: admin/psicologo
+  const showTab5 = (currentUser.role === 'admin' || (currentUser.role !== 'secretaria' && currentUser.role !== 'psicologo')); // Multidisciplinar: admin e outros profissionais
+  
+  if (showTab1) {
+    tabsHtml += `<div class="tab ${currentTab === 0 ? 'active' : ''}" onclick="selectTab(0)">Dados do Paciente</div>`;
+    tabsContent += `<div class="tab-content ${currentTab === 0 ? 'active' : ''}" id="tab0">
+      <p><strong>Nome:</strong> ${currentPaciente.nome}</p>
+      <p><strong>Tipo:</strong> ${currentPaciente.tipo}</p>
+      <p><strong>Responsável:</strong> ${currentPaciente.responsavel || 'N/A'}</p>
+    </div>`;
+  }
+  if (showTab2) {
+    tabsHtml += `<div class="tab ${currentTab === 1 ? 'active' : ''}" onclick="selectTab(1)">Prontuários</div>`;
+    let prontHtml = currentPaciente.prontuarios.map(p => 
+      `<div class="list-item"><strong>${p.data}</strong> - ${p.profissional}: ${p.anotacao}</div>`
+    ).join('');
+    tabsContent += `<div class="tab-content ${currentTab === 1 ? 'active' : ''}" id="tab1">
+      <h3>Timeline de Prontuários</h3>
+      ${prontHtml || '<p>Nenhum prontuário.</p>'}
+      <div style="margin-top:12px;">
+        <h4>Nova Anotação</h4>
+        <input type="date" id="novaData" /><br/>
+        <textarea id="novaAnotacao" rows="3" style="width:100%;"></textarea><br/>
+        <button class="btn btn-teal" onclick="addProntuario()">Adicionar</button>
+      </div>
+    </div>`;
+  }
+  if (showTab3) {
+    tabsHtml += `<div class="tab ${currentTab === 2 ? 'active' : ''}" onclick="selectTab(2)">Documentos</div>`;
+    let docHtml = currentPaciente.documentos.map(d => 
+      `<div class="list-item"><strong>${d.tipo}</strong> (${d.data}): ${d.conteudo}</div>`
+    ).join('');
+    tabsContent += `<div class="tab-content ${currentTab === 2 ? 'active' : ''}" id="tab2">
+      <h3>Documentos</h3>
+      ${docHtml || '<p>Nenhum documento.</p>'}
+      <div style="margin-top:12px;">
+        <h4>Novo Documento</h4>
+        <select id="tipoDoc"><option>Declaração</option><option>Atestado</option><option>Relatório</option><option>Laudo</option><option>Parecer</option></select>
+        <input type="date" id="dataDoc" /><br/>
+        <textarea id="conteudoDoc" rows="3" style="width:100%;" placeholder="Conteúdo"></textarea><br/>
+        <button class="btn btn-teal" onclick="addDocumento()">Adicionar</button>
+      </div>
+    </div>`;
+  }
+  if (showTab4) {
+    tabsHtml += `<div class="tab ${currentTab === 3 ? 'active' : ''}" onclick="selectTab(3)">Análise IA</div>`;
+    tabsContent += `<div class="tab-content ${currentTab === 3 ? 'active' : ''}" id="tab3">
+      <h3>Análise de IA</h3>
+      <p>${currentPaciente.analiseIA || 'Nenhuma análise disponível.'}</p>
+    </div>`;
+  }
+  if (showTab5) {
+    tabsHtml += `<div class="tab ${currentTab === 4 ? 'active' : ''}" onclick="selectTab(4)">Multidisciplinar</div>`;
+    tabsContent += `<div class="tab-content ${currentTab === 4 ? 'active' : ''}" id="tab4">
+      <h3>Atendimentos Multidisciplinares</h3>
+      <p>Aba destinada a profissionais que atendem o paciente.</p>
+    </div>`;
+  }
+  
+  area.innerHTML = `
+    <div class="tabs">${tabsHtml}</div>
+    ${tabsContent}
+    <button class="btn" onclick="showSection('pacientes')" style="margin-top:12px;">Voltar</button>
+  `;
+  currentTab = 0; // reset
+}
 
-        function login() {
-            const user = document.getElementById('loginUser').value;
-            const pass = document.getElementById('loginPass').value;
-            if (user === 'admin' && pass === '1234') {
-                loggedUser = user;
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('userDisplay').textContent = 'Admin';
-                renderAll();
-            } else {
-                alert('Usuário ou senha inválidos!');
-            }
-        }
+function selectTab(index) {
+  currentTab = index;
+  renderPacienteDetail();
+}
 
-        function logout() {
-            loggedUser = null;
-            document.getElementById('loginOverlay').style.display = 'flex';
-            document.getElementById('userDisplay').textContent = 'Usuário';
-        }
+function addProntuario() {
+  const data = document.getElementById('novaData').value;
+  const anotacao = document.getElementById('novaAnotacao').value;
+  if (data && anotacao) {
+    currentPaciente.prontuarios.push({
+      data: data,
+      profissional: currentUser.name,
+      anotacao: anotacao
+    });
+    renderPacienteDetail();
+  } else {
+    alert('Preencha data e anotação.');
+  }
+}
 
-        // ============================================================
-        // NAVEGAÇÃO
-        // ============================================================
-        document.querySelectorAll('.sidebar nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.sidebar nav a').forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-                const section = this.dataset.section;
-                document.querySelectorAll('.main-content > .section').forEach(s => s.style.display = 'none');
-                document.getElementById(section).style.display = 'block';
-                renderSection(section);
-            });
-        });
+function addDocumento() {
+  const tipo = document.getElementById('tipoDoc').value;
+  const data = document.getElementById('dataDoc').value;
+  const conteudo = document.getElementById('conteudoDoc').value;
+  if (tipo && data && conteudo) {
+    currentPaciente.documentos.push({ tipo, data, conteudo });
+    renderPacienteDetail();
+  } else {
+    alert('Preencha todos os campos.');
+  }
+}
 
-        function renderSection(section) {
-            switch(section) {
-                case 'profissionais': renderProfissionais(); break;
-                case 'pacientes': renderPacientes(); break;
-                case 'agenda': renderAgenda(); break;
-                case 'financeiro': renderFinanceiro(); break;
-            }
-        }
-
-        function renderAll() {
-            renderProfissionais();
-            renderPacientes();
-            renderAgenda();
-            renderFinanceiro();
-        }
-
-        // ============================================================
-        // PROFISSIONAIS
-        // ============================================================
-        document.getElementById('profissionalForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const nome = document.getElementById('profNome').value.trim();
-            const especialidade = document.getElementById('profEspecialidade').value.trim();
-            const registro = document.getElementById('profRegistro').value.trim();
-            const telefone = document.getElementById('profTelefone').value.trim();
-            const email = document.getElementById('profEmail').value.trim();
-            if (!nome || !especialidade || !registro) {
-                alert('Preencha nome, especialidade e registro.');
-                return;
-            }
-            data.profissionais.push({ id: Date.now(), nome, especialidade, registro, telefone, email });
-            saveData();
-            renderProfissionais();
-            this.reset();
-        });
-
-        function renderProfissionais() {
-            const tbody = document.querySelector('#profissionaisTable tbody');
-            tbody.innerHTML = '';
-            data.profissionais.forEach(prof => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${prof.nome}</td>
-                    <td>${prof.especialidade}</td>
-                    <td>${prof.registro}</td>
-                    <td>${prof.telefone || '-'}</td>
-                    <td>${prof.email || '-'}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="removerProfissional(${prof.id})">Remover</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            // Atualizar selects da agenda
-            const selectProf = document.getElementById('agendaProfissional');
-            selectProf.innerHTML = '<option value="">Selecione</option>' + data.profissionais.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-        }
-
-        function removerProfissional(id) {
-            if (confirm('Remover profissional?')) {
-                data.profissionais = data.profissionais.filter(p => p.id !== id);
-                saveData();
-                renderProfissionais();
-            }
-        }
-
-        // ============================================================
-        // PACIENTES
-        // ============================================================
-        document.getElementById('pacienteForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const nome = document.getElementById('pacNome').value.trim();
-            const cpf = document.getElementById('pacCPF').value.trim();
-            const telefone = document.getElementById('pacTelefone').value.trim();
-            const dataNasc = document.getElementById('pacDataNasc').value;
-            const endereco = document.getElementById('pacEndereco').value.trim();
-            const menor = document.getElementById('pacMenor').checked;
-            let responsavel = null;
-            if (menor) {
-                const respNome = document.getElementById('respNome').value.trim();
-                const respCPF = document.getElementById('respCPF').value.trim();
-                const respTelefone = document.getElementById('respTelefone').value.trim();
-                const respEmail = document.getElementById('respEmail').value.trim();
-                if (!respNome || !respCPF || !respTelefone || !respEmail) {
-                    alert('Preencha todos os campos do responsável!');
-                    return;
-                }
-                responsavel = { nome: respNome, cpf: respCPF, telefone: respTelefone, email: respEmail };
-            }
-            if (!nome) {
-                alert('Nome é obrigatório.');
-                return;
-            }
-            const paciente = {
-                id: Date.now(),
-                nome,
-                cpf,
-                telefone,
-                dataNasc,
-                endereco,
-                menor,
-                responsavel
-            };
-            data.pacientes.push(paciente);
-            if (!data.prontuarios[paciente.id]) data.prontuarios[paciente.id] = [];
-            if (!data.documentos[paciente.id]) data.documentos[paciente.id] = [];
-            saveData();
-            renderPacientes();
-            this.reset();
-            document.getElementById('responsavelFields').classList.remove('show');
-        });
-
-        function toggleResponsavel() {
-            const checkbox = document.getElementById('pacMenor');
-            const fields = document.getElementById('responsavelFields');
-            fields.classList.toggle('show', checkbox.checked);
-        }
-
-        function renderPacientes() {
-            const tbody = document.querySelector('#pacientesTable tbody');
-            tbody.innerHTML = '';
-            data.pacientes.forEach(pac => {
-                const respText = pac.menor && pac.responsavel ? `Responsável: ${pac.responsavel.nome}` : '-';
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${pac.nome}</td>
-                    <td>${pac.cpf || '-'}</td>
-                    <td>${pac.telefone || '-'}</td>
-                    <td>${respText}</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" onclick="abrirDrawer(${pac.id})">Detalhes</button>
-                        <button class="btn btn-danger btn-sm" onclick="removerPaciente(${pac.id})">Remover</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            // Atualizar select da agenda
-            const selectPac = document.getElementById('agendaPaciente');
-            selectPac.innerHTML = '<option value="">Selecione</option>' + data.pacientes.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-        }
-
-        function removerPaciente(id) {
-            if (confirm('Remover paciente e todos os dados associados?')) {
-                data.pacientes = data.pacientes.filter(p => p.id !== id);
-                delete data.prontuarios[id];
-                delete data.documentos[id];
-                saveData();
-                renderPacientes();
-            }
-        }
-
-        // ============================================================
-        // DRAWER / DETALHES PACIENTE
-        // ============================================================
-        let currentPacienteId = null;
-
-        function abrirDrawer(id) {
-            currentPacienteId = id;
-            const pac = data.pacientes.find(p => p.id === id);
-            if (!pac) return;
-            document.getElementById('detNome').textContent = pac.nome;
-            document.getElementById('detCPF').textContent = pac.cpf || '-';
-            document.getElementById('detTelefone').textContent = pac.telefone || '-';
-            document.getElementById('detEndereco').textContent = pac.endereco || '-';
-            document.getElementById('detDataNasc').textContent = pac.dataNasc || '-';
-            const resp = pac.menor && pac.responsavel ? `${pac.responsavel.nome} (${pac.responsavel.cpf})` : '-';
-            document.getElementById('detResponsavel').textContent = resp;
-            document.getElementById('drawerTitle').textContent = `Paciente: ${pac.nome}`;
-            // Carregar prontuários e documentos
-            renderProntuarios();
-            renderDocumentos();
-            renderAnaliseIA();
-            // Abrir drawer
-            document.getElementById('drawerOverlay').style.display = 'flex';
-            switchTab('dados');
-        }
-
-        function closeDrawer() {
-            document.getElementById('drawerOverlay').style.display = 'none';
-            currentPacienteId = null;
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.getElementById(`tab${tab.charAt(0).toUpperCase()+tab.slice(1)}`).classList.add('active');
-            document.getElementById(`tabContent${tab.charAt(0).toUpperCase()+tab.slice(1)}`).classList.add('active');
-            if (tab === 'prontuarios') renderProntuarios();
-            if (tab === 'documentos') renderDocumentos();
-            if (tab === 'analise') renderAnaliseIA();
-        }
-
-        // ============================================================
-        // PRONTUÁRIOS
-        // ============================================================
-        function renderProntuarios() {
-            const container = document.getElementById('timelineProntuarios');
-            container.innerHTML = '';
-            const pronts = data.prontuarios[currentPacienteId] || [];
-            if (pronts.length === 0) {
-                container.innerHTML = '<p>Nenhuma anotação ainda.</p>';
-                return;
-            }
-            pronts.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(anot => {
-                const div = document.createElement('div');
-                div.style.cssText = 'margin-bottom:15px;padding:10px;background:#f9f9f9;border-radius:5px;border-left:4px solid #008080;';
-                div.innerHTML = `
-                    <small>${new Date(anot.data).toLocaleString('pt-BR')} - <strong>${anot.profissional || 'Desconhecido'}</strong></small>
-                    <p style="margin-top:5px;">${anot.texto}</p>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function salvarAnotacao() {
-            const texto = document.getElementById('novaAnotacao').value.trim();
-            if (!texto) {
-                alert('Digite o texto da anotação.');
-                return;
-            }
-            const anotacao = {
-                data: new Date().toISOString(),
-                texto: texto,
-                profissional: loggedUser || 'Admin'
-            };
-            if (!data.prontuarios[currentPacienteId]) data.prontuarios[currentPacienteId] = [];
-            data.prontuarios[currentPacienteId].push(anotacao);
-            saveData();
-            document.getElementById('novaAnotacao').value = '';
-            renderProntuarios();
-            renderAnaliseIA();
-            alert('Anotação salva!');
-        }
-
-        // ============================================================
-        // DOCUMENTOS
-        // ============================================================
-        function renderDocumentos() {
-            const container = document.getElementById('listaDocumentos');
-            container.innerHTML = '';
-            const docs = data.documentos[currentPacienteId] || [];
-            if (docs.length === 0) {
-                container.innerHTML = '<p>Nenhum documento ainda.</p>';
-                return;
-            }
-            docs.forEach((doc, index) => {
-                const div = document.createElement('div');
-                div.style.cssText = 'margin-bottom:10px;padding:10px;background:#f0f8ff;border-radius:5px;border-left:4px solid #FF6B35;';
-                div.innerHTML = `
-                    <strong>${doc.tipo}</strong> - <small>${new Date(doc.data).toLocaleString('pt-BR')}</small>
-                    <p>${doc.conteudo}</p>
-                    <button class="btn btn-danger btn-sm" onclick="removerDocumento(${index})">Remover</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function salvarDocumento() {
-            const tipo = document.getElementById('docTipo').value;
-            const conteudo = document.getElementById('docConteudo').value.trim();
-            if (!conteudo) {
-                alert('Preencha o conteúdo do documento.');
-                return;
-            }
-            const doc = {
-                tipo: tipo,
-                conteudo: conteudo,
-                data: new Date().toISOString()
-            };
-            if (!data.documentos[currentPacienteId]) data.documentos[currentPacienteId] = [];
-            data.documentos[currentPacienteId].push(doc);
-            saveData();
-            document.getElementById('docConteudo').value = '';
-            renderDocumentos();
-            alert('Documento salvo!');
-        }
-
-        function removerDocumento(index) {
-            if (confirm('Remover documento?')) {
-                data.documentos[currentPacienteId].splice(index, 1);
-                saveData();
-                renderDocumentos();
-            }
-        }
-
-        // ============================================================
-        // ANÁLISE IA (simples)
-        // ============================================================
-        function renderAnaliseIA() {
-            const container = document.getElementById('analiseIA');
-            const pronts = data.prontuarios[currentPacienteId] || [];
-            if (pronts.length === 0) {
-                container.innerHTML = '<p>Sem dados para análise. Adicione prontuários primeiro.</p>';
-                return;
-            }
-            // Evolução geral: contar anotações por mês
-            const meses = {};
-            pronts.forEach(a => {
-                const m = new Date(a.data).toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
-                meses[m] = (meses[m] || 0) + 1;
-            });
-            const evolucao = Object.entries(meses).map(([mes, qtd]) => `${mes}: ${qtd} anotações`).join('; ');
-            // Tendências: palavras-chave
-            const palavras = ['ansiedade', 'depressão', 'terapia', 'medicação', 'exercício', 'sono', 'alimentação', 'estresse', 'família', 'trabalho'];
-            const contagem = {};
-            pronts.forEach(a => {
-                const texto = a.texto.toLowerCase();
-                palavras.forEach(p => {
-                    if (texto.includes(p)) {
-                        contagem[p] = (contagem[p] || 0) + 1;
-                    }
-                });
-            });
-            const tendencias = Object.entries(contagem).sort((a,b) => b[1] - a[1]).slice(0,5).map(([p,q]) => `${p}: ${q} menções`).join('; ');
-            // Recomendações simples
-            const recomendacoes = [];
-            if (contagem['ansiedade'] > 2) recomendacoes.push('Considere técnicas de relaxamento e possível encaminhamento para terapia cognitivo-comportamental.');
-            if (contagem['sono'] > 1) recomendacoes.push('Avaliação da qualidade do sono; higiene do sono pode ser benéfica.');
-            if (contagem['medicação'] > 1) recomendacoes.push('Revisão da medicação com o médico prescritor.');
-            if (contagem['exercício'] === 0) recomendacoes.push('Incentivar prática regular de atividade física.');
-            if (recomendacoes.length === 0) recomendacoes.push('Manter acompanhamento regular.');
-            // Próximos passos
-            const ultimaAnotacao = pronts[pronts.length-1];
-            const proximos = `Agendar nova consulta em 30 dias. Última anotação em ${new Date(ultimaAnotacao.data).toLocaleDateString('pt-BR')}.`;
-
-            container.innerHTML = `
-                <div class="analise-card">
-                    <h4>Evolução geral</h4>
-                    <p>${evolucao}</p>
-                </div>
-                <div class="analise-card">
-                    <h4>Tendências identificadas</h4>
-                    <p>${tendencias}</p>
-                </div>
-                <div class="analise-card">
-                    <h4>Recomendações</h4>
-                    <ul>${recomendacoes.map(r => `<li>${r}</li>`).join('')}</ul>
-                </div>
-                <div class="analise-card">
-                    <h4>Próximos passos sugeridos</h4>
-                    <p>${proximos}</p>
-                </div>
-            `;
-        }
-
-        // ============================================================
-        // AGENDA
-        // ============================================================
-        function renderAgenda() {
-            // Render calendar
-            const container = document.getElementById('calendarContainer');
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = today.getMonth();
-            const daysInMonth = new Date(year, month+1, 0).getDate();
-            container.innerHTML = '';
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                const hasApp = data.consultas.some(c => c.data.startsWith(dateStr));
-                const div = document.createElement('div');
-                div.className = `calendar-day${hasApp ? ' has-appointment' : ''}`;
-                div.textContent = d;
-                div.dataset.date = dateStr;
-                container.appendChild(div);
-            }
-        }
-
-        function agendar() {
-            const profId = document.getElementById('agendaProfissional').value;
-            const pacId = document.getElementById('agendaPaciente').value;
-            const data = document.getElementById('agendaData').value;
-            if (!profId || !pacId || !data) {
-                alert('Preencha todos os campos.');
-                return;
-            }
-            const consulta = {
-                id: Date.now(),
-                profissionalId: Number(profId),
-                pacienteId: Number(pacId),
-                data: data
-            };
-            window.data.consultas.push(consulta);
-            saveData();
-            renderAgenda();
-            alert('Agendamento realizado!');
-        }
-
-        // ============================================================
-        // FINANCEIRO
-        // ============================================================
-        function adicionarFinanceiro() {
-            const descricao = document.getElementById('finDescricao').value.trim();
-            const valor = parseFloat(document.getElementById('finValor').value);
-            const tipo = document.getElementById('finTipo').value;
-            if (!descricao || isNaN(valor) || valor <= 0) {
-                alert('Preencha descrição e valor válido.');
-                return;
-            }
-            const item = {
-                id: Date.now(),
-                descricao,
-                valor,
-                tipo,
-                data: new Date().toISOString().slice(0,10)
-            };
-            data.financeiro.push(item);
-            saveData();
-            renderFinanceiro();
-            document.getElementById('finDescricao').value = '';
-            document.getElementById('finValor').value = '';
-        }
-
-        function renderFinanceiro() {
-            const tbody = document.querySelector('#financeiroTable tbody');
-            tbody.innerHTML = '';
-            data.financeiro.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.descricao}</td>
-                    <td>R$ ${item.valor.toFixed(2)}</td>
-                    <td>${item.tipo}</td>
-                    <td>${item.data}</td>
-                    <td><button class="btn btn-danger btn-sm" onclick="removerFinanceiro(${item.id})">Remover</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-            // Chart simples
-            const chartContainer = document.getElementById('chartContainer');
-            chartContainer.innerHTML = '';
-            const receitas = data.financeiro.filter(f => f.tipo === 'receita').reduce((acc, f) => acc + f.valor, 0);
-            const despesas = data.financeiro.filter(f => f.tipo === 'despesa').reduce((acc, f) => acc + f.valor, 0);
-            const max = Math.max(receitas, despesas, 1);
-            const barReceita = document.createElement('div');
-            barReceita.className = 'chart-bar';
-            barReceita.style.height = (receitas/max*150) + 'px';
-            barReceita.style.background = '#008080';
-            const labelReceita = document.createElement('div');
-            labelReceita.className = 'chart-label';
-            labelReceita.textContent = `Receitas R$ ${receitas.toFixed(2)}`;
-            const barDespesa = document.createElement('div');
-            barDespesa.className = 'chart-bar';
-            barDespesa.style.height = (despesas/max*150) + 'px';
-            barDespesa.style.background = '#FF6B35';
-            const labelDespesa = document.createElement('div');
-            labelDespesa.className = 'chart-label';
-            labelDespesa.textContent = `Despesas R$ ${despesas.toFixed(2)}`;
-            chartContainer.appendChild(barReceita);
-            chartContainer.appendChild(labelReceita);
-            chartContainer.appendChild(barDespesa);
-            chartContainer.appendChild(labelDespesa);
-        }
-
-        function removerFinanceiro(id) {
-            if (confirm('Remover item financeiro?')) {
-                data.financeiro = data.financeiro.filter(f => f.id !== id);
-                saveData();
-                renderFinanceiro();
-            }
-        }
-
-        // ============================================================
-        // INICIALIZAÇÃO
-        // ============================================================
-        // Mostrar login se não estiver logado
-        if (!loggedUser) {
-            document.getElementById('loginOverlay').style.display = 'flex';
-        } else {
-            document.getElementById('loginOverlay').style.display = 'none';
-        }
-        // Render inicial apenas se logado
-        if (loggedUser) renderAll();
-
-        // Botão editar paciente - apenas mostra alert
-        function editarPaciente() {
-            alert('Funcionalidade de edição disponível na versão completa.');
-        }
-
-        // Adicionar botão fechar no drawer
-        document.getElementById('drawerOverlay').addEventListener('click', function(e) {
-            if (e.target === this) closeDrawer();
-        });
-    </script>
+// Initialize
+window.addEventListener('load', function() {
+  // Nothing extra
+});
+</script>
 </body>
 </html>
