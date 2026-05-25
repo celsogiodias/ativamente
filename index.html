@@ -5,681 +5,551 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ativamente - Plataforma de Gestão</title>
   <style>
-    /* Reset e Base */
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background: #f4f6f8; min-height: 100vh; display: flex; }
-    :root { --verde: #2a6e4b; --verde-escuro: #1f543b; --branco: #ffffff; --cinza: #6b7280; --cinza-claro: #e5e7eb; }
-    
+    :root { --primary: #2c3e50; --primary-light: #34495e; --accent: #27ae60; --accent-hover: #219a52; --danger: #e74c3c; --warning: #f39c12; --bg: #ecf0f1; --card: #ffffff; --text: #2c3e50; --text-light: #7f8c8d; --sidebar-width: 240px; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+    /* Login overlay */
+    #login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    #login-box { background: var(--card); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 360px; max-width: 90%; }
+    #login-box h2 { margin-bottom: 20px; color: var(--primary); text-align: center; }
+    #login-box input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+    #login-box button { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+    #login-box button:hover { background: var(--accent-hover); }
+    .login-error { color: var(--danger); font-size: 14px; margin-top: 10px; text-align: center; }
     /* Sidebar */
-    .sidebar { width: 250px; background: var(--verde); color: white; height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; transition: 0.3s; z-index: 1000; }
-    .sidebar h2 { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 24px; }
-    .sidebar nav { flex: 1; padding: 20px 0; }
-    .sidebar nav a { display: flex; align-items: center; padding: 12px 20px; color: white; text-decoration: none; gap: 10px; border-radius: 8px; margin: 4px 10px; transition: 0.2s; }
-    .sidebar nav a:hover, .sidebar nav a.active { background: rgba(255,255,255,0.2); }
-    .sidebar .logout { margin: 20px 10px; padding: 12px; background: #c0392b; border: none; color: white; cursor: pointer; border-radius: 8px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .sidebar .logout:hover { background: #a93226; }
-    
-    /* Conteúdo principal */
-    .main { margin-left: 250px; flex: 1; padding: 20px; }
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: var(--branco); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    .header h1 { font-size: 22px; color: var(--verde); }
-    .header .user { display: flex; align-items: center; gap: 10px; }
-    .header .user span { font-weight: 600; }
-    
+    #sidebar { width: var(--sidebar-width); background: var(--primary); color: #fff; min-height: 100vh; padding-top: 20px; position: fixed; left: 0; top: 0; overflow-y: auto; }
+    #sidebar h2 { text-align: center; margin-bottom: 30px; font-size: 22px; }
+    #sidebar nav a { display: block; padding: 14px 20px; color: #ecf0f1; text-decoration: none; transition: 0.2s; font-size: 15px; border-left: 4px solid transparent; }
+    #sidebar nav a:hover, #sidebar nav a.active { background: var(--primary-light); border-left-color: var(--accent); }
+    #sidebar nav a i { margin-right: 10px; }
+    /* Main */
+    #main { margin-left: var(--sidebar-width); flex: 1; padding: 30px; }
+    .page { display: none; }
+    .page.active { display: block; }
+    h1 { margin-bottom: 20px; font-weight: 400; }
     /* Cards */
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
-    .card { background: var(--branco); border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    .card h3 { font-size: 14px; color: var(--cinza); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .card .number { font-size: 28px; font-weight: bold; color: var(--verde); }
-    
-    /* Tabelas */
-    .table-container { overflow-x: auto; background: var(--branco); border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--cinza-claro); }
-    th { font-weight: 600; color: var(--cinza); font-size: 13px; }
-    .actions { display: flex; gap: 8px; }
-    .btn { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; transition: 0.2s; }
-    .btn-primary { background: var(--verde); color: white; }
-    .btn-primary:hover { background: var(--verde-escuro); }
-    .btn-edit { background: #3b82f6; color: white; }
-    .btn-edit:hover { background: #2563eb; }
-    .btn-delete { background: #ef4444; color: white; }
-    .btn-delete:hover { background: #dc2626; }
-    .btn-add { margin-bottom: 12px; }
-    
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .card { background: var(--card); padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .card h3 { font-size: 14px; color: var(--text-light); margin-bottom: 5px; }
+    .card .value { font-size: 28px; font-weight: 700; }
+    .card .value.green { color: var(--accent); }
+    .card .value.red { color: var(--danger); }
+    .card .value.orange { color: var(--warning); }
+    /* Buttons */
+    .btn { display: inline-block; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s; margin: 2px; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-warning { background: var(--warning); color: #fff; }
+    .btn-warning:hover { background: #e67e22; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    /* Table */
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: var(--primary); color: #fff; font-weight: 500; font-size: 14px; }
+    tr:hover { background: #f5f5f5; }
+    .status-pago { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+    .status-pendente { background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
     /* Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
     .modal.active { display: flex; }
-    .modal-content { background: var(--branco); border-radius: 16px; padding: 30px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
-    .modal-content h2 { margin-bottom: 20px; color: var(--verde); }
-    .modal-content label { display: block; font-weight: 600; margin-top: 12px; color: #374151; }
-    .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid var(--cinza-claro); border-radius: 8px; outline: none; }
-    .modal-content input:focus, .modal-content textarea:focus { border-color: var(--verde); }
-    .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
-    .modal-buttons .btn { min-width: 100px; }
-    .btn-cancel { background: var(--cinza-claro); color: #374151; }
-    .btn-cancel:hover { background: #d1d5db; }
-    
-    /* Formulário de login */
-    #loginPage { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; background: var(--verde); position: fixed; top: 0; left: 0; z-index: 3000; }
-    #loginPage .login-box { background: white; padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-    #loginPage .login-box h2 { text-align: center; color: var(--verde); margin-bottom: 8px; }
-    #loginPage .login-box p { text-align: center; color: var(--cinza); margin-bottom: 24px; }
-    #loginPage .login-box input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--cinza-claro); border-radius: 8px; }
-    #loginPage .login-box button { width: 100%; padding: 12px; background: var(--verde); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
-    #loginPage .login-box button:hover { background: var(--verde-escuro); }
-    #loginPage .login-box .toggle { text-align: center; margin-top: 16px; color: var(--cinza); }
-    #loginPage .login-box .toggle a { color: var(--verde); cursor: pointer; text-decoration: underline; }
-    .error-msg { color: #dc2626; background: #fee2e2; padding: 8px; border-radius: 6px; text-align: center; margin-bottom: 12px; display: none; }
-    
-    /* Gráfico simples (tabela) */
-    .chart { margin-top: 20px; }
-    .chart table { width: 100%; }
-    .chart th, .chart td { padding: 8px; }
-    .chart .bar { background: var(--verde); height: 20px; border-radius: 4px; min-width: 2px; transition: width 0.5s; }
-    
-    /* Responsividade */
+    .modal-content { background: var(--card); padding: 30px; border-radius: 12px; width: 500px; max-width: 95%; max-height: 90vh; overflow-y: auto; }
+    .modal h2 { margin-bottom: 20px; }
+    .modal form label { display: block; margin: 10px 0 5px; font-weight: 500; }
+    .modal form input, .modal form select, .modal form textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    .modal form textarea { resize: vertical; min-height: 60px; }
+    .modal .actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+    /* Filters */
+    .filters { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; margin-bottom: 20px; }
+    .filters label { font-size: 13px; color: var(--text-light); display: block; margin-bottom: 3px; }
+    .filters input, .filters select { padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+    /* Responsive */
     @media (max-width: 768px) {
-      .sidebar { width: 60px; }
-      .sidebar h2 { display: none; }
-      .sidebar nav a span { display: none; }
-      .sidebar nav a { justify-content: center; padding: 12px; margin: 4px 5px; }
-      .sidebar .logout span { display: none; }
-      .main { margin-left: 60px; }
-      .header { flex-direction: column; gap: 10px; text-align: center; }
+      #sidebar { width: 60px; }
+      #sidebar h2 { font-size: 0; }
+      #sidebar nav a { padding: 14px 0; text-align: center; font-size: 0; }
+      #sidebar nav a i { margin-right: 0; font-size: 20px; }
+      #main { margin-left: 60px; padding: 20px; }
+      .cards { grid-template-columns: 1fr; }
     }
+    .hidden { display: none; }
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <!-- Tela de Login -->
-  <div id="loginPage">
-    <div class="login-box">
-      <h2>Ativamente</h2>
-      <p>Plataforma de Gestão de Clínica</p>
-      <div class="error-msg" id="loginError"></div>
-      <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
-      <input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password">
-      <button onclick="handleAuth()">Entrar</button>
-      <div class="toggle">Não tem conta? <a onclick="toggleAuthMode()">Registrar</a></div>
+  <!-- Login Overlay -->
+  <div id="login-overlay">
+    <div id="login-box">
+      <h2><i class="fas fa-lock"></i> Acesso</h2>
+      <input type="password" id="login-password" placeholder="Digite a senha" />
+      <button onclick="login()">Entrar</button>
+      <div id="login-error" class="login-error"></div>
     </div>
   </div>
 
   <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <h2>Ativamente</h2>
+  <aside id="sidebar">
+    <h2><i class="fas fa-brain"></i> Ativamente</h2>
     <nav>
-      <a href="#" onclick="showSection('dashboard')" id="nav-dashboard">📊 <span>Dashboard</span></a>
-      <a href="#" onclick="showSection('pacientes')" id="nav-pacientes">👥 <span>Pacientes</span></a>
-      <a href="#" onclick="showSection('agenda')" id="nav-agenda">📅 <span>Agenda</span></a>
-      <a href="#" onclick="showSection('prontuarios')" id="nav-prontuarios">📋 <span>Prontuários</span></a>
-      <a href="#" onclick="showSection('configuracoes')" id="nav-configuracoes">⚙️ <span>Configurações</span></a>
+      <a href="#dashboard" class="active" onclick="showPage('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="#pacientes" onclick="showPage('pacientes')"><i class="fas fa-users"></i> Pacientes</a>
+      <a href="#agenda" onclick="showPage('agenda')"><i class="fas fa-calendar-alt"></i> Agenda</a>
+      <a href="#prontuarios" onclick="showPage('prontuarios')"><i class="fas fa-file-medical"></i> Prontuários</a>
+      <a href="#financeiro" onclick="showPage('financeiro')"><i class="fas fa-dollar-sign"></i> Financeiro</a>
+      <a href="#configuracoes" onclick="showPage('configuracoes')"><i class="fas fa-cog"></i> Configurações</a>
     </nav>
-    <button class="logout" onclick="logout()">🚪 <span>Sair</span></button>
-  </div>
+  </aside>
 
-  <!-- Conteúdo Principal -->
-  <div class="main" id="mainContent" style="display:none;">
-    <div class="header">
-      <h1 id="pageTitle">Dashboard</h1>
-      <div class="user">👤 <span id="userGreeting">Olá, Usuário</span></div>
-    </div>
-
-    <!-- Seções -->
-    <div id="section-dashboard" class="section">
+  <!-- Main Content -->
+  <main id="main">
+    <!-- Dashboard -->
+    <section id="page-dashboard" class="page active">
+      <h1><i class="fas fa-home"></i> Dashboard</h1>
       <div class="cards">
-        <div class="card"><h3>Total de Pacientes</h3><div class="number" id="totalPacientes">0</div></div>
-        <div class="card"><h3>Consultas Marcadas (Mês)</h3><div class="number" id="consultasMes">0</div></div>
-        <div class="card"><h3>Prontuários Criados</h3><div class="number" id="totalProntuarios">0</div></div>
-        <div class="card"><h3>Receita Total (R$)</h3><div class="number" id="receitaTotal">0</div></div>
+        <div class="card"><h3>Total de Pacientes</h3><div class="value" id="dash-total-pacientes">0</div></div>
+        <div class="card"><h3>Receita do Mês</h3><div class="value green" id="dash-receita-mes">R$ 0,00</div></div>
+        <div class="card"><h3>Receitas Pagas</h3><div class="value green" id="dash-receitas-pagas">R$ 0,00</div></div>
+        <div class="card"><h3>Receitas Pendentes</h3><div class="value red" id="dash-receitas-pendentes">R$ 0,00</div></div>
       </div>
-      <div class="chart table-container">
-        <h3>Consultas por Dia (Últimos 7 dias)</h3>
-        <table id="chartTable">
-          <thead><tr><th>Dia</th><th>Consultas</th></tr></thead>
-          <tbody id="chartBody"></tbody>
+    </section>
+
+    <!-- Pacientes -->
+    <section id="page-pacientes" class="page">
+      <h1><i class="fas fa-users"></i> Pacientes</h1>
+      <button class="btn btn-primary" onclick="abrirModalPaciente()"><i class="fas fa-plus"></i> Novo Paciente</button>
+      <div class="table-container" style="margin-top:20px;">
+        <table id="tabela-pacientes">
+          <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-pacientes"></tbody>
         </table>
       </div>
-    </div>
+    </section>
 
-    <div id="section-pacientes" class="section" style="display:none;">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-        <input type="text" id="searchPaciente" placeholder="Buscar paciente..." oninput="renderPacientes()" style="padding:10px; border:1px solid var(--cinza-claro); border-radius:8px; flex:1; min-width:200px;">
-        <button class="btn btn-primary btn-add" onclick="openModal('paciente')">+ Novo Paciente</button>
+    <!-- Agenda (simplificada) -->
+    <section id="page-agenda" class="page">
+      <h1><i class="fas fa-calendar-alt"></i> Agenda</h1>
+      <p>Módulo de agenda será implementado em breve.</p>
+    </section>
+
+    <!-- Prontuários -->
+    <section id="page-prontuarios" class="page">
+      <h1><i class="fas fa-file-medical"></i> Prontuários</h1>
+      <p>Módulo de prontuários será implementado em breve.</p>
+    </section>
+
+    <!-- Financeiro -->
+    <section id="page-financeiro" class="page">
+      <h1><i class="fas fa-dollar-sign"></i> Financeiro - Receitas</h1>
+      <!-- Cards de indicadores -->
+      <div class="cards">
+        <div class="card"><h3>Total (Período)</h3><div class="value" id="fin-total">R$ 0,00</div></div>
+        <div class="card"><h3>Recebido (Pago)</h3><div class="value green" id="fin-pago">R$ 0,00</div></div>
+        <div class="card"><h3>Pendente</h3><div class="value red" id="fin-pendente">R$ 0,00</div></div>
       </div>
-      <div class="table-container">
-        <table>
-          <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Nascimento</th><th>Ações</th></tr></thead>
-          <tbody id="pacientesTableBody"></tbody>
+      <!-- Filtros -->
+      <div class="filters">
+        <div><label>Data Início</label><input type="date" id="filtro-data-inicio" /></div>
+        <div><label>Data Fim</label><input type="date" id="filtro-data-fim" /></div>
+        <div><label>Forma de Pagamento</label><select id="filtro-forma"><option value="">Todas</option><option value="Dinheiro">Dinheiro</option><option value="PIX">PIX</option><option value="Cartão">Cartão</option><option value="Boleto">Boleto</option></select></div>
+        <div><label>Status</label><select id="filtro-status"><option value="">Todos</option><option value="Pago">Pago</option><option value="Pendente">Pendente</option></select></div>
+        <div><label>Paciente</label><select id="filtro-paciente"><option value="">Todos</option></select></div>
+        <div><button class="btn btn-primary btn-sm" onclick="aplicarFiltros()"><i class="fas fa-filter"></i> Filtrar</button>
+        <button class="btn btn-sm" onclick="limparFiltros()"><i class="fas fa-undo"></i> Limpar</button></div>
+      </div>
+      <!-- Botão nova receita -->
+      <button class="btn btn-primary" onclick="abrirModalReceita()"><i class="fas fa-plus"></i> Nova Receita</button>
+      <div class="table-container" style="margin-top:20px;">
+        <table id="tabela-receitas">
+          <thead><tr><th>Data</th><th>Paciente</th><th>Valor</th><th>Forma de Pagamento</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-receitas"></tbody>
         </table>
       </div>
-    </div>
+    </section>
 
-    <div id="section-agenda" class="section" style="display:none;">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-        <div>
-          <button class="btn btn-primary" onclick="filterAgenda('day')">Dia</button>
-          <button class="btn" onclick="filterAgenda('week')">Semana</button>
-          <button class="btn" onclick="filterAgenda('all')">Todas</button>
-        </div>
-        <button class="btn btn-primary btn-add" onclick="openModal('consulta')">+ Nova Consulta</button>
+    <!-- Configurações -->
+    <section id="page-configuracoes" class="page">
+      <h1><i class="fas fa-cog"></i> Configurações</h1>
+      <p>Configurações do sistema.</p>
+      <div style="margin-top:20px;">
+        <label><strong>Senha de acesso:</strong></label><br/>
+        <input type="password" id="config-senha" value="123456" style="width:200px;" />
+        <button class="btn btn-primary btn-sm" onclick="salvarSenha()">Salvar</button>
       </div>
-      <div class="table-container">
-        <table>
-          <thead><tr><th>Paciente</th><th>Data</th><th>Hora</th><th>Descrição</th><th>Ações</th></tr></thead>
-          <tbody id="agendaTableBody"></tbody>
-        </table>
-      </div>
-    </div>
+    </section>
+  </main>
 
-    <div id="section-prontuarios" class="section" style="display:none;">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-        <select id="filterProntuarioPaciente" onchange="renderProntuarios()" style="padding:10px; border:1px solid var(--cinza-claro); border-radius:8px; flex:1; min-width:200px;">
-          <option value="">Todos os pacientes</option>
+  <!-- Modal Receita -->
+  <div id="modal-receita" class="modal">
+    <div class="modal-content">
+      <h2 id="modal-receita-title">Nova Receita</h2>
+      <form id="form-receita">
+        <input type="hidden" id="receita-id" />
+        <label>Valor (R$)</label>
+        <input type="number" step="0.01" id="receita-valor" required />
+        <label>Data</label>
+        <input type="date" id="receita-data" required />
+        <label>Descrição (opcional)</label>
+        <textarea id="receita-descricao"></textarea>
+        <label>Forma de Pagamento</label>
+        <select id="receita-forma">
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="PIX">PIX</option>
+          <option value="Cartão">Cartão</option>
+          <option value="Boleto">Boleto</option>
         </select>
-        <button class="btn btn-primary btn-add" onclick="openModal('prontuario')">+ Novo Prontuário</button>
-      </div>
-      <div class="table-container">
-        <table>
-          <thead><tr><th>Paciente</th><th>Data</th><th>Conteúdo</th><th>Ações</th></tr></thead>
-          <tbody id="prontuariosTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="section-configuracoes" class="section" style="display:none;">
-      <div class="table-container">
-        <form id="configForm">
-          <label>Nome da Clínica</label>
-          <input type="text" id="configNome" required>
-          <label>Endereço</label>
-          <input type="text" id="configEndereco">
-          <label>Telefone</label>
-          <input type="text" id="configTelefone">
-          <label>Email</label>
-          <input type="email" id="configEmail">
-          <label>Logo da Clínica (upload simulado)</label>
-          <input type="file" id="configLogo" accept="image/*">
-          <label>Horário de Funcionamento</label>
-          <textarea id="configHorario" rows="3" placeholder="Ex: Seg a Sex 8h-18h, Sáb 8h-12h"></textarea>
-          <div style="margin-top:20px;"><button type="submit" class="btn btn-primary">Salvar Configurações</button></div>
-        </form>
-      </div>
+        <label>Paciente</label>
+        <select id="receita-paciente"></select>
+        <label>Status</label>
+        <select id="receita-status">
+          <option value="Pago">Pago</option>
+          <option value="Pendente">Pendente</option>
+        </select>
+        <div class="actions">
+          <button type="button" class="btn" onclick="fecharModal('modal-receita')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <!-- Modais -->
-  <div class="modal" id="modalPaciente">
+  <!-- Modal Paciente -->
+  <div id="modal-paciente" class="modal">
     <div class="modal-content">
-      <h2 id="modalPacienteTitle">Novo Paciente</h2>
-      <form id="formPaciente">
-        <input type="hidden" id="pacienteId">
+      <h2 id="modal-paciente-title">Novo Paciente</h2>
+      <form id="form-paciente">
+        <input type="hidden" id="paciente-id" />
         <label>Nome</label>
-        <input type="text" id="pacNome" required>
+        <input type="text" id="paciente-nome" required />
         <label>Telefone</label>
-        <input type="text" id="pacTelefone">
+        <input type="text" id="paciente-telefone" />
         <label>Email</label>
-        <input type="email" id="pacEmail">
-        <label>Data de Nascimento</label>
-        <input type="date" id="pacNasc">
-        <div class="modal-buttons">
-          <button type="button" class="btn btn-cancel" onclick="closeModal('paciente')">Cancelar</button>
+        <input type="email" id="paciente-email" />
+        <div class="actions">
+          <button type="button" class="btn" onclick="fecharModal('modal-paciente')">Cancelar</button>
           <button type="submit" class="btn btn-primary">Salvar</button>
         </div>
       </form>
     </div>
   </div>
 
-  <div class="modal" id="modalConsulta">
+  <!-- Modal Detalhes Receita -->
+  <div id="modal-detalhes" class="modal">
     <div class="modal-content">
-      <h2 id="modalConsultaTitle">Nova Consulta</h2>
-      <form id="formConsulta">
-        <input type="hidden" id="consultaId">
-        <label>Paciente</label>
-        <select id="consPaciente" required></select>
-        <label>Data</label>
-        <input type="date" id="consData" required>
-        <label>Hora</label>
-        <input type="time" id="consHora">
-        <label>Descrição</label>
-        <textarea id="consDesc" rows="3"></textarea>
-        <div class="modal-buttons">
-          <button type="button" class="btn btn-cancel" onclick="closeModal('consulta')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="modal" id="modalProntuario">
-    <div class="modal-content">
-      <h2 id="modalProntuarioTitle">Novo Prontuário</h2>
-      <form id="formProntuario">
-        <input type="hidden" id="prontuarioId">
-        <label>Paciente</label>
-        <select id="prontPaciente" required></select>
-        <label>Data</label>
-        <input type="date" id="prontData" required>
-        <label>Conteúdo</label>
-        <textarea id="prontConteudo" rows="6" placeholder="Use o template padrão abaixo se desejar..."></textarea>
-        <div style="margin-top:8px;"><button type="button" class="btn" onclick="applyTemplate()">Inserir Template Padrão</button></div>
-        <div class="modal-buttons">
-          <button type="button" class="btn btn-cancel" onclick="closeModal('prontuario')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar</button>
-        </div>
-      </form>
+      <h2>Detalhes da Receita</h2>
+      <div id="detalhes-conteudo"></div>
+      <div class="actions"><button class="btn" onclick="fecharModal('modal-detalhes')">Fechar</button></div>
     </div>
   </div>
 
   <script>
-    // Armazenamento
-    function getData(key) { return JSON.parse(localStorage.getItem(key)) || []; }
-    function setData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-    function getConfig() { return JSON.parse(localStorage.getItem('config')) || {}; }
-    function setConfig(config) { localStorage.setItem('config', JSON.stringify(config)); }
+    // ============ DADOS INICIAIS ============
+    const SENHA_PADRAO = '123456';
+    let pacientes = JSON.parse(localStorage.getItem('ativamente_pacientes')) || [];
+    let receitas = JSON.parse(localStorage.getItem('ativamente_receitas')) || [];
+    let senhaAtual = localStorage.getItem('ativamente_senha') || SENHA_PADRAO;
+    let editandoReceitaId = null;
+    let editandoPacienteId = null;
 
-    // Autenticação
-    let users = JSON.parse(localStorage.getItem('users')) || [];
-    let loggedUser = sessionStorage.getItem('loggedUser');
-    let isRegister = false;
-
-    function toggleAuthMode() {
-      isRegister = !isRegister;
-      document.querySelector('#loginPage .login-box h2').textContent = isRegister ? 'Registrar' : 'Entrar';
-      document.querySelector('#loginPage .login-box button').textContent = isRegister ? 'Registrar' : 'Entrar';
-      document.querySelector('#loginPage .login-box .toggle').innerHTML = isRegister ? 'Já tem conta? <a onclick="toggleAuthMode()">Entrar</a>' : 'Não tem conta? <a onclick="toggleAuthMode()">Registrar</a>';
-    }
-
-    function handleAuth() {
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value.trim();
-      const errorEl = document.getElementById('loginError');
-      errorEl.style.display = 'none';
-      if (!email || !password) { showError('Preencha todos os campos.'); return; }
-      if (isRegister) {
-        if (users.find(u => u.email === email)) { showError('Email já registrado.'); return; }
-        users.push({ email, password });
-        localStorage.setItem('users', JSON.stringify(users));
-        alert('Registrado com sucesso! Faça login.');
-        toggleAuthMode();
+    // ============ LOGIN ============
+    function login() {
+      const pwd = document.getElementById('login-password').value;
+      if (pwd === senhaAtual) {
+        document.getElementById('login-overlay').style.display = 'none';
+        carregarTudo();
       } else {
-        const user = users.find(u => u.email === email && u.password === password);
-        if (!user) { showError('Email ou senha inválidos.'); return; }
-        sessionStorage.setItem('loggedUser', email);
-        loggedUser = email;
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-        document.getElementById('userGreeting').textContent = 'Olá, ' + email.split('@')[0];
-        loadAll();
+        document.getElementById('login-error').innerText = 'Senha incorreta!';
       }
     }
 
-    function showError(msg) {
-      const el = document.getElementById('loginError');
-      el.textContent = msg;
-      el.style.display = 'block';
-    }
-
-    function logout() {
-      sessionStorage.removeItem('loggedUser');
-      location.reload();
-    }
-
-    // Verificar login na carga
-    if (loggedUser) {
-      document.getElementById('loginPage').style.display = 'none';
-      document.getElementById('mainContent').style.display = 'block';
-      document.getElementById('userGreeting').textContent = 'Olá, ' + loggedUser.split('@')[0];
-      loadAll();
-    }
-
-    // Navegação
-    function showSection(section) {
-      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-      document.getElementById('section-' + section).style.display = 'block';
-      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-      document.getElementById('nav-' + section).classList.add('active');
-      document.getElementById('pageTitle').textContent = section.charAt(0).toUpperCase() + section.slice(1);
-      if (section === 'dashboard') updateDashboard();
-      else if (section === 'pacientes') renderPacientes();
-      else if (section === 'agenda') renderAgenda();
-      else if (section === 'prontuarios') { populatePacienteSelect(); renderProntuarios(); }
-      else if (section === 'configuracoes') loadConfig();
-    }
-
-    // Dashboard
-    function updateDashboard() {
-      const pacientes = getData('pacientes');
-      const consultas = getData('consultas');
-      const prontuarios = getData('prontuarios');
-      document.getElementById('totalPacientes').textContent = pacientes.length;
-      const now = new Date();
-      const month = now.getMonth();
-      const year = now.getFullYear();
-      const consultasMes = consultas.filter(c => {
-        const d = new Date(c.data);
-        return d.getMonth() === month && d.getFullYear() === year;
-      });
-      document.getElementById('consultasMes').textContent = consultasMes.length;
-      document.getElementById('totalProntuarios').textContent = prontuarios.length;
-      // Receita fictícia: R$ 100 por consulta
-      const receita = consultas.length * 100;
-      document.getElementById('receitaTotal').textContent = receita.toFixed(2);
-      // Gráfico: últimos 7 dias
-      const dias = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dataStr = d.toISOString().split('T')[0];
-        const count = consultas.filter(c => c.data === dataStr).length;
-        dias.push({ dia: dataStr, count });
+    // ============ PÁGINAS ============
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+      document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
+      document.querySelector(`#sidebar nav a[href="#${page}"]`).classList.add('active');
+      if (page === 'financeiro') {
+        carregarFiltroPacientes();
+        aplicarFiltros();
       }
-      const maxCount = Math.max(...dias.map(d => d.count), 1);
-      let html = '';
-      dias.forEach(d => {
-        const width = Math.round((d.count / maxCount) * 100);
-        html += `<tr><td>${new Date(d.dia).toLocaleDateString('pt-BR')}</td><td><div class="bar" style="width:${width}%">${d.count}</div></td></tr>`;
-      });
-      document.getElementById('chartBody').innerHTML = html;
+      if (page === 'pacientes') renderPacientes();
+      if (page === 'dashboard') atualizarDashboard();
     }
 
-    // Pacientes
+    // ============ PACIENTES ============
+    function salvarPacientes() {
+      localStorage.setItem('ativamente_pacientes', JSON.stringify(pacientes));
+      renderPacientes();
+      atualizarDashboard();
+    }
+
     function renderPacientes() {
-      const pacientes = getData('pacientes');
-      const search = document.getElementById('searchPaciente').value.toLowerCase();
-      const filtered = pacientes.filter(p => p.nome.toLowerCase().includes(search));
-      let html = '';
-      filtered.forEach(p => {
-        html += `<tr>
+      const tbody = document.getElementById('tbody-pacientes');
+      tbody.innerHTML = pacientes.map((p, i) => `
+        <tr>
           <td>${p.nome}</td>
           <td>${p.telefone || '-'}</td>
           <td>${p.email || '-'}</td>
-          <td>${p.nascimento || '-'}</td>
-          <td class="actions">
-            <button class="btn btn-edit" onclick="editPaciente('${p.id}')">✏️</button>
-            <button class="btn btn-delete" onclick="deletePaciente('${p.id}')">🗑️</button>
+          <td>
+            <button class="btn btn-warning btn-sm" onclick="editarPaciente(${i})"><i class="fas fa-edit"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deletarPaciente(${i})"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`).join('');
+    }
+
+    function abrirModalPaciente(id) {
+      if (id !== undefined) {
+        editandoPacienteId = id;
+        const p = pacientes[id];
+        document.getElementById('paciente-id').value = id;
+        document.getElementById('paciente-nome').value = p.nome;
+        document.getElementById('paciente-telefone').value = p.telefone;
+        document.getElementById('paciente-email').value = p.email;
+        document.getElementById('modal-paciente-title').innerText = 'Editar Paciente';
+      } else {
+        editandoPacienteId = null;
+        document.getElementById('form-paciente').reset();
+        document.getElementById('paciente-id').value = '';
+        document.getElementById('modal-paciente-title').innerText = 'Novo Paciente';
+      }
+      document.getElementById('modal-paciente').classList.add('active');
+    }
+
+    function editarPaciente(i) { abrirModalPaciente(i); }
+
+    function deletarPaciente(i) {
+      if (confirm('Deletar paciente?')) {
+        pacientes.splice(i, 1);
+        salvarPacientes();
+      }
+    }
+
+    document.getElementById('form-paciente').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const nome = document.getElementById('paciente-nome').value.trim();
+      const telefone = document.getElementById('paciente-telefone').value.trim();
+      const email = document.getElementById('paciente-email').value.trim();
+      if (!nome) return alert('Nome obrigatório');
+      if (editandoPacienteId !== null) {
+        pacientes[editandoPacienteId] = { nome, telefone, email };
+      } else {
+        pacientes.push({ nome, telefone, email });
+      }
+      salvarPacientes();
+      fecharModal('modal-paciente');
+    });
+
+    // ============ RECEITAS ============
+    function salvarReceitas() {
+      localStorage.setItem('ativamente_receitas', JSON.stringify(receitas));
+      aplicarFiltros();
+      atualizarDashboard();
+    }
+
+    function carregarFiltroPacientes() {
+      const sel = document.getElementById('filtro-paciente');
+      const current = sel.value;
+      sel.innerHTML = '<option value="">Todos</option>' + pacientes.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+      sel.value = current || '';
+    }
+
+    function carregarSelectPacientesReceita() {
+      const sel = document.getElementById('receita-paciente');
+      sel.innerHTML = pacientes.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+      if (sel.options.length === 0) sel.innerHTML = '<option value="">Nenhum paciente cadastrado</option>';
+    }
+
+    function aplicarFiltros() {
+      const dataInicio = document.getElementById('filtro-data-inicio').value;
+      const dataFim = document.getElementById('filtro-data-fim').value;
+      const forma = document.getElementById('filtro-forma').value;
+      const status = document.getElementById('filtro-status').value;
+      const paciente = document.getElementById('filtro-paciente').value;
+
+      let filtradas = receitas.filter(r => {
+        if (dataInicio && r.data < dataInicio) return false;
+        if (dataFim && r.data > dataFim) return false;
+        if (forma && r.forma !== forma) return false;
+        if (status && r.status !== status) return false;
+        if (paciente && r.paciente !== paciente) return false;
+        return true;
+      });
+
+      // Ordenar por data decrescente
+      filtradas.sort((a,b) => b.data.localeCompare(a.data));
+
+      renderTabelaReceitas(filtradas);
+      atualizarCardsFinanceiro(filtradas);
+    }
+
+    function limparFiltros() {
+      document.getElementById('filtro-data-inicio').value = '';
+      document.getElementById('filtro-data-fim').value = '';
+      document.getElementById('filtro-forma').value = '';
+      document.getElementById('filtro-status').value = '';
+      document.getElementById('filtro-paciente').value = '';
+      aplicarFiltros();
+    }
+
+    function renderTabelaReceitas(lista) {
+      const tbody = document.getElementById('tbody-receitas');
+      tbody.innerHTML = lista.map(r => {
+        const statusClass = r.status === 'Pago' ? 'status-pago' : 'status-pendente';
+        return `<tr>
+          <td>${r.data}</td>
+          <td>${r.paciente || '-'}</td>
+          <td>R$ ${parseFloat(r.valor).toFixed(2)}</td>
+          <td>${r.forma}</td>
+          <td><span class="${statusClass}">${r.status}</span></td>
+          <td>
+            <button class="btn btn-sm btn-warning" onclick="editarReceita('${r.id}')"><i class="fas fa-edit"></i></button>
+            <button class="btn btn-sm btn-danger" onclick="deletarReceita('${r.id}')"><i class="fas fa-trash"></i></button>
+            <button class="btn btn-sm btn-primary" onclick="verDetalhes('${r.id}')"><i class="fas fa-eye"></i></button>
           </td>
         </tr>`;
-      });
-      document.getElementById('pacientesTableBody').innerHTML = html;
+      }).join('');
     }
 
-    function openModal(type) {
-      if (type === 'paciente') {
-        document.getElementById('modalPaciente').classList.add('active');
-        document.getElementById('formPaciente').reset();
-        document.getElementById('pacienteId').value = '';
-        document.getElementById('modalPacienteTitle').textContent = 'Novo Paciente';
-      } else if (type === 'consulta') {
-        populatePacienteSelect('consPaciente');
-        document.getElementById('modalConsulta').classList.add('active');
-        document.getElementById('formConsulta').reset();
-        document.getElementById('consultaId').value = '';
-        document.getElementById('modalConsultaTitle').textContent = 'Nova Consulta';
-      } else if (type === 'prontuario') {
-        populatePacienteSelect('prontPaciente');
-        document.getElementById('modalProntuario').classList.add('active');
-        document.getElementById('formProntuario').reset();
-        document.getElementById('prontuarioId').value = '';
-        document.getElementById('modalProntuarioTitle').textContent = 'Novo Prontuário';
-      }
+    function atualizarCardsFinanceiro(lista) {
+      const total = lista.reduce((s, r) => s + parseFloat(r.valor), 0);
+      const pago = lista.filter(r => r.status === 'Pago').reduce((s, r) => s + parseFloat(r.valor), 0);
+      const pendente = total - pago;
+      document.getElementById('fin-total').innerText = `R$ ${total.toFixed(2)}`;
+      document.getElementById('fin-pago').innerText = `R$ ${pago.toFixed(2)}`;
+      document.getElementById('fin-pendente').innerText = `R$ ${pendente.toFixed(2)}`;
     }
 
-    function closeModal(type) {
-      if (type === 'paciente') document.getElementById('modalPaciente').classList.remove('active');
-      else if (type === 'consulta') document.getElementById('modalConsulta').classList.remove('active');
-      else if (type === 'prontuario') document.getElementById('modalProntuario').classList.remove('active');
-    }
-
-    document.getElementById('formPaciente').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const id = document.getElementById('pacienteId').value;
-      const nome = document.getElementById('pacNome').value.trim();
-      const telefone = document.getElementById('pacTelefone').value.trim();
-      const email = document.getElementById('pacEmail').value.trim();
-      const nascimento = document.getElementById('pacNasc').value;
-      const pacientes = getData('pacientes');
+    function abrirModalReceita(id) {
+      carregarSelectPacientesReceita();
       if (id) {
-        const idx = pacientes.findIndex(p => p.id === id);
-        if (idx !== -1) { pacientes[idx] = { ...pacientes[idx], nome, telefone, email, nascimento }; }
+        editandoReceitaId = id;
+        const r = receitas.find(item => item.id === id);
+        document.getElementById('receita-id').value = id;
+        document.getElementById('receita-valor').value = r.valor;
+        document.getElementById('receita-data').value = r.data;
+        document.getElementById('receita-descricao').value = r.descricao || '';
+        document.getElementById('receita-forma').value = r.forma;
+        document.getElementById('receita-paciente').value = r.paciente;
+        document.getElementById('receita-status').value = r.status;
+        document.getElementById('modal-receita-title').innerText = 'Editar Receita';
       } else {
-        const novo = { id: Date.now().toString(), nome, telefone, email, nascimento };
-        pacientes.push(novo);
+        editandoReceitaId = null;
+        document.getElementById('form-receita').reset();
+        document.getElementById('receita-id').value = '';
+        document.getElementById('receita-data').value = new Date().toISOString().split('T')[0];
+        document.getElementById('modal-receita-title').innerText = 'Nova Receita';
       }
-      setData('pacientes', pacientes);
-      closeModal('paciente');
+      document.getElementById('modal-receita').classList.add('active');
+    }
+
+    function editarReceita(id) { abrirModalReceita(id); }
+
+    function deletarReceita(id) {
+      if (confirm('Deletar receita?')) {
+        receitas = receitas.filter(r => r.id !== id);
+        salvarReceitas();
+      }
+    }
+
+    function verDetalhes(id) {
+      const r = receitas.find(item => item.id === id);
+      const conteudo = document.getElementById('detalhes-conteudo');
+      conteudo.innerHTML = `
+        <p><strong>Data:</strong> ${r.data}</p>
+        <p><strong>Paciente:</strong> ${r.paciente || '-'}</p>
+        <p><strong>Valor:</strong> R$ ${parseFloat(r.valor).toFixed(2)}</p>
+        <p><strong>Forma de pagamento:</strong> ${r.forma}</p>
+        <p><strong>Status:</strong> ${r.status}</p>
+        <p><strong>Descrição:</strong> ${r.descricao || '-'}</p>
+      `;
+      document.getElementById('modal-detalhes').classList.add('active');
+    }
+
+    document.getElementById('form-receita').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const valor = document.getElementById('receita-valor').value;
+      const data = document.getElementById('receita-data').value;
+      const descricao = document.getElementById('receita-descricao').value.trim();
+      const forma = document.getElementById('receita-forma').value;
+      const paciente = document.getElementById('receita-paciente').value;
+      const status = document.getElementById('receita-status').value;
+      if (!valor || !data) return alert('Valor e data são obrigatórios');
+      if (editandoReceitaId) {
+        const idx = receitas.findIndex(r => r.id === editandoReceitaId);
+        if (idx !== -1) {
+          receitas[idx] = { ...receitas[idx], valor, data, descricao, forma, paciente, status };
+        }
+      } else {
+        const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+        receitas.push({ id, valor, data, descricao, forma, paciente, status });
+      }
+      salvarReceitas();
+      fecharModal('modal-receita');
+    });
+
+    // ============ MODAIS ============
+    function fecharModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // Fechar modal clicando fora
+    document.querySelectorAll('.modal').forEach(m => {
+      m.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('active');
+      });
+    });
+
+    // ============ DASHBOARD ============
+    function atualizarDashboard() {
+      document.getElementById('dash-total-pacientes').innerText = pacientes.length;
+      const agora = new Date();
+      const mesAtual = agora.getFullYear() + '-' + String(agora.getMonth() + 1).padStart(2,'0');
+      const receitasMes = receitas.filter(r => r.data.startsWith(mesAtual));
+      const totalMes = receitasMes.reduce((s, r) => s + parseFloat(r.valor), 0);
+      const pagasMes = receitasMes.filter(r => r.status === 'Pago').reduce((s, r) => s + parseFloat(r.valor), 0);
+      const pendentesMes = totalMes - pagasMes;
+      document.getElementById('dash-receita-mes').innerText = `R$ ${totalMes.toFixed(2)}`;
+      document.getElementById('dash-receitas-pagas').innerText = `R$ ${pagasMes.toFixed(2)}`;
+      document.getElementById('dash-receitas-pendentes').innerText = `R$ ${pendentesMes.toFixed(2)}`;
+    }
+
+    // ============ CONFIGURAÇÕES ============
+    function salvarSenha() {
+      const nova = document.getElementById('config-senha').value;
+      if (nova.length < 4) return alert('Senha deve ter no mínimo 4 caracteres');
+      senhaAtual = nova;
+      localStorage.setItem('ativamente_senha', senhaAtual);
+      alert('Senha salva com sucesso!');
+    }
+
+    // ============ INICIALIZAÇÃO ============
+    function carregarTudo() {
       renderPacientes();
-      updateDashboard();
-    });
-
-    function editPaciente(id) {
-      const pacientes = getData('pacientes');
-      const p = pacientes.find(p => p.id === id);
-      if (!p) return;
-      document.getElementById('pacienteId').value = p.id;
-      document.getElementById('pacNome').value = p.nome;
-      document.getElementById('pacTelefone').value = p.telefone || '';
-      document.getElementById('pacEmail').value = p.email || '';
-      document.getElementById('pacNasc').value = p.nascimento || '';
-      document.getElementById('modalPacienteTitle').textContent = 'Editar Paciente';
-      document.getElementById('modalPaciente').classList.add('active');
-    }
-
-    function deletePaciente(id) {
-      if (!confirm('Tem certeza que deseja excluir este paciente?')) return;
-      let pacientes = getData('pacientes');
-      pacientes = pacientes.filter(p => p.id !== id);
-      setData('pacientes', pacientes);
-      renderPacientes();
-      updateDashboard();
-    }
-
-    // Agenda
-    let agendaFilter = 'all';
-    function filterAgenda(filter) {
-      agendaFilter = filter;
-      renderAgenda();
-      document.querySelectorAll('#section-agenda .btn').forEach(b => b.classList.remove('btn-primary'));
-      if (filter === 'day') document.querySelector('#section-agenda .btn:first-child').classList.add('btn-primary');
-      else if (filter === 'week') document.querySelector('#section-agenda .btn:nth-child(2)').classList.add('btn-primary');
-      else document.querySelector('#section-agenda .btn:nth-child(3)').classList.add('btn-primary');
-    }
-
-    function renderAgenda() {
-      const consultas = getData('consultas');
-      const pacientes = getData('pacientes');
-      let filtered = consultas;
-      const hoje = new Date().toISOString().split('T')[0];
-      if (agendaFilter === 'day') filtered = consultas.filter(c => c.data === hoje);
-      else if (agendaFilter === 'week') {
-        const now = new Date();
-        const start = new Date(now);
-        start.setDate(now.getDate() - now.getDay()); // domingo
-        const end = new Date(start);
-        end.setDate(start.getDate() + 7);
-        filtered = consultas.filter(c => {
-          const d = new Date(c.data);
-          return d >= start && d < end;
-        });
+      aplicarFiltros();
+      atualizarDashboard();
+      if (document.getElementById('page-financeiro').classList.contains('active')) {
+        carregarFiltroPacientes();
       }
-      filtered.sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
-      let html = '';
-      filtered.forEach(c => {
-        const paciente = pacientes.find(p => p.id === c.pacienteId);
-        html += `<tr>
-          <td>${paciente ? paciente.nome : 'Desconhecido'}</td>
-          <td>${new Date(c.data).toLocaleDateString('pt-BR')}</td>
-          <td>${c.hora || '-'}</td>
-          <td>${c.descricao || '-'}</td>
-          <td class="actions">
-            <button class="btn btn-edit" onclick="editConsulta('${c.id}')">✏️</button>
-            <button class="btn btn-delete" onclick="deleteConsulta('${c.id}')">🗑️</button>
-          </td>
-        </tr>`;
-      });
-      document.getElementById('agendaTableBody').innerHTML = html;
     }
 
-    document.getElementById('formConsulta').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const id = document.getElementById('consultaId').value;
-      const pacienteId = document.getElementById('consPaciente').value;
-      const data = document.getElementById('consData').value;
-      const hora = document.getElementById('consHora').value;
-      const descricao = document.getElementById('consDesc').value.trim();
-      if (!pacienteId || !data) { alert('Preencha paciente e data.'); return; }
-      const consultas = getData('consultas');
-      if (id) {
-        const idx = consultas.findIndex(c => c.id === id);
-        if (idx !== -1) consultas[idx] = { ...consultas[idx], pacienteId, data, hora, descricao };
-      } else {
-        consultas.push({ id: Date.now().toString(), pacienteId, data, hora, descricao });
-      }
-      setData('consultas', consultas);
-      closeModal('consulta');
-      renderAgenda();
-      updateDashboard();
+    // Se já estiver logado (por exemplo, se senha estiver correta ao recarregar) - não, sempre mostra login
+    // Inicialmente, mostra tela de login
+    document.getElementById('login-password').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') login();
     });
 
-    function editConsulta(id) {
-      const consultas = getData('consultas');
-      const c = consultas.find(x => x.id === id);
-      if (!c) return;
-      populatePacienteSelect('consPaciente');
-      document.getElementById('consultaId').value = c.id;
-      document.getElementById('consPaciente').value = c.pacienteId;
-      document.getElementById('consData').value = c.data;
-      document.getElementById('consHora').value = c.hora || '';
-      document.getElementById('consDesc').value = c.descricao || '';
-      document.getElementById('modalConsultaTitle').textContent = 'Editar Consulta';
-      document.getElementById('modalConsulta').classList.add('active');
-    }
-
-    function deleteConsulta(id) {
-      if (!confirm('Tem certeza que deseja excluir esta consulta?')) return;
-      let consultas = getData('consultas');
-      consultas = consultas.filter(c => c.id !== id);
-      setData('consultas', consultas);
-      renderAgenda();
-      updateDashboard();
-    }
-
-    function populatePacienteSelect(selectId = 'consPaciente') {
-      const pacientes = getData('pacientes');
-      const select = document.getElementById(selectId);
-      select.innerHTML = '<option value="">Selecione um paciente</option>';
-      pacientes.forEach(p => {
-        select.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
-      });
-    }
-
-    // Prontuários
-    function renderProntuarios() {
-      const prontuarios = getData('prontuarios');
-      const pacientes = getData('pacientes');
-      const filterPacienteId = document.getElementById('filterProntuarioPaciente').value;
-      let filtered = prontuarios;
-      if (filterPacienteId) filtered = prontuarios.filter(p => p.pacienteId === filterPacienteId);
-      filtered.sort((a, b) => b.data.localeCompare(a.data));
-      let html = '';
-      filtered.forEach(p => {
-        const paciente = pacientes.find(x => x.id === p.pacienteId);
-        html += `<tr>
-          <td>${paciente ? paciente.nome : 'Desconhecido'}</td>
-          <td>${new Date(p.data).toLocaleDateString('pt-BR')}</td>
-          <td>${p.conteudo.substring(0, 50)}...</td>
-          <td class="actions">
-            <button class="btn btn-edit" onclick="editProntuario('${p.id}')">✏️</button>
-            <button class="btn btn-delete" onclick="deleteProntuario('${p.id}')">🗑️</button>
-          </td>
-        </tr>`;
-      });
-      document.getElementById('prontuariosTableBody').innerHTML = html;
-    }
-
-    document.getElementById('formProntuario').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const id = document.getElementById('prontuarioId').value;
-      const pacienteId = document.getElementById('prontPaciente').value;
-      const data = document.getElementById('prontData').value;
-      const conteudo = document.getElementById('prontConteudo').value.trim();
-      if (!pacienteId || !data || !conteudo) { alert('Preencha todos os campos.'); return; }
-      const prontuarios = getData('prontuarios');
-      if (id) {
-        const idx = prontuarios.findIndex(p => p.id === id);
-        if (idx !== -1) prontuarios[idx] = { ...prontuarios[idx], pacienteId, data, conteudo };
-      } else {
-        prontuarios.push({ id: Date.now().toString(), pacienteId, data, conteudo });
-      }
-      setData('prontuarios', prontuarios);
-      closeModal('prontuario');
-      renderProntuarios();
-      updateDashboard();
-    });
-
-    function editProntuario(id) {
-      const prontuarios = getData('prontuarios');
-      const p = prontuarios.find(x => x.id === id);
-      if (!p) return;
-      populatePacienteSelect('prontPaciente');
-      document.getElementById('prontuarioId').value = p.id;
-      document.getElementById('prontPaciente').value = p.pacienteId;
-      document.getElementById('prontData').value = p.data;
-      document.getElementById('prontConteudo').value = p.conteudo;
-      document.getElementById('modalProntuarioTitle').textContent = 'Editar Prontuário';
-      document.getElementById('modalProntuario').classList.add('active');
-    }
-
-    function deleteProntuario(id) {
-      if (!confirm('Tem certeza que deseja excluir este prontuário?')) return;
-      let prontuarios = getData('prontuarios');
-      prontuarios = prontuarios.filter(p => p.id !== id);
-      setData('prontuarios', prontuarios);
-      renderProntuarios();
-      updateDashboard();
-    }
-
-    function applyTemplate() {
-      const template = `Data: ${new Date().toLocaleDateString('pt-BR')}\n\n**Anamnese:**\n- Queixa principal:\n- História da doença atual:\n- Antecedentes pessoais:\n- Antecedentes familiares:\n\n**Exame Físico:**\n- Sinais vitais:\n- Inspeção:\n- Palpação:\n- Ausculta:\n\n**Hipótese Diagnóstica:**\n\n**Conduta:**\n- Exames solicitados:\n- Medicamentos prescritos:\n- Orientações:`;
-      document.getElementById('prontConteudo').value = template;
-    }
-
-    // Configurações
-    function loadConfig() {
-      const config = getConfig();
-      document.getElementById('configNome').value = config.nome || '';
-      document.getElementById('configEndereco').value = config.endereco || '';
-      document.getElementById('configTelefone').value = config.telefone || '';
-      document.getElementById('configEmail').value = config.email || '';
-      document.getElementById('configHorario').value = config.horario || '';
-      // Logo não é carregado por simplicidade
-    }
-
-    document.getElementById('configForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const config = {
-        nome: document.getElementById('configNome').value.trim(),
-        endereco: document.getElementById('configEndereco').value.trim(),
-        telefone: document.getElementById('configTelefone').value.trim(),
-        email: document.getElementById('configEmail').value.trim(),
-        horario: document.getElementById('configHorario').value.trim(),
-        logo: '' // upload simulado não armazenamos
-      };
-      setConfig(config);
-      alert('Configurações salvas com sucesso!');
-    });
-
-    // Carregamento inicial
-    function loadAll() {
-      showSection('dashboard');
-      // Preencher select de filtro de prontuários
-      const pacientes = getData('pacientes');
-      const filterSelect = document.getElementById('filterProntuarioPaciente');
-      filterSelect.innerHTML = '<option value="">Todos os pacientes</option>';
-      pacientes.forEach(p => {
-        filterSelect.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
-      });
-      updateDashboard();
-    }
+    // Dados de exemplo (opcional) - descomentar se quiser dados iniciais
+    // if (pacientes.length === 0) {
+    //   pacientes.push({ nome: 'João Silva', telefone: '(11) 99999-0001', email: 'joao@email.com' });
+    //   pacientes.push({ nome: 'Maria Souza', telefone: '(11) 99999-0002', email: 'maria@email.com' });
+    //   localStorage.setItem('ativamente_pacientes', JSON.stringify(pacientes));
+    // }
+    // if (receitas.length === 0) {
+    //   receitas.push({ id: '1', valor: '150.00', data: '2025-03-10', descricao: 'Consulta', forma: 'PIX', paciente: 'João Silva', status: 'Pago' });
+    //   receitas.push({ id: '2', valor: '200.00', data: '2025-03-12', descricao: 'Retorno', forma: 'Dinheiro', paciente: 'Maria Souza', status: 'Pendente' });
+    //   localStorage.setItem('ativamente_receitas', JSON.stringify(receitas));
+    // }
   </script>
 </body>
 </html>
