@@ -4,375 +4,530 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ativamente - Plataforma</title>
-    <link rel="stylesheet" href="/assets/styles/style.css">
-    <!-- Firebase compat SDK (v9+) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase App, Auth, Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        /* Estilos básicos para funcionalidade, complementando style.css */
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; min-height: 100vh; }
-        .auth-section { display: flex; justify-content: center; align-items: center; width: 100%; }
-        .auth-form { background: #f4f4f4; padding: 2rem; border-radius: 8px; width: 300px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .auth-form h2 { text-align: center; margin-top: 0; }
-        .auth-form input { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
-        .auth-form button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .auth-form .toggle-link { color: #007bff; cursor: pointer; text-align: center; display: block; margin-top: 10px; }
-        .main-section { display: none; width: 100%; }
-        .navbar { display: flex; align-items: center; background: #1e3a5f; color: white; padding: 10px 20px; }
-        .navbar img { height: 40px; margin-right: 15px; }
-        .navbar h1 { margin: 0; flex: 1; }
-        .navbar button { background: transparent; color: white; border: 1px solid white; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
-        .sidebar { width: 200px; background: #2c3e50; color: white; padding-top: 20px; min-height: calc(100vh - 60px); }
-        .sidebar a { display: block; padding: 15px; color: white; text-decoration: none; cursor: pointer; }
-        .sidebar a:hover { background: #34495e; }
-        .content { flex: 1; padding: 20px; background: #ecf0f1; }
-        .page { display: none; }
-        .page.active { display: block; }
-        .indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px; }
-        .indicator.red { background: red; }
-        .indicator.yellow { background: yellow; }
-        .indicator.green { background: green; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 400px; max-width: 90%; }
-        .modal-content h2 { margin-top: 0; }
-        .modal-content input, .modal-content textarea { width: 100%; padding: 8px; margin: 5px 0; box-sizing: border-box; }
-        .modal-content button { margin-top: 10px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .modal-content .close { float: right; cursor: pointer; font-size: 1.5em; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f5f5f5; color: #333; }
+        .navbar { background: #2a6e4b; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .navbar h1 { font-size: 1.5rem; }
+        .navbar button { background: white; color: #2a6e4b; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .sidebar { width: 220px; background: white; box-shadow: 2px 0 5px rgba(0,0,0,0.1); position: fixed; top: 60px; left: 0; bottom: 0; overflow-y: auto; padding: 20px 0; }
+        .sidebar a { display: block; padding: 12px 20px; color: #333; text-decoration: none; border-left: 3px solid transparent; }
+        .sidebar a:hover, .sidebar a.active { background: #e8f5e9; border-left-color: #2a6e4b; color: #2a6e4b; }
+        .content { margin-left: 240px; padding: 20px; }
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; position: relative; top: 0; }
+            .content { margin-left: 0; }
+        }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card h3 { margin-bottom: 15px; color: #2a6e4b; }
+        .status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
+        .status-green { background: #4caf50; }
+        .status-yellow { background: #ff9800; }
+        .status-red { background: #f44336; }
+        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-header h2 { color: #2a6e4b; }
+        .close { font-size: 28px; font-weight: bold; cursor: pointer; }
+        .btn { background: #2a6e4b; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-danger { background: #d32f2f; }
+        .btn-outline { background: transparent; border: 1px solid #2a6e4b; color: #2a6e4b; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+        th { background: #2a6e4b; color: white; }
+        .flex { display: flex; gap: 10px; flex-wrap: wrap; }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .auth-container { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .hide { display: none; }
     </style>
 </head>
 <body>
-    <!-- Seção de Autenticação -->
-    <div id="authSection" class="auth-section">
-        <div class="auth-form">
-            <h2 id="authTitle">Login</h2>
-            <form id="authForm">
-                <input type="email" id="authEmail" placeholder="Email" required>
-                <input type="password" id="authPassword" placeholder="Senha" required>
-                <button type="submit" id="authButton">Entrar</button>
-            </form>
-            <span class="toggle-link" id="toggleAuth">Não tem conta? Cadastre-se</span>
-            <div id="authError" style="color: red; margin-top: 10px;"></div>
+    <!-- Navbar -->
+    <div class="navbar" id="navbar">
+        <h1>Ativamente</h1>
+        <button id="logoutBtn" onclick="logout()">Sair</button>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="#" onclick="showSection('dashboard')" class="active" data-section="dashboard">Dashboard</a>
+        <a href="#" onclick="showSection('pacientes')" data-section="pacientes">Pacientes</a>
+        <a href="#" onclick="showSection('agenda')" data-section="agenda">Agenda</a>
+        <a href="#" onclick="showSection('prontuarios')" data-section="prontuarios">Prontuários</a>
+        <a href="#" onclick="showSection('configuracoes')" data-section="configuracoes">Configurações</a>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="content" id="content">
+        <!-- Auth / Login -->
+        <div id="authContainer">
+            <div class="auth-container">
+                <h2 style="color:#2a6e4b;text-align:center;">Acessar Ativamente</h2>
+                <form id="loginForm">
+                    <input type="email" id="loginEmail" placeholder="E-mail" required>
+                    <input type="password" id="loginPassword" placeholder="Senha" required>
+                    <button type="submit" class="btn" style="width:100%;">Entrar</button>
+                    <p style="text-align:center;margin-top:10px;">
+                        <a href="#" onclick="showRegister()">Cadastre-se</a>
+                    </p>
+                </form>
+                <form id="registerForm" class="hide">
+                    <input type="text" id="registerNome" placeholder="Nome completo" required>
+                    <input type="email" id="registerEmail" placeholder="E-mail" required>
+                    <input type="password" id="registerPassword" placeholder="Senha (mín. 6 caracteres)" required>
+                    <button type="submit" class="btn" style="width:100%;">Cadastrar</button>
+                    <p style="text-align:center;margin-top:10px;">
+                        <a href="#" onclick="showLogin()">Já tenho conta</a>
+                    </p>
+                </form>
+                <div id="authMessage" style="color:red;text-align:center;margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboardSection" class="hide">
+            <h2 style="color:#2a6e4b;">Dashboard</h2>
+            <div class="grid-cards">
+                <div class="card">
+                    <h3>Próximas Sessões</h3>
+                    <p id="proximasSessoes">0</p>
+                </div>
+                <div class="card">
+                    <h3>Total Pacientes</h3>
+                    <p id="totalPacientes">0</p>
+                </div>
+                <div class="card">
+                    <h3>Faturamento Mensal</h3>
+                    <p id="faturamento">R$ 0,00</p>
+                </div>
+                <div class="card">
+                    <h3>Status Geral</h3>
+                    <p><span class="status-indicator status-green"></span> Ativo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pacientes -->
+        <div id="pacientesSection" class="hide">
+            <div class="flex" style="justify-content:space-between;align-items:center;">
+                <h2 style="color:#2a6e4b;">Pacientes</h2>
+                <button class="btn" onclick="abrirModalPaciente()">+ Novo</button>
+            </div>
+            <div class="card">
+                <table id="tabelaPacientes">
+                    <thead>
+                        <tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="tbodyPacientes"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Agenda -->
+        <div id="agendaSection" class="hide">
+            <div class="flex" style="justify-content:space-between;align-items:center;">
+                <h2 style="color:#2a6e4b;">Agenda</h2>
+                <button class="btn" onclick="abrirModalAgenda()">+ Nova Sessão</button>
+            </div>
+            <div class="card">
+                <table id="tabelaAgenda">
+                    <thead>
+                        <tr><th>Paciente</th><th>Data</th><th>Horário</th><th>Status</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="tbodyAgenda"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Prontuários -->
+        <div id="prontuariosSection" class="hide">
+            <h2 style="color:#2a6e4b;">Prontuários</h2>
+            <div class="card">
+                <h3>Template de Prontuário</h3>
+                <p><strong>Paciente:</strong> [Nome]</p>
+                <p><strong>Data:</strong> __/__/____</p>
+                <p><strong>Queixa Principal:</strong> _________________________________</p>
+                <p><strong>Observações:</strong> _________________________________</p>
+                <p><strong>Plano:</strong> _________________________________</p>
+            </div>
+        </div>
+
+        <!-- Configurações -->
+        <div id="configuracoesSection" class="hide">
+            <h2 style="color:#2a6e4b;">Configurações</h2>
+            <div class="card">
+                <p>Nome da clínica: <input type="text" id="nomeClinica" placeholder="Ativamente"></p>
+                <p>Horário de funcionamento: <input type="text" id="horario" placeholder="08:00 - 18:00"></p>
+                <button class="btn" onclick="salvarConfig()">Salvar</button>
+            </div>
         </div>
     </div>
 
-    <!-- Seção Principal -->
-    <div id="mainSection" class="main-section">
-        <!-- Navbar -->
-        <div class="navbar">
-            <img src="/assets/logo.png" alt="Ativamente Logo">
-            <h1>Ativamente</h1>
-            <button id="logoutBtn">Sair</button>
-        </div>
-        <div style="display: flex;">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <a onclick="showPage('dashboard')">Dashboard</a>
-                <a onclick="showPage('pacientes')">Pacientes</a>
-                <a onclick="showPage('agenda')">Agenda</a>
-                <a onclick="showPage('prontuarios')">Prontuários</a>
-                <a onclick="showPage('configuracoes')">Configurações</a>
-            </div>
-            <!-- Conteúdo -->
-            <div class="content">
-                <!-- Dashboard -->
-                <div id="pageDashboard" class="page active">
-                    <h2>Dashboard</h2>
-                    <div id="dashboardSummary">Carregando...</div>
-                </div>
-                <!-- Pacientes -->
-                <div id="pagePacientes" class="page">
-                    <h2>Pacientes</h2>
-                    <button onclick="openModal('pacienteModal')">+ Novo Paciente</button>
-                    <div id="pacientesList"></div>
-                </div>
-                <!-- Agenda -->
-                <div id="pageAgenda" class="page">
-                    <h2>Agenda</h2>
-                    <button onclick="openModal('agendamentoModal')">+ Novo Agendamento</button>
-                    <div id="agendaList"></div>
-                </div>
-                <!-- Prontuários -->
-                <div id="pageProntuarios" class="page">
-                    <h2>Prontuários</h2>
-                    <p>Conteúdo em breve.</p>
-                </div>
-                <!-- Configurações -->
-                <div id="pageConfiguracoes" class="page">
-                    <h2>Configurações</h2>
-                    <p>Conteúdo em breve.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Modais -->
     <!-- Modal Paciente -->
-    <div id="pacienteModal" class="modal">
+    <div id="modalPaciente" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('pacienteModal')">&times;</span>
-            <h2>Novo Paciente</h2>
-            <form id="pacienteForm">
-                <input type="text" id="pacNome" placeholder="Nome" required>
-                <input type="email" id="pacEmail" placeholder="Email">
-                <input type="tel" id="pacTel" placeholder="Telefone">
-                <button type="submit">Salvar</button>
+            <div class="modal-header">
+                <h2 id="modalPacienteTitle">Novo Paciente</h2>
+                <span class="close" onclick="fecharModal('modalPaciente')">&times;</span>
+            </div>
+            <form id="formPaciente">
+                <input type="hidden" id="pacienteId">
+                <input type="text" id="pacienteNome" placeholder="Nome completo" required>
+                <input type="tel" id="pacienteTelefone" placeholder="Telefone">
+                <input type="email" id="pacienteEmail" placeholder="E-mail">
+                <select id="pacienteStatus">
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                    <option value="aguardando">Aguardando</option>
+                </select>
+                <button type="submit" class="btn" style="width:100%;">Salvar</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Agendamento -->
-    <div id="agendamentoModal" class="modal">
+    <!-- Modal Agenda -->
+    <div id="modalAgenda" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('agendamentoModal')">&times;</span>
-            <h2>Novo Agendamento</h2>
-            <form id="agendamentoForm">
-                <input type="text" id="agePaciente" placeholder="Nome do Paciente" required>
-                <input type="date" id="ageData" required>
-                <input type="time" id="ageHora" required>
-                <textarea id="ageObs" placeholder="Observações"></textarea>
-                <button type="submit">Agendar</button>
+            <div class="modal-header">
+                <h2 id="modalAgendaTitle">Nova Sessão</h2>
+                <span class="close" onclick="fecharModal('modalAgenda')">&times;</span>
+            </div>
+            <form id="formAgenda">
+                <input type="hidden" id="agendaId">
+                <select id="agendaPaciente" required>
+                    <option value="">Selecione o paciente</option>
+                </select>
+                <input type="date" id="agendaData" required>
+                <input type="time" id="agendaHorario" required>
+                <select id="agendaStatus">
+                    <option value="agendado">Agendado</option>
+                    <option value="realizado">Realizado</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+                <button type="submit" class="btn" style="width:100%;">Salvar</button>
             </form>
         </div>
     </div>
 
     <script>
-        // Configuração do Firebase
+        // Configuração Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyBz9lD7M6Z1qT5v3X0GcWrQpXmJkFyN4Hc",
+            apiKey: "AIzaSyDK5qXLqNcM6DKvB6ES_sDNtGAqmV25Iio",
             authDomain: "espaco-ativamente-psi.firebaseapp.com",
             projectId: "espaco-ativamente-psi",
-            storageBucket: "espaco-ativamente-psi.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abc123def456"
+            storageBucket: "espaco-ativamente-psi.firebasestorage.app",
+            messagingSenderId: "922679253668",
+            appId: "1:922679253668:web:fd2ac83d559c9af49f2431"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Estado da UI
-        let isLogin = true;
-        const authSection = document.getElementById('authSection');
-        const mainSection = document.getElementById('mainSection');
-        const authTitle = document.getElementById('authTitle');
-        const authButton = document.getElementById('authButton');
-        const toggleAuth = document.getElementById('toggleAuth');
-        const authError = document.getElementById('authError');
-        const authForm = document.getElementById('authForm');
-        const logoutBtn = document.getElementById('logoutBtn');
+        // Estado da aplicação
+        let currentUser = null;
+        let pacientes = [];
+        let agendamentos = [];
 
-        // Alternar entre login e registro
-        toggleAuth.addEventListener('click', () => {
-            isLogin = !isLogin;
-            authTitle.textContent = isLogin ? 'Login' : 'Cadastro';
-            authButton.textContent = isLogin ? 'Entrar' : 'Cadastrar';
-            toggleAuth.textContent = isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Faça login';
-        });
+        // Elementos DOM
+        const authContainer = document.getElementById('authContainer');
+        const content = document.getElementById('content');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const registerNome = document.getElementById('registerNome');
+        const registerEmail = document.getElementById('registerEmail');
+        const registerPassword = document.getElementById('registerPassword');
+        const authMessage = document.getElementById('authMessage');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        // Seções
+        const sections = ['dashboard', 'pacientes', 'agenda', 'prontuarios', 'configuracoes'];
+        function showSection(sectionId) {
+            sections.forEach(id => {
+                const el = document.getElementById(id + 'Section');
+                if (el) el.classList.add('hide');
+            });
+            const target = document.getElementById(sectionId + 'Section');
+            if (target) target.classList.remove('hide');
+            // Atualizar active na sidebar
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            const activeLink = document.querySelector(`.sidebar a[data-section="${sectionId}"]`);
+            if (activeLink) activeLink.classList.add('active');
+        }
 
         // Autenticação
-        authForm.addEventListener('submit', async (e) => {
+        function showRegister() {
+            loginForm.classList.add('hide');
+            registerForm.classList.remove('hide');
+            authMessage.textContent = '';
+        }
+        function showLogin() {
+            registerForm.classList.add('hide');
+            loginForm.classList.remove('hide');
+            authMessage.textContent = '';
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
+            const email = loginEmail.value;
+            const password = loginPassword.value;
             try {
-                if (isLogin) {
-                    await auth.signInWithEmailAndPassword(email, password);
-                } else {
-                    await auth.createUserWithEmailAndPassword(email, password);
-                }
-                authError.textContent = '';
+                await auth.signInWithEmailAndPassword(email, password);
+                authMessage.textContent = '';
             } catch (error) {
-                authError.textContent = error.message;
+                authMessage.textContent = error.message;
             }
         });
 
-        // Logout
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut();
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = registerNome.value;
+            const email = registerEmail.value;
+            const password = registerPassword.value;
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                await cred.user.updateProfile({ displayName: nome });
+                // Salvar dados adicionais no Firestore
+                await db.collection('usuarios').doc(cred.user.uid).set({
+                    nome: nome,
+                    email: email
+                });
+                authMessage.textContent = '';
+                showLogin();
+            } catch (error) {
+                authMessage.textContent = error.message;
+            }
         });
 
-        // Observar estado de autenticação
+        function logout() {
+            auth.signOut();
+        }
+
         auth.onAuthStateChanged(user => {
             if (user) {
-                authSection.style.display = 'none';
-                mainSection.style.display = 'block';
-                carregarDashboard();
-                carregarPacientes();
-                carregarAgenda();
+                currentUser = user;
+                authContainer.classList.add('hide');
+                content.classList.remove('hide');
+                logoutBtn.classList.remove('hide');
+                showSection('dashboard');
+                carregarDados();
             } else {
-                authSection.style.display = 'flex';
-                mainSection.style.display = 'none';
-                // Limpar formulário
-                document.getElementById('authEmail').value = '';
-                document.getElementById('authPassword').value = '';
+                currentUser = null;
+                authContainer.classList.remove('hide');
+                content.classList.add('hide');
+                logoutBtn.classList.add('hide');
+                showLogin();
             }
         });
 
-        // Navegação entre páginas
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page' + pageId.charAt(0).toUpperCase() + pageId.slice(1)).classList.add('active');
-        }
-
-        // Modais
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-        }
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-        // Fechar modal ao clicar fora
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
-                e.target.classList.remove('active');
-            }
-        });
-
-        // --- Dashboard ---
-        async function carregarDashboard() {
-            const summaryDiv = document.getElementById('dashboardSummary');
-            try {
-                const pacientesSnapshot = await db.collection('pacientes').get();
-                const totalPacientes = pacientesSnapshot.size;
-                // Simular próximas sessões (pegar 3 próximos agendamentos)
-                const agora = new Date();
-                const agendamentosSnapshot = await db.collection('agendamentos')
-                    .where('dataHora', '>=', agora)
-                    .orderBy('dataHora')
-                    .limit(3)
-                    .get();
-                let proximasSessoes = '';
-                agendamentosSnapshot.forEach(doc => {
-                    const d = doc.data();
-                    const date = d.dataHora.toDate();
-                    proximasSessoes += `<p>${date.toLocaleDateString()} às ${date.toLocaleTimeString()} - ${d.paciente}</p>`;
-                });
-                // Faturamento (soma de valores dos agendamentos concluídos, por simplicidade)
-                const concluidosSnapshot = await db.collection('agendamentos')
-                    .where('status', '==', 'concluido')
-                    .get();
-                let faturamento = 0;
-                concluidosSnapshot.forEach(doc => {
-                    faturamento += doc.data().valor || 0;
-                });
-                summaryDiv.innerHTML = `
-                    <div style="display: flex; gap: 20px;">
-                        <div style="flex:1; background: white; padding: 15px; border-radius: 8px;">
-                            <h3>Próximas Sessões</h3>
-                            ${proximasSessoes || '<p>Nenhuma sessão futura.</p>'}
-                        </div>
-                        <div style="flex:1; background: white; padding: 15px; border-radius: 8px;">
-                            <h3>Total Pacientes</h3>
-                            <p style="font-size: 2em;">${totalPacientes}</p>
-                        </div>
-                        <div style="flex:1; background: white; padding: 15px; border-radius: 8px;">
-                            <h3>Faturamento</h3>
-                            <p style="font-size: 2em;">R$ ${faturamento.toFixed(2)}</p>
-                        </div>
-                    </div>
-                `;
-            } catch (error) {
-                summaryDiv.innerHTML = `<p style="color: red;">Erro ao carregar dashboard: ${error.message}</p>`;
-            }
-        }
-
-        // --- Pacientes ---
+        // CRUD Pacientes
         async function carregarPacientes() {
-            const list = document.getElementById('pacientesList');
-            list.innerHTML = '';
-            try {
-                const snapshot = await db.collection('pacientes').get();
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const div = document.createElement('div');
-                    div.style.background = 'white';
-                    div.style.padding = '10px';
-                    div.style.margin = '5px 0';
-                    div.style.borderRadius = '4px';
-                    div.innerHTML = `<span class="indicator green"></span><strong>${data.nome}</strong> - ${data.email || 'sem email'} - ${data.tel || 'sem telefone'}`;
-                    list.appendChild(div);
-                });
-            } catch (error) {
-                list.innerHTML = `<p style="color: red;">Erro ao carregar pacientes: ${error.message}</p>`;
-            }
+            if (!currentUser) return;
+            const snapshot = await db.collection('pacientes').where('uid', '==', currentUser.uid).get();
+            pacientes = [];
+            snapshot.forEach(doc => {
+                pacientes.push({ id: doc.id, ...doc.data() });
+            });
+            renderizarPacientes();
         }
 
-        // Cadastro paciente via modal
-        document.getElementById('pacienteForm').addEventListener('submit', async (e) => {
+        function renderizarPacientes() {
+            const tbody = document.getElementById('tbodyPacientes');
+            tbody.innerHTML = '';
+            pacientes.forEach(p => {
+                const statusClass = p.status === 'ativo' ? 'status-green' : (p.status === 'inativo' ? 'status-red' : 'status-yellow');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${p.nome}</td>
+                    <td>${p.telefone || ''}</td>
+                    <td><span class="status-indicator ${statusClass}"></span> ${p.status}</td>
+                    <td>
+                        <button class="btn btn-outline" onclick="editarPaciente('${p.id}')">Editar</button>
+                        <button class="btn btn-danger" onclick="deletarPaciente('${p.id}')">Deletar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('totalPacientes').textContent = pacientes.length;
+        }
+
+        function abrirModalPaciente(pacienteId = null) {
+            document.getElementById('pacienteId').value = pacienteId || '';
+            document.getElementById('modalPacienteTitle').textContent = pacienteId ? 'Editar Paciente' : 'Novo Paciente';
+            if (pacienteId) {
+                const p = pacientes.find(p => p.id === pacienteId);
+                if (p) {
+                    document.getElementById('pacienteNome').value = p.nome;
+                    document.getElementById('pacienteTelefone').value = p.telefone || '';
+                    document.getElementById('pacienteEmail').value = p.email || '';
+                    document.getElementById('pacienteStatus').value = p.status || 'ativo';
+                }
+            } else {
+                document.getElementById('formPaciente').reset();
+                document.getElementById('pacienteId').value = '';
+            }
+            document.getElementById('modalPaciente').style.display = 'block';
+        }
+
+        function fecharModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        document.getElementById('formPaciente').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nome = document.getElementById('pacNome').value;
-            const email = document.getElementById('pacEmail').value;
-            const tel = document.getElementById('pacTel').value;
-            try {
-                await db.collection('pacientes').add({
-                    nome,
-                    email,
-                    tel
-                });
-                closeModal('pacienteModal');
-                document.getElementById('pacienteForm').reset();
+            const id = document.getElementById('pacienteId').value;
+            const data = {
+                nome: document.getElementById('pacienteNome').value,
+                telefone: document.getElementById('pacienteTelefone').value,
+                email: document.getElementById('pacienteEmail').value,
+                status: document.getElementById('pacienteStatus').value,
+                uid: currentUser.uid
+            };
+            if (id) {
+                await db.collection('pacientes').doc(id).update(data);
+            } else {
+                await db.collection('pacientes').add(data);
+            }
+            fecharModal('modalPaciente');
+            carregarPacientes();
+        });
+
+        async function editarPaciente(id) {
+            abrirModalPaciente(id);
+        }
+
+        async function deletarPaciente(id) {
+            if (confirm('Tem certeza que deseja deletar este paciente?')) {
+                await db.collection('pacientes').doc(id).delete();
                 carregarPacientes();
-            } catch (error) {
-                alert('Erro: ' + error.message);
-            }
-        });
-
-        // --- Agenda ---
-        async function carregarAgenda() {
-            const list = document.getElementById('agendaList');
-            list.innerHTML = '';
-            try {
-                const snapshot = await db.collection('agendamentos').orderBy('dataHora').get();
-                const agora = new Date();
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const dataHora = data.dataHora.toDate();
-                    const status = dataHora < agora ? 'concluido' : (data.status || 'pendente');
-                    let cor = 'green';
-                    if (status === 'pendente') cor = 'yellow';
-                    else if (status === 'concluido') cor = 'red';
-                    const div = document.createElement('div');
-                    div.style.background = 'white';
-                    div.style.padding = '10px';
-                    div.style.margin = '5px 0';
-                    div.style.borderRadius = '4px';
-                    div.innerHTML = `<span class="indicator ${cor}"></span><strong>${data.paciente}</strong> - ${dataHora.toLocaleDateString()} ${dataHora.toLocaleTimeString()} ${data.obs ? '- ' + data.obs : ''}`;
-                    list.appendChild(div);
-                });
-            } catch (error) {
-                list.innerHTML = `<p style="color: red;">Erro ao carregar agenda: ${error.message}</p>`;
             }
         }
 
-        // Cadastro agendamento via modal
-        document.getElementById('agendamentoForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const paciente = document.getElementById('agePaciente').value;
-            const data = document.getElementById('ageData').value;
-            const hora = document.getElementById('ageHora').value;
-            const obs = document.getElementById('ageObs').value;
-            const dataHora = new Date(data + 'T' + hora);
-            try {
-                await db.collection('agendamentos').add({
-                    paciente,
-                    dataHora: firebase.firestore.Timestamp.fromDate(dataHora),
-                    obs,
-                    status: 'pendente',
-                    valor: 0
-                });
-                closeModal('agendamentoModal');
-                document.getElementById('agendamentoForm').reset();
-                carregarAgenda();
-                carregarDashboard();
-            } catch (error) {
-                alert('Erro: ' + error.message);
+        // CRUD Agenda
+        async function carregarAgenda() {
+            if (!currentUser) return;
+            const snapshot = await db.collection('agendamentos').where('uid', '==', currentUser.uid).get();
+            agendamentos = [];
+            snapshot.forEach(doc => {
+                agendamentos.push({ id: doc.id, ...doc.data() });
+            });
+            renderizarAgenda();
+        }
+
+        function renderizarAgenda() {
+            const tbody = document.getElementById('tbodyAgenda');
+            tbody.innerHTML = '';
+            agendamentos.forEach(a => {
+                const statusClass = a.status === 'realizado' ? 'status-green' : (a.status === 'cancelado' ? 'status-red' : 'status-yellow');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${a.pacienteNome || 'Sem nome'}</td>
+                    <td>${a.data}</td>
+                    <td>${a.horario}</td>
+                    <td><span class="status-indicator ${statusClass}"></span> ${a.status}</td>
+                    <td>
+                        <button class="btn btn-outline" onclick="editarAgenda('${a.id}')">Editar</button>
+                        <button class="btn btn-danger" onclick="deletarAgenda('${a.id}')">Deletar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('proximasSessoes').textContent = agendamentos.filter(a => a.status === 'agendado').length;
+            // Faturamento simples: sessões realizadas * valor fixo (exemplo R$ 100)
+            const faturamento = agendamentos.filter(a => a.status === 'realizado').length * 100;
+            document.getElementById('faturamento').textContent = `R$ ${faturamento.toFixed(2)}`;
+        }
+
+        async function abrirModalAgenda(agendaId = null) {
+            document.getElementById('agendaId').value = agendaId || '';
+            document.getElementById('modalAgendaTitle').textContent = agendaId ? 'Editar Sessão' : 'Nova Sessão';
+            // Preencher select de pacientes
+            const select = document.getElementById('agendaPaciente');
+            select.innerHTML = '<option value="">Selecione o paciente</option>';
+            pacientes.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.nome;
+                option.textContent = p.nome;
+                select.appendChild(option);
+            });
+            if (agendaId) {
+                const a = agendamentos.find(a => a.id === agendaId);
+                if (a) {
+                    document.getElementById('agendaPaciente').value = a.pacienteNome;
+                    document.getElementById('agendaData').value = a.data;
+                    document.getElementById('agendaHorario').value = a.horario;
+                    document.getElementById('agendaStatus').value = a.status;
+                }
+            } else {
+                document.getElementById('formAgenda').reset();
+                document.getElementById('agendaId').value = '';
             }
+            document.getElementById('modalAgenda').style.display = 'block';
+        }
+
+        document.getElementById('formAgenda').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('agendaId').value;
+            const pacienteNome = document.getElementById('agendaPaciente').value;
+            const data = {
+                pacienteNome: pacienteNome,
+                data: document.getElementById('agendaData').value,
+                horario: document.getElementById('agendaHorario').value,
+                status: document.getElementById('agendaStatus').value,
+                uid: currentUser.uid
+            };
+            if (id) {
+                await db.collection('agendamentos').doc(id).update(data);
+            } else {
+                await db.collection('agendamentos').add(data);
+            }
+            fecharModal('modalAgenda');
+            carregarAgenda();
         });
 
-        // Inicializar exibição
-        if (auth.currentUser) {
-            authSection.style.display = 'none';
-            mainSection.style.display = 'block';
+        async function editarAgenda(id) {
+            abrirModalAgenda(id);
+        }
+
+        async function deletarAgenda(id) {
+            if (confirm('Tem certeza que deseja deletar esta sessão?')) {
+                await db.collection('agendamentos').doc(id).delete();
+                carregarAgenda();
+            }
+        }
+
+        // Configurações
+        async function salvarConfig() {
+            const nomeClinica = document.getElementById('nomeClinica').value;
+            const horario = document.getElementById('horario').value;
+            if (currentUser) {
+                await db.collection('usuarios').doc(currentUser.uid).update({
+                    nomeClinica: nomeClinica,
+                    horario: horario
+                });
+                alert('Configurações salvas!');
+            }
+        }
+
+        // Carregar dados iniciais
+        async function carregarDados() {
+            await carregarPacientes();
+            await carregarAgenda();
+        }
+
+        // Fechar modais ao clicar fora
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
         }
     </script>
 </body>
