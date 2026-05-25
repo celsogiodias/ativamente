@@ -1,171 +1,685 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Login</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .container { max-width: 400px; margin: auto; }
-        .hidden { display: none; }
-        input { width: 100%; padding: 8px; margin: 5px 0; }
-        button { padding: 10px 15px; margin: 5px 0; cursor: pointer; }
-        .error { color: red; }
-        .success { color: green; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ativamente - Plataforma de Gestão</title>
+  <style>
+    /* Reset e Base */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #f4f6f8; min-height: 100vh; display: flex; }
+    :root { --verde: #2a6e4b; --verde-escuro: #1f543b; --branco: #ffffff; --cinza: #6b7280; --cinza-claro: #e5e7eb; }
+    
+    /* Sidebar */
+    .sidebar { width: 250px; background: var(--verde); color: white; height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; transition: 0.3s; z-index: 1000; }
+    .sidebar h2 { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 24px; }
+    .sidebar nav { flex: 1; padding: 20px 0; }
+    .sidebar nav a { display: flex; align-items: center; padding: 12px 20px; color: white; text-decoration: none; gap: 10px; border-radius: 8px; margin: 4px 10px; transition: 0.2s; }
+    .sidebar nav a:hover, .sidebar nav a.active { background: rgba(255,255,255,0.2); }
+    .sidebar .logout { margin: 20px 10px; padding: 12px; background: #c0392b; border: none; color: white; cursor: pointer; border-radius: 8px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .sidebar .logout:hover { background: #a93226; }
+    
+    /* Conteúdo principal */
+    .main { margin-left: 250px; flex: 1; padding: 20px; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: var(--branco); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .header h1 { font-size: 22px; color: var(--verde); }
+    .header .user { display: flex; align-items: center; gap: 10px; }
+    .header .user span { font-weight: 600; }
+    
+    /* Cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .card { background: var(--branco); border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .card h3 { font-size: 14px; color: var(--cinza); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .card .number { font-size: 28px; font-weight: bold; color: var(--verde); }
+    
+    /* Tabelas */
+    .table-container { overflow-x: auto; background: var(--branco); border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--cinza-claro); }
+    th { font-weight: 600; color: var(--cinza); font-size: 13px; }
+    .actions { display: flex; gap: 8px; }
+    .btn { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; transition: 0.2s; }
+    .btn-primary { background: var(--verde); color: white; }
+    .btn-primary:hover { background: var(--verde-escuro); }
+    .btn-edit { background: #3b82f6; color: white; }
+    .btn-edit:hover { background: #2563eb; }
+    .btn-delete { background: #ef4444; color: white; }
+    .btn-delete:hover { background: #dc2626; }
+    .btn-add { margin-bottom: 12px; }
+    
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--branco); border-radius: 16px; padding: 30px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+    .modal-content h2 { margin-bottom: 20px; color: var(--verde); }
+    .modal-content label { display: block; font-weight: 600; margin-top: 12px; color: #374151; }
+    .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid var(--cinza-claro); border-radius: 8px; outline: none; }
+    .modal-content input:focus, .modal-content textarea:focus { border-color: var(--verde); }
+    .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+    .modal-buttons .btn { min-width: 100px; }
+    .btn-cancel { background: var(--cinza-claro); color: #374151; }
+    .btn-cancel:hover { background: #d1d5db; }
+    
+    /* Formulário de login */
+    #loginPage { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; background: var(--verde); position: fixed; top: 0; left: 0; z-index: 3000; }
+    #loginPage .login-box { background: white; padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    #loginPage .login-box h2 { text-align: center; color: var(--verde); margin-bottom: 8px; }
+    #loginPage .login-box p { text-align: center; color: var(--cinza); margin-bottom: 24px; }
+    #loginPage .login-box input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--cinza-claro); border-radius: 8px; }
+    #loginPage .login-box button { width: 100%; padding: 12px; background: var(--verde); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    #loginPage .login-box button:hover { background: var(--verde-escuro); }
+    #loginPage .login-box .toggle { text-align: center; margin-top: 16px; color: var(--cinza); }
+    #loginPage .login-box .toggle a { color: var(--verde); cursor: pointer; text-decoration: underline; }
+    .error-msg { color: #dc2626; background: #fee2e2; padding: 8px; border-radius: 6px; text-align: center; margin-bottom: 12px; display: none; }
+    
+    /* Gráfico simples (tabela) */
+    .chart { margin-top: 20px; }
+    .chart table { width: 100%; }
+    .chart th, .chart td { padding: 8px; }
+    .chart .bar { background: var(--verde); height: 20px; border-radius: 4px; min-width: 2px; transition: width 0.5s; }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .sidebar { width: 60px; }
+      .sidebar h2 { display: none; }
+      .sidebar nav a span { display: none; }
+      .sidebar nav a { justify-content: center; padding: 12px; margin: 4px 5px; }
+      .sidebar .logout span { display: none; }
+      .main { margin-left: 60px; }
+      .header { flex-direction: column; gap: 10px; text-align: center; }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-    <h1>Sistema de Autenticação</h1>
-    
-    <!-- Formulário de Registro -->
-    <div id="registerForm">
-        <h2>Registro</h2>
-        <input type="text" id="regUsername" placeholder="Usuário" required>
-        <input type="password" id="regPassword" placeholder="Senha" required>
-        <button onclick="register()">Registrar</button>
-        <p id="registerMessage"></p>
-        <p>Já tem conta? <a href="#" onclick="showLogin()">Faça login</a></p>
+  <!-- Tela de Login -->
+  <div id="loginPage">
+    <div class="login-box">
+      <h2>Ativamente</h2>
+      <p>Plataforma de Gestão de Clínica</p>
+      <div class="error-msg" id="loginError"></div>
+      <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
+      <input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password">
+      <button onclick="handleAuth()">Entrar</button>
+      <div class="toggle">Não tem conta? <a onclick="toggleAuthMode()">Registrar</a></div>
     </div>
-    
-    <!-- Formulário de Login -->
-    <div id="loginForm" class="hidden">
-        <h2>Login</h2>
-        <input type="text" id="loginUsername" placeholder="Usuário" required>
-        <input type="password" id="loginPassword" placeholder="Senha" required>
-        <button onclick="login()">Entrar</button>
-        <p id="loginMessage"></p>
-        <p>Não tem conta? <a href="#" onclick="showRegister()">Registre-se</a></p>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h2>Ativamente</h2>
+    <nav>
+      <a href="#" onclick="showSection('dashboard')" id="nav-dashboard">📊 <span>Dashboard</span></a>
+      <a href="#" onclick="showSection('pacientes')" id="nav-pacientes">👥 <span>Pacientes</span></a>
+      <a href="#" onclick="showSection('agenda')" id="nav-agenda">📅 <span>Agenda</span></a>
+      <a href="#" onclick="showSection('prontuarios')" id="nav-prontuarios">📋 <span>Prontuários</span></a>
+      <a href="#" onclick="showSection('configuracoes')" id="nav-configuracoes">⚙️ <span>Configurações</span></a>
+    </nav>
+    <button class="logout" onclick="logout()">🚪 <span>Sair</span></button>
+  </div>
+
+  <!-- Conteúdo Principal -->
+  <div class="main" id="mainContent" style="display:none;">
+    <div class="header">
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="user">👤 <span id="userGreeting">Olá, Usuário</span></div>
     </div>
-    
-    <!-- Dashboard (logado) -->
-    <div id="dashboard" class="hidden">
-        <h2>Dashboard</h2>
-        <p>Bem-vindo, <span id="currentUser"></span>!</p>
-        <button onclick="logout()">Sair</button>
-        <p id="logoutMessage"></p>
+
+    <!-- Seções -->
+    <div id="section-dashboard" class="section">
+      <div class="cards">
+        <div class="card"><h3>Total de Pacientes</h3><div class="number" id="totalPacientes">0</div></div>
+        <div class="card"><h3>Consultas Marcadas (Mês)</h3><div class="number" id="consultasMes">0</div></div>
+        <div class="card"><h3>Prontuários Criados</h3><div class="number" id="totalProntuarios">0</div></div>
+        <div class="card"><h3>Receita Total (R$)</h3><div class="number" id="receitaTotal">0</div></div>
+      </div>
+      <div class="chart table-container">
+        <h3>Consultas por Dia (Últimos 7 dias)</h3>
+        <table id="chartTable">
+          <thead><tr><th>Dia</th><th>Consultas</th></tr></thead>
+          <tbody id="chartBody"></tbody>
+        </table>
+      </div>
     </div>
-</div>
 
-<script>
-    // ====== Lógica de Autenticação ======
-    function getUsers() {
-        try {
-            return JSON.parse(sessionStorage.getItem('users')) || [];
-        } catch (e) {
-            return [];
-        }
+    <div id="section-pacientes" class="section" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+        <input type="text" id="searchPaciente" placeholder="Buscar paciente..." oninput="renderPacientes()" style="padding:10px; border:1px solid var(--cinza-claro); border-radius:8px; flex:1; min-width:200px;">
+        <button class="btn btn-primary btn-add" onclick="openModal('paciente')">+ Novo Paciente</button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Nascimento</th><th>Ações</th></tr></thead>
+          <tbody id="pacientesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-agenda" class="section" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+        <div>
+          <button class="btn btn-primary" onclick="filterAgenda('day')">Dia</button>
+          <button class="btn" onclick="filterAgenda('week')">Semana</button>
+          <button class="btn" onclick="filterAgenda('all')">Todas</button>
+        </div>
+        <button class="btn btn-primary btn-add" onclick="openModal('consulta')">+ Nova Consulta</button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Paciente</th><th>Data</th><th>Hora</th><th>Descrição</th><th>Ações</th></tr></thead>
+          <tbody id="agendaTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-prontuarios" class="section" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+        <select id="filterProntuarioPaciente" onchange="renderProntuarios()" style="padding:10px; border:1px solid var(--cinza-claro); border-radius:8px; flex:1; min-width:200px;">
+          <option value="">Todos os pacientes</option>
+        </select>
+        <button class="btn btn-primary btn-add" onclick="openModal('prontuario')">+ Novo Prontuário</button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Paciente</th><th>Data</th><th>Conteúdo</th><th>Ações</th></tr></thead>
+          <tbody id="prontuariosTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-configuracoes" class="section" style="display:none;">
+      <div class="table-container">
+        <form id="configForm">
+          <label>Nome da Clínica</label>
+          <input type="text" id="configNome" required>
+          <label>Endereço</label>
+          <input type="text" id="configEndereco">
+          <label>Telefone</label>
+          <input type="text" id="configTelefone">
+          <label>Email</label>
+          <input type="email" id="configEmail">
+          <label>Logo da Clínica (upload simulado)</label>
+          <input type="file" id="configLogo" accept="image/*">
+          <label>Horário de Funcionamento</label>
+          <textarea id="configHorario" rows="3" placeholder="Ex: Seg a Sex 8h-18h, Sáb 8h-12h"></textarea>
+          <div style="margin-top:20px;"><button type="submit" class="btn btn-primary">Salvar Configurações</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modais -->
+  <div class="modal" id="modalPaciente">
+    <div class="modal-content">
+      <h2 id="modalPacienteTitle">Novo Paciente</h2>
+      <form id="formPaciente">
+        <input type="hidden" id="pacienteId">
+        <label>Nome</label>
+        <input type="text" id="pacNome" required>
+        <label>Telefone</label>
+        <input type="text" id="pacTelefone">
+        <label>Email</label>
+        <input type="email" id="pacEmail">
+        <label>Data de Nascimento</label>
+        <input type="date" id="pacNasc">
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-cancel" onclick="closeModal('paciente')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalConsulta">
+    <div class="modal-content">
+      <h2 id="modalConsultaTitle">Nova Consulta</h2>
+      <form id="formConsulta">
+        <input type="hidden" id="consultaId">
+        <label>Paciente</label>
+        <select id="consPaciente" required></select>
+        <label>Data</label>
+        <input type="date" id="consData" required>
+        <label>Hora</label>
+        <input type="time" id="consHora">
+        <label>Descrição</label>
+        <textarea id="consDesc" rows="3"></textarea>
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-cancel" onclick="closeModal('consulta')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalProntuario">
+    <div class="modal-content">
+      <h2 id="modalProntuarioTitle">Novo Prontuário</h2>
+      <form id="formProntuario">
+        <input type="hidden" id="prontuarioId">
+        <label>Paciente</label>
+        <select id="prontPaciente" required></select>
+        <label>Data</label>
+        <input type="date" id="prontData" required>
+        <label>Conteúdo</label>
+        <textarea id="prontConteudo" rows="6" placeholder="Use o template padrão abaixo se desejar..."></textarea>
+        <div style="margin-top:8px;"><button type="button" class="btn" onclick="applyTemplate()">Inserir Template Padrão</button></div>
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-cancel" onclick="closeModal('prontuario')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Armazenamento
+    function getData(key) { return JSON.parse(localStorage.getItem(key)) || []; }
+    function setData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+    function getConfig() { return JSON.parse(localStorage.getItem('config')) || {}; }
+    function setConfig(config) { localStorage.setItem('config', JSON.stringify(config)); }
+
+    // Autenticação
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let loggedUser = sessionStorage.getItem('loggedUser');
+    let isRegister = false;
+
+    function toggleAuthMode() {
+      isRegister = !isRegister;
+      document.querySelector('#loginPage .login-box h2').textContent = isRegister ? 'Registrar' : 'Entrar';
+      document.querySelector('#loginPage .login-box button').textContent = isRegister ? 'Registrar' : 'Entrar';
+      document.querySelector('#loginPage .login-box .toggle').innerHTML = isRegister ? 'Já tem conta? <a onclick="toggleAuthMode()">Entrar</a>' : 'Não tem conta? <a onclick="toggleAuthMode()">Registrar</a>';
     }
 
-    function saveUsers(users) {
-        sessionStorage.setItem('users', JSON.stringify(users));
+    function handleAuth() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const errorEl = document.getElementById('loginError');
+      errorEl.style.display = 'none';
+      if (!email || !password) { showError('Preencha todos os campos.'); return; }
+      if (isRegister) {
+        if (users.find(u => u.email === email)) { showError('Email já registrado.'); return; }
+        users.push({ email, password });
+        localStorage.setItem('users', JSON.stringify(users));
+        alert('Registrado com sucesso! Faça login.');
+        toggleAuthMode();
+      } else {
+        const user = users.find(u => u.email === email && u.password === password);
+        if (!user) { showError('Email ou senha inválidos.'); return; }
+        sessionStorage.setItem('loggedUser', email);
+        loggedUser = email;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('userGreeting').textContent = 'Olá, ' + email.split('@')[0];
+        loadAll();
+      }
     }
 
-    function getLoggedUser() {
-        return sessionStorage.getItem('loggedUser');
-    }
-
-    function setLoggedUser(username) {
-        if (username) {
-            sessionStorage.setItem('loggedUser', username);
-        } else {
-            sessionStorage.removeItem('loggedUser');
-        }
-    }
-
-    // ====== Funções de Interface ======
-    function showLogin() {
-        document.getElementById('registerForm').classList.add('hidden');
-        document.getElementById('loginForm').classList.remove('hidden');
-        document.getElementById('dashboard').classList.add('hidden');
-        document.getElementById('loginMessage').innerText = '';
-        document.getElementById('registerMessage').innerText = '';
-    }
-
-    function showRegister() {
-        document.getElementById('registerForm').classList.remove('hidden');
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('dashboard').classList.add('hidden');
-        document.getElementById('loginMessage').innerText = '';
-        document.getElementById('registerMessage').innerText = '';
-    }
-
-    function showDashboard() {
-        document.getElementById('registerForm').classList.add('hidden');
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('dashboard').classList.remove('hidden');
-        document.getElementById('currentUser').innerText = getLoggedUser();
-    }
-
-    // ====== Ações do Usuário ======
-    function register() {
-        const username = document.getElementById('regUsername').value.trim();
-        const password = document.getElementById('regPassword').value.trim();
-        const messageEl = document.getElementById('registerMessage');
-
-        if (!username || !password) {
-            messageEl.innerText = 'Preencha todos os campos.';
-            messageEl.className = 'error';
-            return;
-        }
-
-        let users = getUsers();
-        if (users.find(u => u.username === username)) {
-            messageEl.innerText = 'Usuário já existe.';
-            messageEl.className = 'error';
-            return;
-        }
-
-        users.push({ username, password });
-        saveUsers(users);
-        messageEl.innerText = 'Registrado com sucesso! Faça login.';
-        messageEl.className = 'success';
-        document.getElementById('regUsername').value = '';
-        document.getElementById('regPassword').value = '';
-    }
-
-    function login() {
-        const username = document.getElementById('loginUsername').value.trim();
-        const password = document.getElementById('loginPassword').value.trim();
-        const messageEl = document.getElementById('loginMessage');
-
-        if (!username || !password) {
-            messageEl.innerText = 'Preencha todos os campos.';
-            messageEl.className = 'error';
-            return;
-        }
-
-        const users = getUsers();
-        const user = users.find(u => u.username === username && u.password === password);
-
-        if (!user) {
-            messageEl.innerText = 'Usuário ou senha inválidos.';
-            messageEl.className = 'error';
-            return;
-        }
-
-        setLoggedUser(username);
-        showDashboard();
-        document.getElementById('loginUsername').value = '';
-        document.getElementById('loginPassword').value = '';
+    function showError(msg) {
+      const el = document.getElementById('loginError');
+      el.textContent = msg;
+      el.style.display = 'block';
     }
 
     function logout() {
-        setLoggedUser(null);
-        document.getElementById('logoutMessage').innerText = 'Logout realizado com sucesso.';
-        document.getElementById('logoutMessage').className = 'success';
-        showLogin();
+      sessionStorage.removeItem('loggedUser');
+      location.reload();
     }
 
-    // ====== Inicialização ======
-    (function init() {
-        // Se já estiver logado, exibe dashboard
-        if (getLoggedUser()) {
-            showDashboard();
-        } else {
-            showRegister();
-        }
-    })();
-</script>
+    // Verificar login na carga
+    if (loggedUser) {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      document.getElementById('userGreeting').textContent = 'Olá, ' + loggedUser.split('@')[0];
+      loadAll();
+    }
+
+    // Navegação
+    function showSection(section) {
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.getElementById('section-' + section).style.display = 'block';
+      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+      document.getElementById('nav-' + section).classList.add('active');
+      document.getElementById('pageTitle').textContent = section.charAt(0).toUpperCase() + section.slice(1);
+      if (section === 'dashboard') updateDashboard();
+      else if (section === 'pacientes') renderPacientes();
+      else if (section === 'agenda') renderAgenda();
+      else if (section === 'prontuarios') { populatePacienteSelect(); renderProntuarios(); }
+      else if (section === 'configuracoes') loadConfig();
+    }
+
+    // Dashboard
+    function updateDashboard() {
+      const pacientes = getData('pacientes');
+      const consultas = getData('consultas');
+      const prontuarios = getData('prontuarios');
+      document.getElementById('totalPacientes').textContent = pacientes.length;
+      const now = new Date();
+      const month = now.getMonth();
+      const year = now.getFullYear();
+      const consultasMes = consultas.filter(c => {
+        const d = new Date(c.data);
+        return d.getMonth() === month && d.getFullYear() === year;
+      });
+      document.getElementById('consultasMes').textContent = consultasMes.length;
+      document.getElementById('totalProntuarios').textContent = prontuarios.length;
+      // Receita fictícia: R$ 100 por consulta
+      const receita = consultas.length * 100;
+      document.getElementById('receitaTotal').textContent = receita.toFixed(2);
+      // Gráfico: últimos 7 dias
+      const dias = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dataStr = d.toISOString().split('T')[0];
+        const count = consultas.filter(c => c.data === dataStr).length;
+        dias.push({ dia: dataStr, count });
+      }
+      const maxCount = Math.max(...dias.map(d => d.count), 1);
+      let html = '';
+      dias.forEach(d => {
+        const width = Math.round((d.count / maxCount) * 100);
+        html += `<tr><td>${new Date(d.dia).toLocaleDateString('pt-BR')}</td><td><div class="bar" style="width:${width}%">${d.count}</div></td></tr>`;
+      });
+      document.getElementById('chartBody').innerHTML = html;
+    }
+
+    // Pacientes
+    function renderPacientes() {
+      const pacientes = getData('pacientes');
+      const search = document.getElementById('searchPaciente').value.toLowerCase();
+      const filtered = pacientes.filter(p => p.nome.toLowerCase().includes(search));
+      let html = '';
+      filtered.forEach(p => {
+        html += `<tr>
+          <td>${p.nome}</td>
+          <td>${p.telefone || '-'}</td>
+          <td>${p.email || '-'}</td>
+          <td>${p.nascimento || '-'}</td>
+          <td class="actions">
+            <button class="btn btn-edit" onclick="editPaciente('${p.id}')">✏️</button>
+            <button class="btn btn-delete" onclick="deletePaciente('${p.id}')">🗑️</button>
+          </td>
+        </tr>`;
+      });
+      document.getElementById('pacientesTableBody').innerHTML = html;
+    }
+
+    function openModal(type) {
+      if (type === 'paciente') {
+        document.getElementById('modalPaciente').classList.add('active');
+        document.getElementById('formPaciente').reset();
+        document.getElementById('pacienteId').value = '';
+        document.getElementById('modalPacienteTitle').textContent = 'Novo Paciente';
+      } else if (type === 'consulta') {
+        populatePacienteSelect('consPaciente');
+        document.getElementById('modalConsulta').classList.add('active');
+        document.getElementById('formConsulta').reset();
+        document.getElementById('consultaId').value = '';
+        document.getElementById('modalConsultaTitle').textContent = 'Nova Consulta';
+      } else if (type === 'prontuario') {
+        populatePacienteSelect('prontPaciente');
+        document.getElementById('modalProntuario').classList.add('active');
+        document.getElementById('formProntuario').reset();
+        document.getElementById('prontuarioId').value = '';
+        document.getElementById('modalProntuarioTitle').textContent = 'Novo Prontuário';
+      }
+    }
+
+    function closeModal(type) {
+      if (type === 'paciente') document.getElementById('modalPaciente').classList.remove('active');
+      else if (type === 'consulta') document.getElementById('modalConsulta').classList.remove('active');
+      else if (type === 'prontuario') document.getElementById('modalProntuario').classList.remove('active');
+    }
+
+    document.getElementById('formPaciente').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('pacienteId').value;
+      const nome = document.getElementById('pacNome').value.trim();
+      const telefone = document.getElementById('pacTelefone').value.trim();
+      const email = document.getElementById('pacEmail').value.trim();
+      const nascimento = document.getElementById('pacNasc').value;
+      const pacientes = getData('pacientes');
+      if (id) {
+        const idx = pacientes.findIndex(p => p.id === id);
+        if (idx !== -1) { pacientes[idx] = { ...pacientes[idx], nome, telefone, email, nascimento }; }
+      } else {
+        const novo = { id: Date.now().toString(), nome, telefone, email, nascimento };
+        pacientes.push(novo);
+      }
+      setData('pacientes', pacientes);
+      closeModal('paciente');
+      renderPacientes();
+      updateDashboard();
+    });
+
+    function editPaciente(id) {
+      const pacientes = getData('pacientes');
+      const p = pacientes.find(p => p.id === id);
+      if (!p) return;
+      document.getElementById('pacienteId').value = p.id;
+      document.getElementById('pacNome').value = p.nome;
+      document.getElementById('pacTelefone').value = p.telefone || '';
+      document.getElementById('pacEmail').value = p.email || '';
+      document.getElementById('pacNasc').value = p.nascimento || '';
+      document.getElementById('modalPacienteTitle').textContent = 'Editar Paciente';
+      document.getElementById('modalPaciente').classList.add('active');
+    }
+
+    function deletePaciente(id) {
+      if (!confirm('Tem certeza que deseja excluir este paciente?')) return;
+      let pacientes = getData('pacientes');
+      pacientes = pacientes.filter(p => p.id !== id);
+      setData('pacientes', pacientes);
+      renderPacientes();
+      updateDashboard();
+    }
+
+    // Agenda
+    let agendaFilter = 'all';
+    function filterAgenda(filter) {
+      agendaFilter = filter;
+      renderAgenda();
+      document.querySelectorAll('#section-agenda .btn').forEach(b => b.classList.remove('btn-primary'));
+      if (filter === 'day') document.querySelector('#section-agenda .btn:first-child').classList.add('btn-primary');
+      else if (filter === 'week') document.querySelector('#section-agenda .btn:nth-child(2)').classList.add('btn-primary');
+      else document.querySelector('#section-agenda .btn:nth-child(3)').classList.add('btn-primary');
+    }
+
+    function renderAgenda() {
+      const consultas = getData('consultas');
+      const pacientes = getData('pacientes');
+      let filtered = consultas;
+      const hoje = new Date().toISOString().split('T')[0];
+      if (agendaFilter === 'day') filtered = consultas.filter(c => c.data === hoje);
+      else if (agendaFilter === 'week') {
+        const now = new Date();
+        const start = new Date(now);
+        start.setDate(now.getDate() - now.getDay()); // domingo
+        const end = new Date(start);
+        end.setDate(start.getDate() + 7);
+        filtered = consultas.filter(c => {
+          const d = new Date(c.data);
+          return d >= start && d < end;
+        });
+      }
+      filtered.sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
+      let html = '';
+      filtered.forEach(c => {
+        const paciente = pacientes.find(p => p.id === c.pacienteId);
+        html += `<tr>
+          <td>${paciente ? paciente.nome : 'Desconhecido'}</td>
+          <td>${new Date(c.data).toLocaleDateString('pt-BR')}</td>
+          <td>${c.hora || '-'}</td>
+          <td>${c.descricao || '-'}</td>
+          <td class="actions">
+            <button class="btn btn-edit" onclick="editConsulta('${c.id}')">✏️</button>
+            <button class="btn btn-delete" onclick="deleteConsulta('${c.id}')">🗑️</button>
+          </td>
+        </tr>`;
+      });
+      document.getElementById('agendaTableBody').innerHTML = html;
+    }
+
+    document.getElementById('formConsulta').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('consultaId').value;
+      const pacienteId = document.getElementById('consPaciente').value;
+      const data = document.getElementById('consData').value;
+      const hora = document.getElementById('consHora').value;
+      const descricao = document.getElementById('consDesc').value.trim();
+      if (!pacienteId || !data) { alert('Preencha paciente e data.'); return; }
+      const consultas = getData('consultas');
+      if (id) {
+        const idx = consultas.findIndex(c => c.id === id);
+        if (idx !== -1) consultas[idx] = { ...consultas[idx], pacienteId, data, hora, descricao };
+      } else {
+        consultas.push({ id: Date.now().toString(), pacienteId, data, hora, descricao });
+      }
+      setData('consultas', consultas);
+      closeModal('consulta');
+      renderAgenda();
+      updateDashboard();
+    });
+
+    function editConsulta(id) {
+      const consultas = getData('consultas');
+      const c = consultas.find(x => x.id === id);
+      if (!c) return;
+      populatePacienteSelect('consPaciente');
+      document.getElementById('consultaId').value = c.id;
+      document.getElementById('consPaciente').value = c.pacienteId;
+      document.getElementById('consData').value = c.data;
+      document.getElementById('consHora').value = c.hora || '';
+      document.getElementById('consDesc').value = c.descricao || '';
+      document.getElementById('modalConsultaTitle').textContent = 'Editar Consulta';
+      document.getElementById('modalConsulta').classList.add('active');
+    }
+
+    function deleteConsulta(id) {
+      if (!confirm('Tem certeza que deseja excluir esta consulta?')) return;
+      let consultas = getData('consultas');
+      consultas = consultas.filter(c => c.id !== id);
+      setData('consultas', consultas);
+      renderAgenda();
+      updateDashboard();
+    }
+
+    function populatePacienteSelect(selectId = 'consPaciente') {
+      const pacientes = getData('pacientes');
+      const select = document.getElementById(selectId);
+      select.innerHTML = '<option value="">Selecione um paciente</option>';
+      pacientes.forEach(p => {
+        select.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
+      });
+    }
+
+    // Prontuários
+    function renderProntuarios() {
+      const prontuarios = getData('prontuarios');
+      const pacientes = getData('pacientes');
+      const filterPacienteId = document.getElementById('filterProntuarioPaciente').value;
+      let filtered = prontuarios;
+      if (filterPacienteId) filtered = prontuarios.filter(p => p.pacienteId === filterPacienteId);
+      filtered.sort((a, b) => b.data.localeCompare(a.data));
+      let html = '';
+      filtered.forEach(p => {
+        const paciente = pacientes.find(x => x.id === p.pacienteId);
+        html += `<tr>
+          <td>${paciente ? paciente.nome : 'Desconhecido'}</td>
+          <td>${new Date(p.data).toLocaleDateString('pt-BR')}</td>
+          <td>${p.conteudo.substring(0, 50)}...</td>
+          <td class="actions">
+            <button class="btn btn-edit" onclick="editProntuario('${p.id}')">✏️</button>
+            <button class="btn btn-delete" onclick="deleteProntuario('${p.id}')">🗑️</button>
+          </td>
+        </tr>`;
+      });
+      document.getElementById('prontuariosTableBody').innerHTML = html;
+    }
+
+    document.getElementById('formProntuario').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('prontuarioId').value;
+      const pacienteId = document.getElementById('prontPaciente').value;
+      const data = document.getElementById('prontData').value;
+      const conteudo = document.getElementById('prontConteudo').value.trim();
+      if (!pacienteId || !data || !conteudo) { alert('Preencha todos os campos.'); return; }
+      const prontuarios = getData('prontuarios');
+      if (id) {
+        const idx = prontuarios.findIndex(p => p.id === id);
+        if (idx !== -1) prontuarios[idx] = { ...prontuarios[idx], pacienteId, data, conteudo };
+      } else {
+        prontuarios.push({ id: Date.now().toString(), pacienteId, data, conteudo });
+      }
+      setData('prontuarios', prontuarios);
+      closeModal('prontuario');
+      renderProntuarios();
+      updateDashboard();
+    });
+
+    function editProntuario(id) {
+      const prontuarios = getData('prontuarios');
+      const p = prontuarios.find(x => x.id === id);
+      if (!p) return;
+      populatePacienteSelect('prontPaciente');
+      document.getElementById('prontuarioId').value = p.id;
+      document.getElementById('prontPaciente').value = p.pacienteId;
+      document.getElementById('prontData').value = p.data;
+      document.getElementById('prontConteudo').value = p.conteudo;
+      document.getElementById('modalProntuarioTitle').textContent = 'Editar Prontuário';
+      document.getElementById('modalProntuario').classList.add('active');
+    }
+
+    function deleteProntuario(id) {
+      if (!confirm('Tem certeza que deseja excluir este prontuário?')) return;
+      let prontuarios = getData('prontuarios');
+      prontuarios = prontuarios.filter(p => p.id !== id);
+      setData('prontuarios', prontuarios);
+      renderProntuarios();
+      updateDashboard();
+    }
+
+    function applyTemplate() {
+      const template = `Data: ${new Date().toLocaleDateString('pt-BR')}\n\n**Anamnese:**\n- Queixa principal:\n- História da doença atual:\n- Antecedentes pessoais:\n- Antecedentes familiares:\n\n**Exame Físico:**\n- Sinais vitais:\n- Inspeção:\n- Palpação:\n- Ausculta:\n\n**Hipótese Diagnóstica:**\n\n**Conduta:**\n- Exames solicitados:\n- Medicamentos prescritos:\n- Orientações:`;
+      document.getElementById('prontConteudo').value = template;
+    }
+
+    // Configurações
+    function loadConfig() {
+      const config = getConfig();
+      document.getElementById('configNome').value = config.nome || '';
+      document.getElementById('configEndereco').value = config.endereco || '';
+      document.getElementById('configTelefone').value = config.telefone || '';
+      document.getElementById('configEmail').value = config.email || '';
+      document.getElementById('configHorario').value = config.horario || '';
+      // Logo não é carregado por simplicidade
+    }
+
+    document.getElementById('configForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const config = {
+        nome: document.getElementById('configNome').value.trim(),
+        endereco: document.getElementById('configEndereco').value.trim(),
+        telefone: document.getElementById('configTelefone').value.trim(),
+        email: document.getElementById('configEmail').value.trim(),
+        horario: document.getElementById('configHorario').value.trim(),
+        logo: '' // upload simulado não armazenamos
+      };
+      setConfig(config);
+      alert('Configurações salvas com sucesso!');
+    });
+
+    // Carregamento inicial
+    function loadAll() {
+      showSection('dashboard');
+      // Preencher select de filtro de prontuários
+      const pacientes = getData('pacientes');
+      const filterSelect = document.getElementById('filterProntuarioPaciente');
+      filterSelect.innerHTML = '<option value="">Todos os pacientes</option>';
+      pacientes.forEach(p => {
+        filterSelect.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
+      });
+      updateDashboard();
+    }
+  </script>
 </body>
 </html>
