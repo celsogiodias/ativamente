@@ -1,350 +1,417 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda - Odontologia</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: #f4f6f9; padding: 30px; }
-        .container { max-width: 1200px; margin: auto; background: #fff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 30px; }
-        h1 { color: #00204A; font-weight: 700; margin-bottom: 25px; }
-        .top-bar { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: space-between; margin-bottom: 25px; }
-        .filter-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .filter-group label { font-weight: 600; color: #00204A; }
-        select, input[type="text"] { padding: 8px 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
-        select:focus, input[type="text"]:focus { border-color: #008080; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-primary { background: #FF6B35; color: #fff; }
-        .btn-primary:hover { background: #e55a2b; }
-        .btn-secondary { background: #6c757d; color: #fff; }
-        .btn-secondary:hover { background: #5a6268; }
-        .btn-teal { background: #008080; color: #fff; }
-        .btn-teal:hover { background: #006666; }
-        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 30px; }
-        .calendar-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .calendar-header h2 { font-size: 22px; color: #00204A; }
-        .calendar-header button { background: none; border: none; font-size: 24px; cursor: pointer; color: #008080; }
-        .day-name { text-align: center; font-weight: 700; color: #00204A; padding: 10px 0; }
-        .day { background: #f8f9fa; border-radius: 12px; padding: 8px; min-height: 90px; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
-        .day:hover { border-color: #FF6B35; }
-        .day.today { background: #e8f4f8; border-color: #008080; }
-        .day.other-month { opacity: 0.4; }
-        .day-number { font-weight: 700; font-size: 16px; color: #00204A; margin-bottom: 4px; }
-        .event-badge { font-size: 10px; padding: 2px 6px; border-radius: 6px; margin: 2px 0; color: #fff; display: inline-block; width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .badge-confirmado { background: #28a745; }
-        .badge-nao-confirmado { background: #dc3545; }
-        .badge-agendado { background: #6c757d; }
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #00204A; color: #fff; padding: 12px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #ddd; }
-        tr:hover { background: #f1f1f1; }
-        .actions button { margin: 0 4px; padding: 5px 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
-        .btn-edit { background: #FF6B35; color: #fff; }
-        .btn-delete { background: #dc3545; color: #fff; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #fff; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-        .modal-content h2 { color: #00204A; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: 600; color: #00204A; margin-bottom: 5px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
-        .form-group input:focus, .form-group select:focus { border-color: #008080; }
-        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-        @media (max-width: 768px) {
-            .calendar { grid-template-columns: repeat(7, 1fr); gap: 4px; }
-            .day { min-height: 70px; padding: 6px; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ativamente+ Clinic - Pacientes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #f5f7fa; color: #333; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    h1 { color: #00204A; margin-bottom: 20px; font-weight: 600; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border: none; border-radius: 6px;
+      font-family: 'Poppins', sans-serif; font-weight: 500;
+      cursor: pointer; transition: all 0.3s ease;
+    }
+    .btn-primary { background: #FF6B35; color: #fff; }
+    .btn-primary:hover { background: #e55a2b; }
+    .btn-secondary { background: #008080; color: #fff; }
+    .btn-secondary:hover { background: #006666; }
+    .btn-danger { background: #dc3545; color: #fff; }
+    .btn-danger:hover { background: #c82333; }
+    .btn-outline { background: transparent; border: 2px solid #008080; color: #008080; }
+    .btn-outline:hover { background: #008080; color: #fff; }
+    .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+    th { background: #00204A; color: #fff; font-weight: 500; }
+    tr:hover { background: #f0f4f8; }
+    .actions { display: flex; gap: 6px; justify-content: center; }
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: flex-start;
+      padding: 40px 20px; overflow-y: auto;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #fff; border-radius: 12px; width: 100%; max-width: 600px;
+      padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin: auto;
+    }
+    .modal h2 { color: #00204A; margin-bottom: 24px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 6px; color: #333; }
+    .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 1rem; transition: border-color 0.3s; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #008080; }
+    .form-group.checkbox { display: flex; align-items: center; gap: 8px; }
+    .form-group.checkbox input { width: auto; }
+    .responsavel-section { border-left: 3px solid #FF6B35; padding-left: 16px; margin-top: 16px; }
+    .responsavel-section h3 { color: #FF6B35; margin-bottom: 12px; font-size: 1.1rem; }
+    .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    .drawer-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 1001;
+    }
+    .drawer-overlay.active { display: block; }
+    .drawer {
+      position: fixed; top: 0; right: -100%; width: 90%; max-width: 800px; height: 100%;
+      background: #fff; z-index: 1002; transition: right 0.3s ease;
+      display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+    }
+    .drawer.open { right: 0; }
+    .drawer-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px; background: #00204A; color: #fff;
+    }
+    .drawer-header h2 { font-weight: 600; }
+    .drawer-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+    .drawer-tabs {
+      display: flex; flex-wrap: wrap; background: #f0f4f8; border-bottom: 2px solid #ddd;
+    }
+    .drawer-tab {
+      padding: 12px 20px; cursor: pointer; font-weight: 500; transition: background 0.3s;
+      border-bottom: 3px solid transparent; flex: 1 1 auto; text-align: center; min-width: 100px;
+    }
+    .drawer-tab:hover { background: #e0e8f0; }
+    .drawer-tab.active { background: #fff; border-bottom-color: #008080; color: #008080; }
+    .drawer-content { flex: 1; overflow-y: auto; padding: 24px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .error { color: #dc3545; font-size: 0.85rem; margin-top: 4px; display: none; }
+    .error.show { display: block; }
+    @media (max-width: 768px) {
+      .btn-group { flex-direction: column; }
+      .modal { padding: 20px; }
+      .drawer { width: 100%; max-width: 100%; }
+      .drawer-tab { min-width: 80px; padding: 10px; }
+    }
+  </style>
 </head>
 <body>
-<div class="container" id="agenda-app">
-    <h1>📅 Agenda</h1>
-    <div class="top-bar">
-        <div class="filter-group">
-            <label for="filter-professional">Filtrar por profissional:</label>
-            <select id="filter-professional">
-                <option value="">Todos</option>
-            </select>
+  <div class="container">
+    <h1>Pacientes</h1>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="openModal()">+ Incluir Paciente</button>
+    </div>
+    <div class="table-wrapper">
+      <table id="patientsTable">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Documento</th>
+            <th>Data Nascimento</th>
+            <th>Telefone</th>
+            <th>Responsável</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="patientsBody">
+        </tbody>
+      </table>
+    </div>
+    <p id="noPatients" style="text-align:center; color:#888; margin-top:20px;">Nenhum paciente cadastrado</p>
+  </div>
+
+  <!-- Modal Incluir/Editar -->
+  <div class="modal-overlay" id="patientModal">
+    <div class="modal">
+      <h2 id="modalTitle">Incluir Paciente</h2>
+      <form id="patientForm" onsubmit="return false;">
+        <input type="hidden" id="editId" value="">
+        <div class="form-group">
+          <label for="nome">Nome Completo *</label>
+          <input type="text" id="nome" required>
+          <span class="error" id="errorNome">Campo obrigatório</span>
         </div>
-        <button class="btn btn-primary" id="btn-new-appointment">+ Novo Agendamento</button>
+        <div class="form-group">
+          <label for="documento">Documento (CPF/RG) *</label>
+          <input type="text" id="documento" required>
+          <span class="error" id="errorDocumento">Campo obrigatório</span>
+        </div>
+        <div class="form-group">
+          <label for="dataNascimento">Data de Nascimento *</label>
+          <input type="date" id="dataNascimento" required>
+          <span class="error" id="errorDataNascimento">Campo obrigatório</span>
+        </div>
+        <div class="form-group">
+          <label for="telefone">Telefone *</label>
+          <input type="tel" id="telefone" required>
+          <span class="error" id="errorTelefone">Campo obrigatório</span>
+        </div>
+        <div class="form-group checkbox">
+          <input type="checkbox" id="isMenor">
+          <label for="isMenor">Paciente é menor de idade</label>
+        </div>
+        <div class="responsavel-section" id="responsavelSection" style="display: none;">
+          <h3>Dados do Responsável</h3>
+          <div class="form-group">
+            <label for="respNome">Nome do Responsável *</label>
+            <input type="text" id="respNome">
+            <span class="error" id="errorRespNome">Campo obrigatório</span>
+          </div>
+          <div class="form-group">
+            <label for="respDocumento">Documento do Responsável *</label>
+            <input type="text" id="respDocumento">
+            <span class="error" id="errorRespDocumento">Campo obrigatório</span>
+          </div>
+          <div class="form-group">
+            <label for="respDataNascimento">Data de Nascimento do Responsável *</label>
+            <input type="date" id="respDataNascimento">
+            <span class="error" id="errorRespDataNascimento">Campo obrigatório</span>
+          </div>
+          <div class="form-group">
+            <label for="respTelefone">Telefone do Responsável *</label>
+            <input type="tel" id="respTelefone">
+            <span class="error" id="errorRespTelefone">Campo obrigatório</span>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+          <button class="btn btn-primary" onclick="savePatient()">Salvar</button>
+        </div>
+      </form>
     </div>
-    <div class="calendar" id="calendar">
-        <!-- Header gerado via JS -->
+  </div>
+
+  <!-- Drawer Visualizar -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <h2 id="drawerPatientName">Paciente</h2>
+      <button class="drawer-close" onclick="closeDrawer()">&times;</button>
     </div>
-    <h2 style="color:#00204A; margin-top:30px;">📋 Lista de Agendamentos</h2>
-    <div class="table-responsive">
-        <table id="appointments-table">
-            <thead>
-                <tr>
-                    <th>Paciente</th>
-                    <th>Profissional</th>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="appointments-tbody"></tbody>
-        </table>
+    <div class="drawer-tabs" id="drawerTabs">
+      <div class="drawer-tab active" data-tab="dados">Dados</div>
+      <div class="drawer-tab" data-tab="prontuarios">Prontuários</div>
+      <div class="drawer-tab" data-tab="evolucao">Evolução</div>
+      <div class="drawer-tab" data-tab="declaracao">Declaração</div>
+      <div class="drawer-tab" data-tab="atestado">Atestado</div>
+      <div class="drawer-tab" data-tab="relatorio-psicologico">Relatório Psicológico</div>
+      <div class="drawer-tab" data-tab="relatorio-multiprofissional">Relatório Multiprofissional</div>
+      <div class="drawer-tab" data-tab="laudo-psicologico">Laudo Psicológico</div>
+      <div class="drawer-tab" data-tab="parecer-psicologico">Parecer Psicológico</div>
     </div>
-</div>
-
-<!-- Modal -->
-<div class="modal" id="modal-appointment">
-    <div class="modal-content">
-        <h2 id="modal-title">Novo Agendamento</h2>
-        <form id="form-appointment">
-            <input type="hidden" id="edit-id">
-            <div class="form-group">
-                <label for="paciente">Paciente *</label>
-                <input type="text" id="paciente" placeholder="Nome do paciente" required>
-            </div>
-            <div class="form-group">
-                <label for="profissional">Profissional *</label>
-                <input type="text" id="profissional" placeholder="Nome do profissional" required>
-            </div>
-            <div class="form-group">
-                <label for="data">Data *</label>
-                <input type="date" id="data" required>
-            </div>
-            <div class="form-group">
-                <label for="hora">Hora *</label>
-                <input type="time" id="hora" required>
-            </div>
-            <div class="form-group">
-                <label for="status">Status</label>
-                <select id="status">
-                    <option value="Agendado">Agendado</option>
-                    <option value="Confirmado">Confirmado</option>
-                    <option value="Não confirmado">Não confirmado</option>
-                </select>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" id="btn-cancel">Cancelar</button>
-                <button type="submit" class="btn btn-teal" id="btn-save">Salvar</button>
-            </div>
-        </form>
+    <div class="drawer-content" id="drawerContent">
+      <div class="tab-content active" id="tab-dados">
+        <h3>Informações do Paciente</h3>
+        <p id="drawerPatientInfo"></p>
+        <h3>Responsável</h3>
+        <p id="drawerResponsavelInfo"></p>
+      </div>
+      <div class="tab-content" id="tab-prontuarios">
+        <p>Timeline de anotações do profissional (em breve).</p>
+      </div>
+      <div class="tab-content" id="tab-evolucao">
+        <p>Análise de IA de progresso (em breve).</p>
+      </div>
+      <div class="tab-content" id="tab-declaracao">
+        <p>Documento psicológico (em breve).</p>
+      </div>
+      <div class="tab-content" id="tab-atestado">
+        <p>Atestado psicológico (em breve).</p>
+      </div>
+      <div class="tab-content" id="tab-relatorio-psicologico">
+        <p>Relatório psicológico (em breve).</p>
+      </div>
+      <div class="tab-content" id="tab-relatorio-multiprofissional">
+        <p>Relatório multiprofissional (em breve).</p>
+      </div>
+      <div class="tab-content" id="tab-laudo-psicologico">
+        <p>Laudo psicológico (em breve).</p>
+      </div>
+      <div class="tab-content" id="tab-parecer-psicologico">
+        <p>Parecer psicológico (em breve).</p>
+      </div>
     </div>
-</div>
+  </div>
 
-<script>
-    let appointments = JSON.parse(localStorage.getItem('agenda_appointments')) || [];
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
-    let editingId = null;
-
-    const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    const dayNames = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-
-    function saveAppointments() {
-        localStorage.setItem('agenda_appointments', JSON.stringify(appointments));
+  <script>
+    function getPatients() {
+      const data = localStorage.getItem('pacientes');
+      return data ? JSON.parse(data) : [];
     }
-
-    function generateId() {
-        return '_' + Math.random().toString(36).substr(2, 9);
+    function setPatients(patients) {
+      localStorage.setItem('pacientes', JSON.stringify(patients));
     }
-
-    function getFilteredAppointments() {
-        const filter = document.getElementById('filter-professional').value;
-        if (!filter) return appointments;
-        return appointments.filter(a => a.profissional === filter);
-    }
-
-    function updateProfessionalFilter() {
-        const select = document.getElementById('filter-professional');
-        const distinct = [...new Set(appointments.map(a => a.profissional))];
-        const current = select.value;
-        select.innerHTML = '<option value="">Todos</option>';
-        distinct.forEach(prof => {
-            const opt = document.createElement('option');
-            opt.value = prof;
-            opt.textContent = prof;
-            select.appendChild(opt);
-        });
-        if (distinct.includes(current)) select.value = current;
-        else select.value = '';
-    }
-
-    function renderCalendar() {
-        const container = document.getElementById('calendar');
-        container.innerHTML = '';
-        const header = document.createElement('div');
-        header.className = 'calendar-header';
-        header.innerHTML = `
-            <button onclick="changeMonth(-1)">❮</button>
-            <h2>${months[currentMonth]} ${currentYear}</h2>
-            <button onclick="changeMonth(1)">❯</button>
-        `;
-        container.appendChild(header);
-        dayNames.forEach(name => {
-            const div = document.createElement('div');
-            div.className = 'day-name';
-            div.textContent = name;
-            container.appendChild(div);
-        });
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const today = new Date();
-        const filtered = getFilteredAppointments();
-        for (let i = 0; i < firstDay; i++) {
-            const div = document.createElement('div');
-            div.className = 'day other-month';
-            container.appendChild(div);
-        }
-        for (let day = 1; day <= daysInMonth; day++) {
-            const div = document.createElement('div');
-            div.className = 'day';
-            const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-            if (today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === day) {
-                div.classList.add('today');
-            }
-            const dayNumber = document.createElement('div');
-            dayNumber.className = 'day-number';
-            dayNumber.textContent = day;
-            div.appendChild(dayNumber);
-            const dayEvents = filtered.filter(a => a.data === dateStr);
-            dayEvents.forEach(ev => {
-                const badge = document.createElement('div');
-                badge.className = 'event-badge';
-                if (ev.status === 'Confirmado') badge.classList.add('badge-confirmado');
-                else if (ev.status === 'Não confirmado') badge.classList.add('badge-nao-confirmado');
-                else badge.classList.add('badge-agendado');
-                badge.textContent = `${ev.paciente} ${ev.hora}`;
-                div.appendChild(badge);
-            });
-            container.appendChild(div);
-        }
-        const remaining = 7 - ((firstDay + daysInMonth) % 7 || 7);
-        for (let i = 0; i < remaining; i++) {
-            const div = document.createElement('div');
-            div.className = 'day other-month';
-            container.appendChild(div);
-        }
-    }
-
-    function changeMonth(delta) {
-        currentMonth += delta;
-        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-        renderCalendar();
-    }
-
     function renderTable() {
-        const tbody = document.getElementById('appointments-tbody');
+      const patients = getPatients();
+      const tbody = document.getElementById('patientsBody');
+      const noMsg = document.getElementById('noPatients');
+      if (patients.length === 0) {
         tbody.innerHTML = '';
-        const filtered = getFilteredAppointments();
-        if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6">Nenhum agendamento encontrado.</td></tr>';
-            return;
+        noMsg.style.display = 'block';
+        return;
+      }
+      noMsg.style.display = 'none';
+      tbody.innerHTML = patients.map((p, index) => {
+        const respName = p.isMenor ? (p.responsavel?.nome || 'Menor sem responsável') : 'N/A';
+        return `<tr>
+          <td>${p.nome}</td>
+          <td>${p.documento}</td>
+          <td>${p.dataNascimento}</td>
+          <td>${p.telefone}</td>
+          <td>${respName}</td>
+          <td class="actions">
+            <button class="btn btn-secondary btn-sm" onclick="openDrawer(${index})">Visualizar</button>
+            <button class="btn btn-primary btn-sm" onclick="editPatient(${index})">Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="deletePatient(${index})">Excluir</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+    function openModal(editIndex = null) {
+      document.getElementById('patientModal').classList.add('active');
+      if (editIndex !== null) {
+        const patients = getPatients();
+        const p = patients[editIndex];
+        document.getElementById('editId').value = editIndex;
+        document.getElementById('modalTitle').textContent = 'Editar Paciente';
+        document.getElementById('nome').value = p.nome;
+        document.getElementById('documento').value = p.documento;
+        document.getElementById('dataNascimento').value = p.dataNascimento;
+        document.getElementById('telefone').value = p.telefone;
+        document.getElementById('isMenor').checked = p.isMenor;
+        if (p.isMenor && p.responsavel) {
+          document.getElementById('respNome').value = p.responsavel.nome;
+          document.getElementById('respDocumento').value = p.responsavel.documento;
+          document.getElementById('respDataNascimento').value = p.responsavel.dataNascimento;
+          document.getElementById('respTelefone').value = p.responsavel.telefone;
         }
-        filtered.forEach(app => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${app.paciente}</td>
-                <td>${app.profissional}</td>
-                <td>${app.data}</td>
-                <td>${app.hora}</td>
-                <td><span class="event-badge ${app.status === 'Confirmado' ? 'badge-confirmado' : app.status === 'Não confirmado' ? 'badge-nao-confirmado' : 'badge-agendado'}">${app.status}</span></td>
-                <td class="actions">
-                    <button class="btn-edit" onclick="editAppointment('${app.id}')">Editar</button>
-                    <button class="btn-delete" onclick="deleteAppointment('${app.id}')">Excluir</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+        toggleResponsavel();
+      } else {
+        document.getElementById('editId').value = '';
+        document.getElementById('modalTitle').textContent = 'Incluir Paciente';
+        document.getElementById('patientForm').reset();
+        document.getElementById('responsavelSection').style.display = 'none';
+        document.getElementById('isMenor').checked = false;
+      }
+      hideAllErrors();
     }
-
-    function openModal() {
-        document.getElementById('modal-appointment').style.display = 'flex';
-    }
-
     function closeModal() {
-        document.getElementById('modal-appointment').style.display = 'none';
-        document.getElementById('form-appointment').reset();
-        document.getElementById('edit-id').value = '';
-        editingId = null;
-        document.getElementById('modal-title').textContent = 'Novo Agendamento';
+      document.getElementById('patientModal').classList.remove('active');
     }
-
-    document.getElementById('btn-cancel').addEventListener('click', closeModal);
-    window.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('modal-appointment')) closeModal();
-    });
-
-    document.getElementById('form-appointment').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const paciente = document.getElementById('paciente').value.trim();
-        const profissional = document.getElementById('profissional').value.trim();
-        const data = document.getElementById('data').value;
-        const hora = document.getElementById('hora').value;
-        const status = document.getElementById('status').value;
-        if (!paciente || !profissional || !data || !hora) {
-            alert('Preencha todos os campos obrigatórios.');
-            return;
-        }
-        if (editingId) {
-            const index = appointments.findIndex(a => a.id === editingId);
-            if (index !== -1) {
-                appointments[index] = { ...appointments[index], paciente, profissional, data, hora, status };
-            }
-        } else {
-            const newApp = {
-                id: generateId(),
-                paciente,
-                profissional,
-                data,
-                hora,
-                status
-            };
-            appointments.push(newApp);
-        }
-        saveAppointments();
-        closeModal();
-        updateProfessionalFilter();
-        renderCalendar();
-        renderTable();
-    });
-
-    function editAppointment(id) {
-        const app = appointments.find(a => a.id === id);
-        if (!app) return;
-        editingId = id;
-        document.getElementById('edit-id').value = id;
-        document.getElementById('paciente').value = app.paciente;
-        document.getElementById('profissional').value = app.profissional;
-        document.getElementById('data').value = app.data;
-        document.getElementById('hora').value = app.hora;
-        document.getElementById('status').value = app.status;
-        document.getElementById('modal-title').textContent = 'Editar Agendamento';
-        openModal();
+    function toggleResponsavel() {
+      const isMenor = document.getElementById('isMenor').checked;
+      const section = document.getElementById('responsavelSection');
+      section.style.display = isMenor ? 'block' : 'none';
     }
-
-    function deleteAppointment(id) {
-        if (!confirm('Tem certeza que deseja excluir este agendamento?')) return;
-        appointments = appointments.filter(a => a.id !== id);
-        saveAppointments();
-        updateProfessionalFilter();
-        renderCalendar();
-        renderTable();
+    document.getElementById('isMenor').addEventListener('change', toggleResponsavel);
+    function hideAllErrors() {
+      document.querySelectorAll('.error').forEach(el => el.classList.remove('show'));
     }
-
-    document.getElementById('btn-new-appointment').addEventListener('click', () => {
-        editingId = null;
-        document.getElementById('modal-title').textContent = 'Novo Agendamento';
-        openModal();
+    function showError(id) {
+      document.getElementById(id).classList.add('show');
+    }
+    function validateForm() {
+      let valid = true;
+      hideAllErrors();
+      const nome = document.getElementById('nome').value.trim();
+      const documento = document.getElementById('documento').value.trim();
+      const dataNascimento = document.getElementById('dataNascimento').value;
+      const telefone = document.getElementById('telefone').value.trim();
+      if (!nome) { showError('errorNome'); valid = false; }
+      if (!documento) { showError('errorDocumento'); valid = false; }
+      if (!dataNascimento) { showError('errorDataNascimento'); valid = false; }
+      if (!telefone) { showError('errorTelefone'); valid = false; }
+      const isMenor = document.getElementById('isMenor').checked;
+      if (isMenor) {
+        const respNome = document.getElementById('respNome').value.trim();
+        const respDocumento = document.getElementById('respDocumento').value.trim();
+        const respDataNascimento = document.getElementById('respDataNascimento').value;
+        const respTelefone = document.getElementById('respTelefone').value.trim();
+        if (!respNome) { showError('errorRespNome'); valid = false; }
+        if (!respDocumento) { showError('errorRespDocumento'); valid = false; }
+        if (!respDataNascimento) { showError('errorRespDataNascimento'); valid = false; }
+        if (!respTelefone) { showError('errorRespTelefone'); valid = false; }
+      }
+      return valid;
+    }
+    function savePatient() {
+      if (!validateForm()) return;
+      const patients = getPatients();
+      const editId = document.getElementById('editId').value;
+      const isMenor = document.getElementById('isMenor').checked;
+      const patientData = {
+        nome: document.getElementById('nome').value.trim(),
+        documento: document.getElementById('documento').value.trim(),
+        dataNascimento: document.getElementById('dataNascimento').value,
+        telefone: document.getElementById('telefone').value.trim(),
+        isMenor: isMenor,
+        responsavel: isMenor ? {
+          nome: document.getElementById('respNome').value.trim(),
+          documento: document.getElementById('respDocumento').value.trim(),
+          dataNascimento: document.getElementById('respDataNascimento').value,
+          telefone: document.getElementById('respTelefone').value.trim()
+        } : null
+      };
+      if (editId !== '') {
+        patients[editId] = patientData;
+      } else {
+        patients.push(patientData);
+      }
+      setPatients(patients);
+      renderTable();
+      closeModal();
+    }
+    function editPatient(index) {
+      openModal(index);
+    }
+    function deletePatient(index) {
+      if (!confirm('Tem certeza que deseja excluir este paciente?')) return;
+      const patients = getPatients();
+      patients.splice(index, 1);
+      setPatients(patients);
+      renderTable();
+    }
+    function openDrawer(index) {
+      const patients = getPatients();
+      const p = patients[index];
+      document.getElementById('drawerPatientName').textContent = p.nome;
+      document.getElementById('drawerPatientInfo').innerHTML = `
+        <strong>Nome:</strong> ${p.nome}<br>
+        <strong>Documento:</strong> ${p.documento}<br>
+        <strong>Data de Nascimento:</strong> ${p.dataNascimento}<br>
+        <strong>Telefone:</strong> ${p.telefone}<br>
+        <strong>Menor de Idade:</strong> ${p.isMenor ? 'Sim' : 'Não'}
+      `;
+      if (p.isMenor && p.responsavel) {
+        document.getElementById('drawerResponsavelInfo').innerHTML = `
+          <strong>Nome:</strong> ${p.responsavel.nome}<br>
+          <strong>Documento:</strong> ${p.responsavel.documento}<br>
+          <strong>Data de Nascimento:</strong> ${p.responsavel.dataNascimento}<br>
+          <strong>Telefone:</strong> ${p.responsavel.telefone}
+        `;
+      } else {
+        document.getElementById('drawerResponsavelInfo').textContent = 'N/A';
+      }
+      // Reset tabs to first
+      document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelector('.drawer-tab[data-tab="dados"]').classList.add('active');
+      document.getElementById('tab-dados').classList.add('active');
+      document.getElementById('drawer').classList.add('open');
+      document.getElementById('drawerOverlay').classList.add('active');
+    }
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('active');
+    }
+    // Tab switching in drawer
+    document.querySelectorAll('.drawer-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById('tab-' + tabId).classList.add('active');
+      });
     });
-
-    document.getElementById('filter-professional').addEventListener('change', () => {
-        renderCalendar();
-        renderTable();
-    });
-
-    // Initialize
-    updateProfessionalFilter();
-    renderCalendar();
+    // Initial render
     renderTable();
-</script>
+  </script>
 </body>
 </html>
