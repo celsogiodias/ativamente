@@ -1,570 +1,550 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Pacientes</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f5f7fb;
-            color: #333;
-            padding: 20px;
-        }
-        .app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #00204A;
-            font-size: 28px;
-            margin-bottom: 24px;
-            border-left: 5px solid #FF6B35;
-            padding-left: 15px;
-        }
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .btn-primary { background: #FF6B35; color: #fff; }
-        .btn-primary:hover { background: #e55a2b; }
-        .btn-secondary { background: #008080; color: #fff; }
-        .btn-secondary:hover { background: #006666; }
-        .btn-danger { background: #d9534f; color: #fff; }
-        .btn-danger:hover { background: #c9302c; }
-        .btn-edit { background: #5bc0de; color: #fff; }
-        .btn-edit:hover { background: #46b8da; }
-        .drawer-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: #00204A;
-            color: #fff;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .drawer {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 90%;
-            max-width: 700px;
-            height: 100vh;
-            background: #fff;
-            box-shadow: -4px 0 15px rgba(0,0,0,0.2);
-            transition: right 0.3s ease;
-            z-index: 999;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        .drawer.open { right: 0; }
-        .drawer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #00204A;
-            padding-bottom: 10px;
-        }
-        .drawer-header h2 { color: #00204A; font-size: 22px; }
-        .close-drawer { font-size: 30px; cursor: pointer; color: #00204A; }
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .tab-btn {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 20px;
-            background: #e0e0e0;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .tab-btn.active { background: #008080; color: #fff; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .crud-container { margin-top: 10px; }
-        .crud-container input, .crud-container textarea {
-            width: 100%;
-            padding: 8px 12px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-family: inherit;
-        }
-        .crud-container textarea { resize: vertical; min-height: 60px; }
-        .item-list {
-            margin-top: 15px;
-        }
-        .item-card {
-            background: #f9f9f9;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            border-left: 4px solid #008080;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .item-actions button { margin-left: 8px; }
-        .chart-container {
-            margin-top: 20px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        @media (max-width: 768px) {
-            .drawer { width: 100%; max-width: none; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pacientes - Clínica</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Poppins, sans-serif; }
+    body { background: #f0f2f5; display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; background: #00204A; color: white; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+    .sidebar h2 { font-weight: 600; font-size: 1.2rem; margin-bottom: 10px; color: #FF6B35; }
+    .sidebar .tab-item { padding: 10px 15px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+    .sidebar .tab-item:hover, .sidebar .tab-item.active { background: #FF6B35; color: #00204A; font-weight: 600; }
+    .main { flex: 1; padding: 20px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .top-bar h1 { font-weight: 600; color: #00204A; }
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+    .btn-primary { background: #FF6B35; color: white; }
+    .btn-primary:hover { background: #e55a2b; }
+    .btn-secondary { background: #008080; color: white; }
+    .btn-secondary:hover { background: #006666; }
+    .btn-danger { background: #d32f2f; color: white; }
+    .btn-danger:hover { background: #b71c1c; }
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: #00204A; color: white; font-weight: 500; }
+    tr:hover { background: #f5f5f5; }
+    .action-btns { display: flex; gap: 5px; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+    .modal h3 { margin-bottom: 20px; color: #00204A; font-weight: 600; }
+    .modal label { display: block; margin-bottom: 5px; font-weight: 500; color: #333; }
+    .modal input, .modal textarea, .modal select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9rem; }
+    .modal input:focus, .modal textarea:focus { border-color: #FF6B35; outline: none; }
+    .modal .btn-group { display: flex; gap: 10px; justify-content: flex-end; }
+    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+    .drawer-overlay.active { display: block; }
+    .drawer { position: fixed; top: 0; right: -600px; width: 600px; height: 100%; background: white; box-shadow: -4px 0 10px rgba(0,0,0,0.2); transition: 0.3s; z-index: 1000; overflow-y: auto; padding: 20px; }
+    .drawer.open { right: 0; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #FF6B35; padding-bottom: 10px; }
+    .drawer-header h2 { color: #00204A; font-weight: 600; }
+    .drawer-tabs { display: flex; gap: 15px; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+    .drawer-tab { padding: 10px 15px; cursor: pointer; color: #555; font-weight: 500; border-bottom: 3px solid transparent; transition: 0.2s; }
+    .drawer-tab.active { color: #FF6B35; border-bottom-color: #FF6B35; }
+    .drawer-content { }
+    .sub-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+    .sub-tab { padding: 5px 12px; cursor: pointer; border-radius: 4px; background: #eee; transition: 0.2s; }
+    .sub-tab.active { background: #008080; color: white; }
+    .graph-container { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .analysis-text { background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 4px solid #FF6B35; margin-top: 10px; }
+    @media (max-width: 768px) { .drawer { width: 100%; right: -100%; } .modal { width: 95%; } }
+  </style>
 </head>
 <body>
-<div class="app-container">
-    <h1>👥 Gestão de Pacientes</h1>
-    <button class="btn btn-primary" onclick="openDrawer()">Abrir Drawer</button>
-    <div id="patientDashboard">
-        <p>Selecione um paciente ou crie um novo no Drawer.</p>
+  <div class="sidebar">
+    <h2>Clínica</h2>
+    <div class="tab-item" onclick="switchMainTab('pacientes')">Pacientes</div>
+    <!-- Other tabs as placeholders -->
+    <div class="tab-item">Financeiro</div>
+    <div class="tab-item">Profissionais</div>
+    <div class="tab-item">Agenda</div>
+  </div>
+
+  <div class="main" id="mainContent">
+    <div class="top-bar">
+      <h1>Pacientes</h1>
+      <button class="btn btn-primary" onclick="openModal('paciente', null)">+ Novo Paciente</button>
     </div>
-</div>
+    <table id="pacientesTable">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Documento</th>
+          <th>Data Nasc</th>
+          <th>Telefone</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="pacientesBody">
+      </tbody>
+    </table>
+  </div>
 
-<div class="drawer-toggle" onclick="openDrawer()">📋</div>
+  <!-- Modal Paciente -->
+  <div class="modal-overlay" id="modalPaciente">
+    <div class="modal">
+      <h3 id="modalPacienteTitle">Novo Paciente</h3>
+      <form id="formPaciente">
+        <input type="hidden" id="pacienteId">
+        <label>Nome *</label>
+        <input type="text" id="pacNome" required>
+        <label>Documento</label>
+        <input type="text" id="pacDoc">
+        <label>Data de Nascimento</label>
+        <input type="date" id="pacDataNasc">
+        <label>Telefone</label>
+        <input type="tel" id="pacTel">
+        <hr>
+        <h4 style="margin-bottom:10px;color:#00204A;">Responsável (se menor)</h4>
+        <label>Nome do Responsável</label>
+        <input type="text" id="pacRespNome">
+        <label>Documento do Responsável</label>
+        <input type="text" id="pacRespDoc">
+        <label>Data Nasc do Responsável</label>
+        <input type="date" id="pacRespDataNasc">
+        <label>Telefone do Responsável</label>
+        <input type="tel" id="pacRespTel">
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalPaciente')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-<div id="drawer" class="drawer">
+  <!-- Drawer -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
     <div class="drawer-header">
-        <h2>Pacientes</h2>
-        <span class="close-drawer" onclick="closeDrawer()">&times;</span>
+      <h2 id="drawerPacienteNome">Paciente</h2>
+      <button class="btn btn-danger btn-sm" onclick="closeDrawer()">X</button>
     </div>
-    <div class="tabs" id="tabButtons">
-        <button class="tab-btn active" data-tab="tab-dados">Dados</button>
-        <button class="tab-btn" data-tab="tab-prontuarios">Prontuários</button>
-        <button class="tab-btn" data-tab="tab-evolucao">Evolução</button>
-        <button class="tab-btn" data-tab="tab-declaracao">Declaração Psicológica</button>
-        <button class="tab-btn" data-tab="tab-atestado">Atestado Psicológico</button>
-        <button class="tab-btn" data-tab="tab-relatorio">Relatório Psicológico</button>
-        <button class="tab-btn" data-tab="tab-relmult">Relatório Multiprofissional</button>
-        <button class="tab-btn" data-tab="tab-laudo">Laudo Psicológico</button>
-        <button class="tab-btn" data-tab="tab-parecer">Parecer Psicológico</button>
+    <div class="drawer-tabs" id="drawerTabs">
+      <div class="drawer-tab active" onclick="switchDrawerTab(this, 'dados')">Dados</div>
+      <div class="drawer-tab" onclick="switchDrawerTab(this, 'prontuarios')">Prontuários</div>
+      <div class="drawer-tab" onclick="switchDrawerTab(this, 'evolucao')">Evolução</div>
+      <div class="drawer-tab" onclick="switchDrawerTab(this, 'declaracao')">Declaração</div>
+      <div class="drawer-tab" onclick="switchDrawerTab(this, 'atestado')">Atestado</div>
+      <div class="drawer-tab" onclick="switchDrawerTab(this, 'relatorio')">Relatório</div>
+      <div class="drawer-tab" onclick="switchDrawerTab(this, 'laudo')">Laudo</div>
+      <div class="drawer-tab" onclick="switchDrawerTab(this, 'parecer')">Parecer</div>
+      <div class="drawer-tab" onclick="switchDrawerTab(this, 'outros')">Outros</div>
     </div>
-    <div id="tabContents">
-        <div id="tab-dados" class="tab-content active">
-            <div class="crud-container">
-                <h3>Dados do Paciente</h3>
-                <input type="text" id="dados-nome" placeholder="Nome completo">
-                <input type="text" id="dados-documento" placeholder="CPF/RG">
-                <input type="date" id="dados-dataNasc">
-                <input type="tel" id="dados-telefone" placeholder="Telefone">
-                <input type="text" id="dados-responsavel" placeholder="Responsável (se menor)">
-                <button class="btn btn-primary" onclick="salvarDados()">Salvar</button>
-                <div class="item-list" id="dados-list"></div>
-            </div>
-        </div>
-        <div id="tab-prontuarios" class="tab-content">
-            <div class="crud-container">
-                <h3>Prontuários (Timeline)</h3>
-                <textarea id="pront-text" placeholder="Anotação profissional"></textarea>
-                <button class="btn btn-primary" onclick="salvarProntuario()">Adicionar</button>
-                <div class="item-list" id="pront-list"></div>
-            </div>
-        </div>
-        <div id="tab-evolucao" class="tab-content">
-            <div class="crud-container">
-                <h3>Evolução (com gráfico)</h3>
-                <div>
-                    <input type="date" id="evol-data">
-                    <input type="number" id="evol-valor" min="0" max="100" placeholder="Valor (0-100)">
-                    <button class="btn btn-primary" onclick="salvarEvolucao()">Adicionar</button>
-                </div>
-                <div class="chart-container">
-                    <canvas id="evolChart"></canvas>
-                </div>
-                <div class="item-list" id="evol-list"></div>
-            </div>
-        </div>
-        <div id="tab-declaracao" class="tab-content">
-            <div class="crud-container">
-                <h3>Declaração Psicológica</h3>
-                <textarea id="decl-text" placeholder="Conteúdo da declaração"></textarea>
-                <button class="btn btn-primary" onclick="salvarDeclaracao()">Salvar</button>
-                <div class="item-list" id="decl-list"></div>
-            </div>
-        </div>
-        <div id="tab-atestado" class="tab-content">
-            <div class="crud-container">
-                <h3>Atestado Psicológico</h3>
-                <textarea id="atest-text" placeholder="Conteúdo do atestado"></textarea>
-                <button class="btn btn-primary" onclick="salvarAtestado()">Salvar</button>
-                <div class="item-list" id="atest-list"></div>
-            </div>
-        </div>
-        <div id="tab-relatorio" class="tab-content">
-            <div class="crud-container">
-                <h3>Relatório Psicológico</h3>
-                <textarea id="rel-text" placeholder="Conteúdo do relatório"></textarea>
-                <button class="btn btn-primary" onclick="salvarRelatorio()">Salvar</button>
-                <div class="item-list" id="rel-list"></div>
-            </div>
-        </div>
-        <div id="tab-relmult" class="tab-content">
-            <div class="crud-container">
-                <h3>Relatório Multiprofissional</h3>
-                <textarea id="relmult-text" placeholder="Conteúdo do relatório multiprofissional"></textarea>
-                <button class="btn btn-primary" onclick="salvarRelMult()">Salvar</button>
-                <div class="item-list" id="relmult-list"></div>
-            </div>
-        </div>
-        <div id="tab-laudo" class="tab-content">
-            <div class="crud-container">
-                <h3>Laudo Psicológico</h3>
-                <textarea id="laudo-text" placeholder="Conteúdo do laudo técnico"></textarea>
-                <button class="btn btn-primary" onclick="salvarLaudo()">Salvar</button>
-                <div class="item-list" id="laudo-list"></div>
-            </div>
-        </div>
-        <div id="tab-parecer" class="tab-content">
-            <div class="crud-container">
-                <h3>Parecer Psicológico</h3>
-                <textarea id="parecer-text" placeholder="Conteúdo do parecer profissional"></textarea>
-                <button class="btn btn-primary" onclick="salvarParecer()">Salvar</button>
-                <div class="item-list" id="parecer-list"></div>
-            </div>
-        </div>
+    <div class="drawer-content" id="drawerContent">
     </div>
-</div>
+  </div>
 
-<script>
-    // Dados iniciais
-    let evolChart = null;
-    let editingIndex = -1;
-    let currentTab = 'dados';
+  <!-- Generic modal for CRUD within drawer -->
+  <div class="modal-overlay" id="modalGenerico">
+    <div class="modal">
+      <h3 id="modalGenericoTitle"></h3>
+      <form id="formGenerico">
+        <div id="modalGenericoFields"></div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalGenerico')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-    // Abrir/fechar drawer
-    function openDrawer() {
-        document.getElementById('drawer').classList.add('open');
-        carregarDados();
-    }
-    function closeDrawer() {
-        document.getElementById('drawer').classList.remove('open');
+  <script>
+    // ========== INITIALIZATION ==========
+    let pacientes = JSON.parse(localStorage.getItem('pacientes')) || [];
+    let currentPacienteId = null;
+    let currentDrawerTab = 'dados';
+    let editingGenericoId = null;
+    let editingGenericoType = null;
+
+    // ========== LOCAL STORAGE HELPERS ==========
+    function savePacientes() {
+      localStorage.setItem('pacientes', JSON.stringify(pacientes));
     }
 
-    // Tabs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            const tabId = this.getAttribute('data-tab');
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            currentTab = tabId.replace('tab-', '');
-            carregarDados();
-        });
+    function loadPacientes() {
+      renderPacientes();
+    }
+
+    // ========== RENDER MAIN TABLE ==========
+    function renderPacientes() {
+      const tbody = document.getElementById('pacientesBody');
+      tbody.innerHTML = '';
+      pacientes.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.nome}</td>
+          <td>${p.documento || '-'}</td>
+          <td>${p.dataNasc || '-'}</td>
+          <td>${p.telefone || '-'}</td>
+          <td class="action-btns">
+            <button class="btn btn-secondary btn-sm" onclick="openDrawer('${p.id}')">Visualizar</button>
+            <button class="btn btn-sm" style="background:#FF6B35;color:white;" onclick="openModal('paciente', '${p.id}')">Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="excluirPaciente('${p.id}')">Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ========== MODAL PACIENTE ==========
+    function openModal(type, id) {
+      const overlay = document.getElementById('modalPaciente');
+      if (type === 'paciente') {
+        document.getElementById('modalPacienteTitle').textContent = id ? 'Editar Paciente' : 'Novo Paciente';
+        if (id) {
+          const p = pacientes.find(x => x.id === id);
+          if (p) {
+            document.getElementById('pacienteId').value = p.id;
+            document.getElementById('pacNome').value = p.nome;
+            document.getElementById('pacDoc').value = p.documento || '';
+            document.getElementById('pacDataNasc').value = p.dataNasc || '';
+            document.getElementById('pacTel').value = p.telefone || '';
+            document.getElementById('pacRespNome').value = p.respNome || '';
+            document.getElementById('pacRespDoc').value = p.respDoc || '';
+            document.getElementById('pacRespDataNasc').value = p.respDataNasc || '';
+            document.getElementById('pacRespTel').value = p.respTel || '';
+          }
+        } else {
+          document.getElementById('pacienteId').value = '';
+          document.getElementById('formPaciente').reset();
+        }
+        overlay.classList.add('active');
+      }
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    document.getElementById('formPaciente').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('pacienteId').value;
+      const nome = document.getElementById('pacNome').value.trim();
+      if (!nome) { alert('Nome é obrigatório!'); return; }
+      const paciente = {
+        id: id || 'p_' + Date.now(),
+        nome,
+        documento: document.getElementById('pacDoc').value.trim(),
+        dataNasc: document.getElementById('pacDataNasc').value,
+        telefone: document.getElementById('pacTel').value.trim(),
+        respNome: document.getElementById('pacRespNome').value.trim(),
+        respDoc: document.getElementById('pacRespDoc').value.trim(),
+        respDataNasc: document.getElementById('pacRespDataNasc').value,
+        respTel: document.getElementById('pacRespTel').value.trim(),
+        prontuarios: [],
+        evolucao: [],
+        declaracoes: [],
+        atestados: [],
+        relatoriosPsico: [],
+        relatoriosMulti: [],
+        laudos: [],
+        pareceres: [],
+        outrosDocs: []
+      };
+      if (id) {
+        const index = pacientes.findIndex(x => x.id === id);
+        if (index !== -1) {
+          // preserve subarrays
+          paciente.prontuarios = pacientes[index].prontuarios || [];
+          paciente.evolucao = pacientes[index].evolucao || [];
+          paciente.declaracoes = pacientes[index].declaracoes || [];
+          paciente.atestados = pacientes[index].atestados || [];
+          paciente.relatoriosPsico = pacientes[index].relatoriosPsico || [];
+          paciente.relatoriosMulti = pacientes[index].relatoriosMulti || [];
+          paciente.laudos = pacientes[index].laudos || [];
+          paciente.pareceres = pacientes[index].pareceres || [];
+          paciente.outrosDocs = pacientes[index].outrosDocs || [];
+          pacientes[index] = paciente;
+        }
+      } else {
+        pacientes.push(paciente);
+      }
+      savePacientes();
+      renderPacientes();
+      closeModal('modalPaciente');
     });
 
-    // Funções genéricas CRUD
-    function getStorageKey() { return 'pacientes_' + currentTab; }
-    function getData() { return JSON.parse(localStorage.getItem(getStorageKey()) || '[]'); }
-    function saveData(data) { localStorage.setItem(getStorageKey(), JSON.stringify(data)); }
-
-    function renderList(items, renderFn) {
-        const listId = currentTab + '-list';
-        const container = document.getElementById(listId);
-        if (!container) return;
-        container.innerHTML = items.map((item, index) => renderFn(item, index)).join('');
+    function excluirPaciente(id) {
+      if (!confirm('Tem certeza que deseja excluir este paciente?')) return;
+      pacientes = pacientes.filter(p => p.id !== id);
+      savePacientes();
+      renderPacientes();
     }
 
-    // Tab Dados
-    function salvarDados() {
-        const nome = document.getElementById('dados-nome').value.trim();
-        const documento = document.getElementById('dados-documento').value.trim();
-        const dataNasc = document.getElementById('dados-dataNasc').value;
-        const telefone = document.getElementById('dados-telefone').value.trim();
-        const responsavel = document.getElementById('dados-responsavel').value.trim();
-        if (!nome) { alert('Nome obrigatório'); return; }
-        let dados = getData();
-        if (editingIndex >= 0) {
-            dados[editingIndex] = { nome, documento, dataNasc, telefone, responsavel };
-            editingIndex = -1;
+    // ========== DRAWER ==========
+    function openDrawer(pacienteId) {
+      currentPacienteId = pacienteId;
+      const p = pacientes.find(x => x.id === pacienteId);
+      if (!p) return;
+      document.getElementById('drawerPacienteNome').textContent = p.nome;
+      document.getElementById('drawer').classList.add('open');
+      document.getElementById('drawerOverlay').classList.add('active');
+      switchDrawerTab(document.querySelector('.drawer-tab.active') || document.querySelector('.drawer-tab'), 'dados');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('active');
+      currentPacienteId = null;
+    }
+
+    function switchDrawerTab(el, tabName) {
+      document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      currentDrawerTab = tabName;
+      renderDrawerContent(tabName);
+    }
+
+    function renderDrawerContent(tabName) {
+      const container = document.getElementById('drawerContent');
+      container.innerHTML = '';
+      const p = pacientes.find(x => x.id === currentPacienteId);
+      if (!p) return;
+      switch(tabName) {
+        case 'dados':
+          container.innerHTML = `
+            <h3>Dados do Paciente</h3>
+            <p><strong>Nome:</strong> ${p.nome}</p>
+            <p><strong>Documento:</strong> ${p.documento || '-'}</p>
+            <p><strong>Data Nasc:</strong> ${p.dataNasc || '-'}</p>
+            <p><strong>Telefone:</strong> ${p.telefone || '-'}</p>
+            <hr>
+            <h4>Responsável</h4>
+            <p><strong>Nome:</strong> ${p.respNome || '-'}</p>
+            <p><strong>Documento:</strong> ${p.respDoc || '-'}</p>
+            <p><strong>Data Nasc:</strong> ${p.respDataNasc || '-'}</p>
+            <p><strong>Telefone:</strong> ${p.respTel || '-'}</p>
+          `;
+          break;
+        case 'prontuarios':
+          renderCrudTab(container, p, 'prontuarios', ['data', 'profissional', 'anotacao'], { data: 'date', profissional: 'text', anotacao: 'textarea' });
+          break;
+        case 'evolucao':
+          renderEvolucao(container, p);
+          break;
+        case 'declaracao':
+          renderCrudTab(container, p, 'declaracoes', ['data', 'tipo', 'descricao'], { data: 'date', tipo: 'text', descricao: 'text' });
+          break;
+        case 'atestado':
+          renderCrudTab(container, p, 'atestados', ['data', 'validade', 'motivo'], { data: 'date', validade: 'date', motivo: 'text' });
+          break;
+        case 'relatorio':
+          renderRelatorio(container, p);
+          break;
+        case 'laudo':
+          renderCrudTab(container, p, 'laudos', ['data', 'conteudo'], { data: 'date', conteudo: 'textarea' });
+          break;
+        case 'parecer':
+          renderCrudTab(container, p, 'pareceres', ['data', 'profissional', 'conteudo'], { data: 'date', profissional: 'text', conteudo: 'textarea' });
+          break;
+        case 'outros':
+          renderCrudTab(container, p, 'outrosDocs', ['data', 'tipo', 'descricao'], { data: 'date', tipo: 'text', descricao: 'textarea' });
+          break;
+      }
+    }
+
+    // ========== GENERIC CRUD RENDER ==========
+    function renderCrudTab(container, paciente, fieldName, fields, fieldTypes) {
+      const items = paciente[fieldName] || [];
+      let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;"><h3>${capitalize(fieldName)}</h3><button class="btn btn-primary btn-sm" onclick="openGenericoModal('${fieldName}', null)">+ Novo</button></div>`;
+      if (items.length === 0) {
+        html += '<p style="color:#888;">Nenhum registro encontrado.</p>';
+      } else {
+        html += '<table><thead><tr>';
+        fields.forEach(f => html += `<th>${capitalize(f)}</th>`);
+        html += '<th>Ações</th></tr></thead><tbody>';
+        items.forEach((item, idx) => {
+          html += '<tr>';
+          fields.forEach(f => html += `<td>${item[f] || '-'}</td>`);
+          html += `<td class="action-btns">
+            <button class="btn btn-secondary btn-sm" onclick="openGenericoModal('${fieldName}', ${idx})">Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="excluirGenerico('${fieldName}', ${idx})">Excluir</button>
+          </td></tr>`;
+        });
+        html += '</tbody></table>';
+      }
+      container.innerHTML = html;
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // ========== GENERIC MODAL FOR CRUD ==========
+    function openGenericoModal(fieldName, idx) {
+      const p = pacientes.find(x => x.id === currentPacienteId);
+      if (!p) return;
+      const items = p[fieldName] || [];
+      let item = idx !== null ? items[idx] : {};
+      editingGenericoId = idx;
+      editingGenericoType = fieldName;
+      // Build fields based on fieldName
+      let fieldsConfig = getFieldsConfig(fieldName);
+      const overlay = document.getElementById('modalGenerico');
+      document.getElementById('modalGenericoTitle').textContent = idx !== null ? 'Editar' : 'Novo';
+      const fieldsDiv = document.getElementById('modalGenericoFields');
+      fieldsDiv.innerHTML = '';
+      fieldsConfig.forEach(fc => {
+        const label = document.createElement('label');
+        label.textContent = capitalize(fc.name) + (fc.required ? ' *' : '');
+        fieldsDiv.appendChild(label);
+        let input;
+        if (fc.type === 'textarea') {
+          input = document.createElement('textarea');
+          input.rows = 3;
         } else {
-            dados.push({ nome, documento, dataNasc, telefone, responsavel });
+          input = document.createElement('input');
+          input.type = fc.type || 'text';
         }
-        saveData(dados);
-        limparCamposDados();
-        renderDados();
+        input.id = 'gen_' + fc.name;
+        input.required = fc.required || false;
+        input.value = item[fc.name] || '';
+        fieldsDiv.appendChild(input);
+      });
+      overlay.classList.add('active');
     }
 
-    function renderDados() {
-        const items = getData();
-        renderList(items, (item, idx) => `
-            <div class="item-card">
-                <div>
-                    <strong>${item.nome}</strong><br>
-                    ${item.documento} | ${item.dataNasc} | ${item.telefone} ${item.responsavel ? '| Resp: '+item.responsavel : ''}
-                </div>
-                <div class="item-actions">
-                    <button class="btn btn-edit" onclick="editarDados(${idx})">Editar</button>
-                    <button class="btn btn-danger" onclick="excluirDados(${idx})">Excluir</button>
-                </div>
-            </div>
-        `);
+    function getFieldsConfig(fieldName) {
+      const configs = {
+        prontuarios: [
+          { name: 'data', type: 'date', required: true },
+          { name: 'profissional', type: 'text', required: true },
+          { name: 'anotacao', type: 'textarea', required: true }
+        ],
+        declaracoes: [
+          { name: 'data', type: 'date', required: true },
+          { name: 'tipo', type: 'text', required: true },
+          { name: 'descricao', type: 'text', required: true }
+        ],
+        atestados: [
+          { name: 'data', type: 'date', required: true },
+          { name: 'validade', type: 'date', required: true },
+          { name: 'motivo', type: 'text', required: true }
+        ],
+        laudos: [
+          { name: 'data', type: 'date', required: true },
+          { name: 'conteudo', type: 'textarea', required: true }
+        ],
+        pareceres: [
+          { name: 'data', type: 'date', required: true },
+          { name: 'profissional', type: 'text', required: true },
+          { name: 'conteudo', type: 'textarea', required: true }
+        ],
+        outrosDocs: [
+          { name: 'data', type: 'date', required: true },
+          { name: 'tipo', type: 'text', required: true },
+          { name: 'descricao', type: 'textarea', required: true }
+        ]
+      };
+      return configs[fieldName] || [];
     }
 
-    function editarDados(idx) {
-        const items = getData();
-        const item = items[idx];
-        document.getElementById('dados-nome').value = item.nome;
-        document.getElementById('dados-documento').value = item.documento;
-        document.getElementById('dados-dataNasc').value = item.dataNasc;
-        document.getElementById('dados-telefone').value = item.telefone;
-        document.getElementById('dados-responsavel').value = item.responsavel || '';
-        editingIndex = idx;
-    }
-
-    function excluirDados(idx) {
-        if (!confirm('Excluir este paciente?')) return;
-        let items = getData();
-        items.splice(idx, 1);
-        saveData(items);
-        renderDados();
-    }
-
-    function limparCamposDados() {
-        document.getElementById('dados-nome').value = '';
-        document.getElementById('dados-documento').value = '';
-        document.getElementById('dados-dataNasc').value = '';
-        document.getElementById('dados-telefone').value = '';
-        document.getElementById('dados-responsavel').value = '';
-        editingIndex = -1;
-    }
-
-    // Tab Prontuários (timeline)
-    function salvarProntuario() {
-        const text = document.getElementById('pront-text').value.trim();
-        if (!text) { alert('Digite uma anotação'); return; }
-        let items = getData();
-        const data = new Date().toLocaleString();
-        if (editingIndex >= 0) {
-            items[editingIndex].text = text;
-            items[editingIndex].data = data;
-            editingIndex = -1;
-        } else {
-            items.push({ text, data });
+    document.getElementById('formGenerico').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const p = pacientes.find(x => x.id === currentPacienteId);
+      if (!p) return;
+      const fieldName = editingGenericoType;
+      const items = p[fieldName] || [];
+      const fieldsConfig = getFieldsConfig(fieldName);
+      const newItem = {};
+      fieldsConfig.forEach(fc => {
+        const val = document.getElementById('gen_' + fc.name).value.trim();
+        if (fc.required && !val) {
+          alert('Preencha todos os campos obrigatórios!');
+          return;
         }
-        saveData(items);
-        document.getElementById('pront-text').value = '';
-        renderProntuarios();
+        newItem[fc.name] = val;
+      });
+      if (editingGenericoId !== null) {
+        items[editingGenericoId] = newItem;
+      } else {
+        items.push(newItem);
+      }
+      p[fieldName] = items;
+      savePacientes();
+      renderDrawerContent(currentDrawerTab);
+      closeModal('modalGenerico');
+    });
+
+    function excluirGenerico(fieldName, idx) {
+      if (!confirm('Excluir este registro?')) return;
+      const p = pacientes.find(x => x.id === currentPacienteId);
+      if (!p) return;
+      p[fieldName].splice(idx, 1);
+      savePacientes();
+      renderDrawerContent(currentDrawerTab);
     }
 
-    function renderProntuarios() {
-        const items = getData();
-        renderList(items, (item, idx) => `
-            <div class="item-card">
-                <div>
-                    <small>${item.data}</small><br>
-                    ${item.text}
-                </div>
-                <div class="item-actions">
-                    <button class="btn btn-edit" onclick="editarProntuario(${idx})">Editar</button>
-                    <button class="btn btn-danger" onclick="excluirProntuario(${idx})">Excluir</button>
-                </div>
-            </div>
-        `);
-    }
-
-    function editarProntuario(idx) {
-        const items = getData();
-        document.getElementById('pront-text').value = items[idx].text;
-        editingIndex = idx;
-    }
-
-    function excluirProntuario(idx) {
-        if (!confirm('Excluir esta anotação?')) return;
-        let items = getData();
-        items.splice(idx, 1);
-        saveData(items);
-        renderProntuarios();
-    }
-
-    // Tab Evolução (com gráfico)
-    function salvarEvolucao() {
-        const data = document.getElementById('evol-data').value;
-        const valor = parseInt(document.getElementById('evol-valor').value);
-        if (!data || isNaN(valor) || valor < 0 || valor > 100) { alert('Preencha data e valor entre 0 e 100'); return; }
-        let items = getData();
-        if (editingIndex >= 0) {
-            items[editingIndex] = { data, valor };
-            editingIndex = -1;
-        } else {
-            items.push({ data, valor });
-        }
-        saveData(items);
-        document.getElementById('evol-data').value = '';
-        document.getElementById('evol-valor').value = '';
-        renderEvolucao();
-        updateEvolChart();
-    }
-
-    function renderEvolucao() {
-        const items = getData();
-        renderList(items, (item, idx) => `
-            <div class="item-card">
-                <div>
-                    <strong>${item.data}</strong> - ${item.valor}%
-                </div>
-                <div class="item-actions">
-                    <button class="btn btn-edit" onclick="editarEvolucao(${idx})">Editar</button>
-                    <button class="btn btn-danger" onclick="excluirEvolucao(${idx})">Excluir</button>
-                </div>
-            </div>
-        `);
-    }
-
-    function editarEvolucao(idx) {
-        const items = getData();
-        document.getElementById('evol-data').value = items[idx].data;
-        document.getElementById('evol-valor').value = items[idx].valor;
-        editingIndex = idx;
-    }
-
-    function excluirEvolucao(idx) {
-        if (!confirm('Excluir este registro?')) return;
-        let items = getData();
-        items.splice(idx, 1);
-        saveData(items);
-        renderEvolucao();
-        updateEvolChart();
-    }
-
-    function updateEvolChart() {
-        const items = getData();
-        const labels = items.map(i => i.data);
-        const data = items.map(i => i.valor);
-        const colors = data.map(v => v >= 50 ? '#008080' : '#FF6B35'); // Teal for progress, Orange for regress
-        if (evolChart) evolChart.destroy();
-        const ctx = document.getElementById('evolChart').getContext('2d');
-        evolChart = new Chart(ctx, {
+    // ========== EVOLUÇÃO TAB ==========
+    function renderEvolucao(container, paciente) {
+      const evolucao = paciente.evolucao || [];
+      let html = `<h3>Evolução - Análise IA</h3>`;
+      // Add chart container
+      html += `<div class="graph-container"><canvas id="evolucaoChart"></canvas></div>`;
+      // IA analysis
+      const scores = evolucao.map(e => parseInt(e.score) || 0);
+      const trend = scores.length > 1 ? (scores[scores.length-1] > scores[0] ? 'progressão' : 'regressão') : 'neutro';
+      html += `<div class="analysis-text"><strong>Análise Automática:</strong> O paciente apresenta uma tendência de <strong>${trend}</strong> nos últimos registros. Score médio: ${scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : 'N/A'}.</div>`;
+      container.innerHTML = html;
+      // Draw chart if data exists
+      if (evolucao.length) {
+        setTimeout(() => {
+          const ctx = document.getElementById('evolucaoChart');
+          if (!ctx) return;
+          const labels = evolucao.map(e => e.data || '');
+          const data = scores;
+          new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Evolução',
-                    data: data,
-                    borderColor: '#008080',
-                    backgroundColor: 'rgba(0,128,128,0.1)',
-                    pointBackgroundColor: colors,
-                    pointBorderColor: colors,
-                    fill: false,
-                    tension: 0.3
-                }]
+              labels: labels,
+              datasets: [{
+                label: 'Evolução',
+                data: data,
+                borderColor: '#008080',
+                backgroundColor: 'rgba(0,128,128,0.1)',
+                tension: 0.3,
+                fill: true
+              }]
             },
             options: {
-                scales: {
-                    y: { min: 0, max: 100 }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
+              scales: { y: { min: 0, max: 100 } },
+              plugins: { legend: { display: false } }
             }
-        });
+          });
+        }, 100);
+      } else {
+        container.innerHTML += '<p style="color:#888;">Nenhum dado de evolução. Adicione registros no prontuário.</p>';
+      }
     }
 
-    // Funções genéricas para as abas 4 a 9 (mesmo comportamento)
-    function salvarDeclaracao() { salvarTexto('decl-text', 'decl-list'); }
-    function salvarAtestado() { salvarTexto('atest-text', 'atest-list'); }
-    function salvarRelatorio() { salvarTexto('rel-text', 'rel-list'); }
-    function salvarRelMult() { salvarTexto('relmult-text', 'relmult-list'); }
-    function salvarLaudo() { salvarTexto('laudo-text', 'laudo-list'); }
-    function salvarParecer() { salvarTexto('parecer-text', 'parecer-list'); }
-
-    function salvarTexto(inputId, listId) {
-        const text = document.getElementById(inputId).value.trim();
-        if (!text) { alert('Preencha o texto'); return; }
-        let items = getData();
-        const data = new Date().toLocaleString();
-        if (editingIndex >= 0) {
-            items[editingIndex] = { text, data };
-            editingIndex = -1;
-        } else {
-            items.push({ text, data });
-        }
-        saveData(items);
-        document.getElementById(inputId).value = '';
-        renderTexto(listId);
+    // ========== RELATÓRIO SUBTABS ==========
+    let subTabAtivo = 'psico';
+    function renderRelatorio(container, paciente) {
+      let html = `<h3>Relatório</h3>`;
+      html += `<div class="sub-tabs"><div class="sub-tab ${subTabAtivo==='psico'?'active':''}" onclick="switchSubTab('psico')">Psicológico</div><div class="sub-tab ${subTabAtivo==='multi'?'active':''}" onclick="switchSubTab('multi')">Multiprofissional</div></div>`;
+      container.innerHTML = html;
+      if (subTabAtivo === 'psico') {
+        renderCrudTab(container, paciente, 'relatoriosPsico', ['data', 'conteudo'], { data: 'date', conteudo: 'textarea' });
+      } else {
+        renderCrudTab(container, paciente, 'relatoriosMulti', ['data', 'profissional', 'conteudo'], { data: 'date', profissional: 'text', conteudo: 'textarea' });
+      }
     }
 
-    function renderTexto(listId) {
-        const items = getData();
-        const container = document.getElementById(listId);
-        if (!container) return;
-        container.innerHTML = items.map((item, idx) => `
-            <div class="item-card">
-                <div>
-                    <small>${item.data}</small><br>
-                    ${item.text}
-                </div>
-                <div class="item-actions">
-                    <button class="btn btn-edit" onclick="editarTexto(${idx}, '${listId.replace('-list', '-text')}')">Editar</button>
-                    <button class="btn btn-danger" onclick="excluirTexto(${idx}, '${listId}')">Excluir</button>
-                </div>
-            </div>
-        `).join('');
+    function switchSubTab(tab) {
+      subTabAtivo = tab;
+      renderDrawerContent('relatorio');
     }
 
-    function editarTexto(idx, inputId) {
-        const items = getData();
-        document.getElementById(inputId).value = items[idx].text;
-        editingIndex = idx;
-    }
+    // ========== INIT ==========
+    loadPacientes();
 
-    function excluirTexto(idx, listId) {
-        if (!confirm('Excluir este registro?')) return;
-        let items = getData();
-        items.splice(idx, 1);
-        saveData(items);
-        renderTexto(listId);
-    }
-
-    // Carregar dados ao abrir drawer
-    function carregarDados() {
-        const tab = currentTab;
-        switch(tab) {
-            case 'dados': renderDados(); break;
-            case 'prontuarios': renderProntuarios(); break;
-            case 'evolucao': renderEvolucao(); updateEvolChart(); break;
-            case 'declaracao': renderTexto('decl-list'); break;
-            case 'atestado': renderTexto('atest-list'); break;
-            case 'relatorio': renderTexto('rel-list'); break;
-            case 'relmult': renderTexto('relmult-list'); break;
-            case 'laudo': renderTexto('laudo-list'); break;
-            case 'parecer': renderTexto('parecer-list'); break;
-        }
-    }
-
-    // Inicializar
-    document.addEventListener('DOMContentLoaded', function() {
-        // Carrega dados iniciais
-    });
-</script>
+    // Placeholder to prevent errors
+    function switchMainTab(tab) { /* Not implemented */ }
+  </script>
 </body>
 </html>
