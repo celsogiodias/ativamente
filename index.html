@@ -1,879 +1,693 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ATIVAMENTE+ CLINIC</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { background:#f5f7fa; color:#333; }
-:root { --navy:#1a3a5e; --orange:#ff7d00; --teal:#00a9a9; }
-header { background:var(--navy); padding:10px 20px; display:flex; align-items:center; justify-content:space-between; color:#fff; }
-.logo { font-size:1.5rem; font-weight:bold; background:linear-gradient(135deg, var(--orange), var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.logo span { color:white; -webkit-text-fill-color:white; }
-nav { display:flex; gap:10px; }
-nav button { background:transparent; border:1px solid #fff; color:#fff; padding:5px 10px; border-radius:5px; cursor:pointer; }
-nav button.active { background:var(--teal); border-color:var(--teal); }
-.container { padding:20px; max-width:1400px; margin:0 auto; }
-.view { display:none; }
-.view.active { display:block; }
-.card { background:#fff; border-radius:8px; padding:15px; box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-bottom:20px; }
-h2 { color:var(--navy); margin-bottom:15px; border-bottom:2px solid var(--teal); padding-bottom:5px; }
-.form-group { margin-bottom:12px; }
-label { display:block; font-weight:600; margin-bottom:3px; }
-input, select, textarea { width:100%; padding:8px 10px; border:1px solid #ccc; border-radius:5px; font-size:14px; }
-button { background:var(--teal); color:#fff; border:none; padding:8px 16px; border-radius:5px; cursor:pointer; font-size:14px; }
-button.orange { background:var(--orange); }
-button.navy { background:var(--navy); }
-button.danger { background:#e74c3c; }
-.dashboard-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; }
-.dashboard-card { background:white; border-radius:8px; padding:20px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
-.dashboard-card h3 { font-size:2.5rem; color:var(--orange); }
-.dashboard-card p { color:#666; }
-.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-@media (max-width:768px) { .grid-2 { grid-template-columns:1fr; } }
-table { width:100%; border-collapse:collapse; margin-top:10px; }
-th, td { padding:8px; text-align:left; border-bottom:1px solid #ddd; }
-th { background:var(--navy); color:#fff; }
-.modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
-.modal-overlay.active { display:flex; }
-.modal { background:white; border-radius:10px; padding:20px; width:90%; max-width:600px; max-height:80vh; overflow-y:auto; }
-.modal-header { display:flex; justify-content:space-between; margin-bottom:10px; }
-.modal-header h3 { color:var(--navy); }
-.calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-.calendar-day { padding:10px; text-align:center; cursor:pointer; background:#f0f0f0; border-radius:5px; }
-.calendar-day.selected { background:var(--teal); color:white; }
-.calendar-day.empty { background:transparent; cursor:default; }
-.tabs { display:flex; gap:5px; margin-bottom:10px; flex-wrap:wrap; }
-.tab { background:#e0e0e0; padding:5px 12px; border-radius:15px; cursor:pointer; font-size:13px; }
-.tab.active { background:var(--orange); color:white; }
-.hidden { display:none; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATIVAMENTE+ CLINIC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #f4f7fc; min-height: 100vh; }
+        .hidden { display: none !important; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.3s; }
+        .btn-orange { background: #ff7d00; color: white; }
+        .btn-teal { background: #00a9a9; color: white; }
+        .btn-navy { background: #1a3a5e; color: white; }
+        .btn-outline { background: transparent; border: 2px solid #1a3a5e; color: #1a3a5e; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn:hover { opacity: 0.9; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; margin-bottom: 10px; }
+        label { font-weight: 500; display: block; margin-top: 10px; }
+        h1, h2, h3 { color: #1a3a5e; }
+        .flex { display: flex; align-items: center; gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 20px; }
+        #app { display: flex; min-height: 100vh; }
+        #sidebar { width: 250px; background: #1a3a5e; color: white; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+        #sidebar h2 { color: #ff7d00; margin-bottom: 20px; }
+        #sidebar a { color: white; text-decoration: none; padding: 10px; border-radius: 8px; transition: 0.3s; cursor: pointer; display: block; }
+        #sidebar a:hover, #sidebar a.active { background: #ff7d00; }
+        #main { flex: 1; padding: 20px; overflow-y: auto; }
+        #topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; border-radius: 12px; padding: 30px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .close { font-size: 24px; cursor: pointer; }
+        .drawer { position: fixed; top: 0; right: -500px; width: 500px; height: 100%; background: white; box-shadow: -2px 0 8px rgba(0,0,0,0.2); transition: right 0.3s; z-index: 1001; overflow-y: auto; padding: 20px; }
+        .drawer.open { right: 0; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 2px solid #eee; }
+        .tab { padding: 10px 15px; cursor: pointer; border: none; background: none; font-weight: 500; color: #666; border-bottom: 3px solid transparent; }
+        .tab.active { color: #1a3a5e; border-bottom-color: #ff7d00; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        table { width: 100%; border-collapse: collapse; }
+        table th, table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        table th { background: #f8f9fa; font-weight: 600; }
+        table tr:hover { background: #f1f1f1; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; }
+        .calendar-day { border: 1px solid #ddd; padding: 10px; min-height: 80px; cursor: pointer; background: white; border-radius: 4px; }
+        .calendar-day.header { background: #1a3a5e; color: white; font-weight: 600; text-align: center; min-height: auto; }
+        .calendar-day.today { background: #ff7d00; color: white; }
+        .event { font-size: 11px; padding: 2px 4px; margin-top: 2px; border-radius: 4px; color: white; background: #00a9a9; }
+        @media (max-width: 768px) {
+            #sidebar { width: 100%; height: auto; }
+            #app { flex-direction: column; }
+            .drawer { width: 100%; right: -100%; }
+        }
+    </style>
 </head>
 <body>
-<header>
-  <div class="logo"><span>ATIVAMENTE+</span> CLINIC</div>
-  <nav id="nav">
-    <button onclick="showView('login')" id="nav-login">Entrar</button>
-    <button onclick="showView('register')" id="nav-register">Registrar</button>
-    <button class="hidden" onclick="logout()" id="nav-logout">Sair</button>
-  </nav>
-</header>
-<div class="container">
-  <!-- LOGIN -->
-  <div id="view-login" class="view active">
-    <div class="card" style="max-width:400px;margin:auto;">
-      <h2>Login</h2>
-      <div class="form-group"><label>Email</label><input id="login-email" type="email"></div>
-      <div class="form-group"><label>Senha</label><input id="login-password" type="password"></div>
-      <button onclick="login()" class="orange">Entrar</button>
-      <p style="margin-top:10px;">Não tem conta? <a href="#" onclick="showView('register')">Registre-se</a></p>
-    </div>
-  </div>
-  <!-- REGISTER -->
-  <div id="view-register" class="view">
-    <div class="card" style="max-width:400px;margin:auto;">
-      <h2>Registro</h2>
-      <div class="form-group"><label>Nome</label><input id="reg-name"></div>
-      <div class="form-group"><label>Email</label><input id="reg-email" type="email"></div>
-      <div class="form-group"><label>Senha</label><input id="reg-password" type="password"></div>
-      <div class="form-group"><label>Tipo</label><select id="reg-type"><option value="admin">Admin</option><option value="professional">Profissional</option></select></div>
-      <button onclick="register()" class="teal">Registrar</button>
-    </div>
-  </div>
-  <!-- DASHBOARD -->
-  <div id="view-dashboard" class="view">
-    <h2>Dashboard</h2>
-    <div class="dashboard-cards">
-      <div class="dashboard-card"><h3 id="dash-patients">0</h3><p>Pacientes</p></div>
-      <div class="dashboard-card"><h3 id="dash-appointments">0</h3><p>Consultas</p></div>
-      <div class="dashboard-card"><h3 id="dash-professionals">0</h3><p>Profissionais</p></div>
-      <div class="dashboard-card"><h3 id="dash-revenues">0</h3><p>Receitas</p></div>
-      <div class="dashboard-card"><h3 id="dash-expenses">0</h3><p>Despesas</p></div>
-    </div>
-    <div class="card">
-      <h3>Gráfico de Consultas</h3>
-      <canvas id="chart-appointments" width="400" height="200"></canvas>
-    </div>
-  </div>
-  <!-- AGENDA -->
-  <div id="view-agenda" class="view">
-    <h2>Agenda</h2>
-    <div class="grid-2">
-      <div class="card">
-        <div class="form-group"><label>Mês</label><input id="agenda-month" type="month"></div>
-        <div id="calendar-grid" class="calendar"></div>
-      </div>
-      <div class="card">
-        <h3>Nova Consulta</h3>
-        <div class="form-group"><label>Paciente</label><select id="agenda-patient"></select></div>
-        <div class="form-group"><label>Profissional</label><select id="agenda-professional"></select></div>
-        <div class="form-group"><label>Data</label><input id="agenda-date" type="date"></div>
-        <div class="form-group"><label>Hora</label><input id="agenda-time" type="time"></div>
-        <div class="form-group"><label>Valor</label><input id="agenda-value" type="number" step="0.01"></div>
-        <div class="form-group"><label>Forma Pagamento</label><select id="agenda-payment"><option>Pix</option><option>Dinheiro</option><option>Cartão</option></select></div>
-        <button onclick="addAppointment()" class="orange">Agendar</button>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Consultas Agendadas</h3>
-      <div id="appointments-list"></div>
-    </div>
-  </div>
-  <!-- PACIENTES -->
-  <div id="view-patients" class="view">
-    <h2>Pacientes</h2>
-    <button onclick="openPatientModal()" class="orange">+ Novo Paciente</button>
-    <div id="patients-list"></div>
-  </div>
-  <!-- PROFISSIONAIS -->
-  <div id="view-professionals" class="view">
-    <h2>Profissionais</h2>
-    <button onclick="openProfessionalModal()" class="orange">+ Novo Profissional</button>
-    <div id="professionals-list"></div>
-  </div>
-  <!-- FINANCEIRO -->
-  <div id="view-financial" class="view">
-    <h2>Financeiro</h2>
-    <div class="grid-2">
-      <div class="card">
-        <h3>Receitas</h3>
-        <div><input id="fin-revenue-desc" placeholder="Descrição"><input id="fin-revenue-value" type="number" placeholder="Valor"><button onclick="addRevenue()">Adicionar</button></div>
-        <ul id="revenues-list"></ul>
-      </div>
-      <div class="card">
-        <h3>Despesas</h3>
-        <div><input id="fin-expense-desc" placeholder="Descrição"><input id="fin-expense-value" type="number" placeholder="Valor"><button onclick="addExpense()">Adicionar</button></div>
-        <ul id="expenses-list"></ul>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Gráfico Pareto</h3>
-      <canvas id="chart-pareto" width="400" height="200"></canvas>
-      <p id="ai-analysis"></p>
-    </div>
-  </div>
-  <!-- CONFIG -->
-  <div id="view-config" class="view">
-    <h2>Configurações</h2>
-    <div class="card">
-      <h3>Dados da Clínica</h3>
-      <div class="form-group"><label>Nome</label><input id="config-name" value="ATIVAMENTE+ Clinic"></div>
-      <div class="form-group"><label>Endereço</label><input id="config-address" value="Rua Exemplo, 123"></div>
-      <div class="form-group"><label>Telefone</label><input id="config-phone" value="(11) 99999-8888"></div>
-      <button onclick="saveConfig()" class="orange">Salvar</button>
-    </div>
-    <div class="card">
-      <h3>Horários de Funcionamento</h3>
-      <div class="form-group"><label>Abertura</label><input id="config-open" type="time" value="08:00"></div>
-      <div class="form-group"><label>Fechamento</label><input id="config-close" type="time" value="18:00"></div>
-      <button onclick="saveConfig()" class="orange">Salvar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL PACIENTE -->
-<div id="patient-modal" class="modal-overlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="patient-modal-title">Novo Paciente</h3>
-      <button onclick="closePatientModal()">X</button>
-    </div>
-    <div class="tabs" id="patient-tabs">
-      <button class="tab active" data-tab="dados">Dados</button>
-      <button class="tab" data-tab="historico">Histórico</button>
-      <button class="tab" data-tab="prontuarios">Prontuários</button>
-      <button class="tab" data-tab="evolucao">Evolução</button>
-      <button class="tab" data-tab="documentos">Documentos</button>
-      <button class="tab" data-tab="pagamentos">Pagamentos</button>
-      <button class="tab" data-tab="anexos">Anexos</button>
-      <button class="tab" data-tab="observacoes">Observações</button>
-    </div>
-    <div id="patient-tab-content">
-      <!-- Dados -->
-      <div class="tab-content active" id="tab-dados">
-        <div class="form-group"><label>Nome</label><input id="p-nome"></div>
-        <div class="form-group"><label>CPF</label><input id="p-cpf"></div>
-        <div class="form-group"><label>Data Nascimento</label><input id="p-data-nasc" type="date"></div>
-        <div class="form-group"><label>Telefone</label><input id="p-telefone"></div>
-        <div class="form-group"><label>Email</label><input id="p-email" type="email"></div>
-        <div class="form-group"><label>Endereço</label><input id="p-endereco"></div>
-        <div class="form-group"><label>Responsável Legal (se menor)</label><input id="p-responsavel"></div>
-      </div>
-      <!-- Histórico -->
-      <div class="tab-content" id="tab-historico">
-        <textarea id="p-historico" rows="6" style="width:100%;"></textarea>
-      </div>
-      <!-- Prontuários -->
-      <div class="tab-content" id="tab-prontuarios">
-        <div><label>Data</label><input id="p-prontuario-data" type="date"><textarea id="p-prontuario-texto" rows="4" style="width:100%;"></textarea><button onclick="addProntuario()">Adicionar</button></div>
-        <div id="p-prontuarios-list"></div>
-      </div>
-      <!-- Evolução -->
-      <div class="tab-content" id="tab-evolucao">
-        <canvas id="chart-evolution" width="400" height="200"></canvas>
-        <div><input id="p-evolucao-score" type="number" min="0" max="10" placeholder="Score"><button onclick="addEvolution()">Adicionar</button></div>
-        <div id="p-evolucao-list"></div>
-      </div>
-      <!-- Documentos -->
-      <div class="tab-content" id="tab-documentos">
-        <select id="p-doc-tipo"><option>Declaração</option><option>Atestado</option><option>Relatório Psicológico</option><option>Laudo</option><option>Parecer</option></select>
-        <textarea id="p-doc-conteudo" rows="4" style="width:100%;"></textarea>
-        <button onclick="addDocument()">Gerar Documento</button>
-        <div id="p-docs-list"></div>
-      </div>
-      <!-- Pagamentos -->
-      <div class="tab-content" id="tab-pagamentos">
-        <div><label>Data</label><input id="p-pag-data" type="date"><label>Valor</label><input id="p-pag-valor" type="number"><label>Método</label><select id="p-pag-metodo"><option>Pix</option><option>Dinheiro</option><option>Cartão</option></select><button onclick="addPayment()">Adicionar</button></div>
-        <div id="p-pagamentos-list"></div>
-      </div>
-      <!-- Anexos -->
-      <div class="tab-content" id="tab-anexos">
-        <input type="file" id="p-anexo-file" multiple><button onclick="uploadFile()">Upload</button>
-        <div id="p-anexos-list"></div>
-      </div>
-      <!-- Observações -->
-      <div class="tab-content" id="tab-observacoes">
-        <textarea id="p-observacoes" rows="6" style="width:100%;"></textarea>
-      </div>
-    </div>
-    <button onclick="savePatient()" class="orange" style="margin-top:10px;">Salvar Paciente</button>
-  </div>
-</div>
-
-<!-- MODAL PROFISSIONAL -->
-<div id="professional-modal" class="modal-overlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="professional-modal-title">Novo Profissional</h3>
-      <button onclick="closeProfessionalModal()">X</button>
-    </div>
-    <div class="form-group"><label>Nome</label><input id="prof-nome"></div>
-    <div class="form-group"><label>CPF</label><input id="prof-cpf"></div>
-    <div class="form-group"><label>Data Nascimento</label><input id="prof-data-nasc" type="date"></div>
-    <div class="form-group"><label>Registro Profissional</label><input id="prof-registro"></div>
-    <div class="form-group"><label>Especialidade</label><input id="prof-especialidade"></div>
-    <div class="form-group"><label>Telefone</label><input id="prof-telefone"></div>
-    <div class="form-group"><label>Email</label><input id="prof-email" type="email"></div>
-    <button onclick="saveProfessional()" class="orange">Salvar</button>
-  </div>
-</div>
+<div id="app"></div>
 
 <script>
-// === DATA ===
-let data = {
-  users: [],
-  patients: [],
-  professionals: [],
-  appointments: [],
-  revenues: [],
-  expenses: [],
-  config: { name: 'ATIVAMENTE+ Clinic', address: '', phone: '', open: '08:00', close: '18:00' }
+const APP = {
+    db: {
+        users: [],
+        patients: [],
+        professionals: [],
+        appointments: [],
+        transactions: [],
+        clinic: { name: 'ATIVAMENTE+ CLINIC', cnpj: '', address: '', phone: '' },
+        schedule: ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00']
+    },
+    currentUser: null,
+    currentView: 'dashboard',
+    currentPatient: null,
+    calendarMonth: new Date().getMonth(),
+    calendarYear: new Date().getFullYear(),
+
+    init() {
+        this.loadData();
+        const storedUser = localStorage.getItem('loggedUser');
+        if (storedUser) {
+            try {
+                this.currentUser = JSON.parse(storedUser);
+                this.renderApp();
+            } catch (e) {
+                this.renderLogin();
+            }
+        } else {
+            this.renderLogin();
+        }
+    },
+
+    loadData() {
+        const stored = localStorage.getItem('ativamenteDB');
+        if (stored) {
+            try {
+                this.db = JSON.parse(stored);
+            } catch (e) {
+                this.initDefaults();
+            }
+        } else {
+            this.initDefaults();
+        }
+    },
+
+    initDefaults() {
+        this.db = {
+            users: [
+                { id: 1, name: 'Admin', email: 'admin@clinica.com', password: '123', role: 'Admin' },
+                { id: 2, name: 'João Silva', email: 'joao@clinica.com', password: '123', role: 'Psicologo' }
+            ],
+            patients: [],
+            professionals: [
+                { id: 1, name: 'Dr. João', cpf: '000.000.000-01', birth: '1980-01-01', register: 'CRP 01/12345', specialty: 'Psicologia', phone: '(11) 99999-0001', email: 'joao@clinica.com' }
+            ],
+            appointments: [],
+            transactions: [],
+            clinic: { name: 'ATIVAMENTE+ CLINIC', cnpj: '', address: '', phone: '' },
+            schedule: ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00']
+        };
+        this.saveData();
+    },
+
+    saveData() {
+        try {
+            localStorage.setItem('ativamenteDB', JSON.stringify(this.db));
+        } catch (e) {
+            console.error('Erro ao salvar:', e);
+        }
+    },
+
+    renderLogin() {
+        document.getElementById('app').innerHTML = `
+            <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#1a3a5e,#ff7d00);">
+                <div class="card" style="width:400px;">
+                    <h2 style="text-align:center;color:#1a3a5e;margin-bottom:30px;">ATIVAMENTE+ CLINIC</h2>
+                    <form id="loginForm">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" required>
+                        <label>Senha</label>
+                        <input type="password" id="loginPassword" required>
+                        <button type="submit" class="btn btn-orange" style="width:100%;margin-top:20px;">Entrar</button>
+                    </form>
+                    <p style="text-align:center;margin-top:15px;color:#666;">Não tem conta? <a href="#" onclick="APP.showRegister()" style="color:#ff7d00;text-decoration:none;">Registre-se</a></p>
+                </div>
+            </div>
+        `;
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const user = this.db.users.find(u => u.email === email && u.password === password);
+            if (user) {
+                this.currentUser = user;
+                localStorage.setItem('loggedUser', JSON.stringify(user));
+                this.renderApp();
+            } else {
+                alert('Email ou senha incorretos');
+            }
+        });
+    },
+
+    showRegister() {
+        document.getElementById('app').innerHTML = `
+            <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#1a3a5e,#ff7d00);">
+                <div class="card" style="width:400px;">
+                    <h2 style="text-align:center;color:#1a3a5e;margin-bottom:30px;">Registro</h2>
+                    <form id="registerForm">
+                        <label>Nome</label>
+                        <input type="text" id="regName" required>
+                        <label>Email</label>
+                        <input type="email" id="regEmail" required>
+                        <label>Senha</label>
+                        <input type="password" id="regPassword" required>
+                        <label>Função</label>
+                        <select id="regRole">
+                            <option>Admin</option>
+                            <option>Psicologo</option>
+                            <option>Fonoaudiologo</option>
+                            <option>Fisioterapeuta</option>
+                            <option>Medico</option>
+                        </select>
+                        <button type="submit" class="btn btn-teal" style="width:100%;margin-top:20px;">Registrar</button>
+                    </form>
+                    <p style="text-align:center;margin-top:15px;color:#666;">Já tem conta? <a href="#" onclick="APP.renderLogin()" style="color:#ff7d00;text-decoration:none;">Login</a></p>
+                </div>
+            </div>
+        `;
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('regRole').value;
+            if (this.db.users.find(u => u.email === email)) {
+                alert('Email já cadastrado');
+                return;
+            }
+            this.db.users.push({ id: Date.now(), name, email, password, role });
+            this.saveData();
+            alert('Registrado com sucesso! Faça login.');
+            this.renderLogin();
+        });
+    },
+
+    renderApp() {
+        const isAdmin = this.currentUser.role === 'Admin';
+        document.getElementById('app').innerHTML = `
+            <div id="sidebar">
+                <h2>ATIVAMENTE+</h2>
+                <span style="color:#ff7d00;margin-bottom:20px;">Olá, ${this.currentUser.name}</span>
+                <a class="menu-item active" data-view="dashboard">📊 Dashboard</a>
+                <a class="menu-item" data-view="agenda">📅 Agenda</a>
+                <a class="menu-item" data-view="pacientes">👥 Pacientes</a>
+                ${isAdmin ? '<a class="menu-item" data-view="profissionais">👨‍⚕️ Profissionais</a>' : ''}
+                ${isAdmin ? '<a class="menu-item" data-view="financeiro">💰 Financeiro</a>' : ''}
+                ${isAdmin ? '<a class="menu-item" data-view="configuracoes">⚙️ Configurações</a>' : ''}
+                <a href="#" id="logoutBtn" style="margin-top:auto;color:#ff7d00;">🚪 Sair</a>
+            </div>
+            <div id="main">
+                <div id="topbar">
+                    <h1 id="viewTitle">Dashboard</h1>
+                </div>
+                <div id="content"></div>
+            </div>
+        `;
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                this.currentView = item.dataset.view;
+                this.renderView();
+            });
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('loggedUser');
+            this.currentUser = null;
+            this.renderLogin();
+        });
+        this.renderView();
+    },
+
+    renderView() {
+        const viewTitle = document.getElementById('viewTitle');
+        const content = document.getElementById('content');
+        switch(this.currentView) {
+            case 'dashboard': viewTitle.textContent = 'Dashboard'; this.renderDashboard(content); break;
+            case 'agenda': viewTitle.textContent = 'Agenda'; this.renderAgenda(content); break;
+            case 'pacientes': viewTitle.textContent = 'Pacientes'; this.renderPacientes(content); break;
+            case 'profissionais': viewTitle.textContent = 'Profissionais'; this.renderProfissionais(content); break;
+            case 'financeiro': viewTitle.textContent = 'Financeiro'; this.renderFinanceiro(content); break;
+            case 'configuracoes': viewTitle.textContent = 'Configurações'; this.renderConfiguracoes(content); break;
+        }
+    },
+
+    renderDashboard(container) {
+        const patients = this.db.patients.length;
+        const appointments = this.db.appointments.length;
+        const professionals = this.db.professionals.length;
+        const receitas = this.db.transactions.filter(t => t.type === 'receita').reduce((s,t) => s + t.value, 0);
+        const despesas = this.db.transactions.filter(t => t.type === 'despesa').reduce((s,t) => s + t.value, 0);
+        container.innerHTML = `
+            <div class="grid">
+                <div class="card"><h3>Pacientes</h3><p style="font-size:2em;color:#ff7d00;">${patients}</p></div>
+                <div class="card"><h3>Consultas</h3><p style="font-size:2em;color:#00a9a9;">${appointments}</p></div>
+                <div class="card"><h3>Profissionais</h3><p style="font-size:2em;color:#1a3a5e;">${professionals}</p></div>
+                <div class="card"><h3>Receitas</h3><p style="font-size:2em;color:#28a745;">R$ ${receitas.toFixed(2)}</p></div>
+                <div class="card"><h3>Despesas</h3><p style="font-size:2em;color:#dc3545;">R$ ${despesas.toFixed(2)}</p></div>
+            </div>
+        `;
+    },
+
+    renderAgenda(container) {
+        const month = this.calendarMonth;
+        const year = this.calendarYear;
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        let html = `
+            <div class="flex" style="justify-content:space-between;margin-bottom:20px;">
+                <button class="btn btn-outline" onclick="APP.prevMonth()">◀ Anterior</button>
+                <h2>${monthNames[month]} ${year}</h2>
+                <button class="btn btn-outline" onclick="APP.nextMonth()">Próximo ▶</button>
+            </div>
+            <button class="btn btn-orange" onclick="APP.openAppointmentModal()">+ Nova Consulta</button>
+            <div class="calendar-grid" style="margin-top:20px;">
+                <div class="calendar-day header">Dom</div>
+                <div class="calendar-day header">Seg</div>
+                <div class="calendar-day header">Ter</div>
+                <div class="calendar-day header">Qua</div>
+                <div class="calendar-day header">Qui</div>
+                <div class="calendar-day header">Sex</div>
+                <div class="calendar-day header">Sáb</div>
+        `;
+        for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day"></div>';
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            const events = this.db.appointments.filter(a => a.date === dateStr);
+            let eventsHtml = events.map(e => `<div class="event">${e.time}</div>`).join('');
+            html += `<div class="calendar-day">${day}${eventsHtml}</div>`;
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    },
+
+    prevMonth() { this.calendarMonth--; if (this.calendarMonth < 0) { this.calendarMonth = 11; this.calendarYear--; } this.renderView(); },
+    nextMonth() { this.calendarMonth++; if (this.calendarMonth > 11) { this.calendarMonth = 0; this.calendarYear++; } this.renderView(); },
+
+    openAppointmentModal() {
+        const patients = this.db.patients.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        const professionals = this.db.professionals.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        const times = this.db.schedule.map(t => `<option value="${t}">${t}</option>`).join('');
+        const html = `
+            <div class="modal" id="appointmentModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Nova Consulta</h3>
+                        <span class="close" onclick="document.getElementById('appointmentModal').remove()">&times;</span>
+                    </div>
+                    <form id="appointmentForm">
+                        <label>Paciente</label>
+                        <select id="appPatient">${patients}</select>
+                        <label>Profissional</label>
+                        <select id="appProfessional">${professionals}</select>
+                        <label>Data</label>
+                        <input type="date" id="appDate" required>
+                        <label>Hora</label>
+                        <select id="appTime">${times}</select>
+                        <label>Valor</label>
+                        <input type="number" id="appValue" step="0.01">
+                        <label>Forma de Pagamento</label>
+                        <select id="appPayment"><option>Pix</option><option>Dinheiro</option><option>Cartão</option></select>
+                        <button type="submit" class="btn btn-teal">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.getElementById('appointmentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.db.appointments.push({
+                id: Date.now(),
+                patientId: parseInt(document.getElementById('appPatient').value),
+                professionalId: parseInt(document.getElementById('appProfessional').value),
+                date: document.getElementById('appDate').value,
+                time: document.getElementById('appTime').value,
+                value: parseFloat(document.getElementById('appValue').value) || 0,
+                payment: document.getElementById('appPayment').value
+            });
+            this.saveData();
+            document.getElementById('appointmentModal').remove();
+            this.renderView();
+        });
+    },
+
+    renderPacientes(container) {
+        const isAdmin = this.currentUser.role === 'Admin';
+        let patients = this.db.patients;
+        if (!isAdmin) patients = patients.filter(p => p.professionalId === this.currentUser.id);
+        let html = `
+            <button class="btn btn-orange" onclick="APP.openPatientForm()">+ Novo Paciente</button>
+            <table style="margin-top:20px;">
+                <thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Ações</th></tr></thead>
+                <tbody>
+        `;
+        patients.forEach(p => {
+            html += `<tr><td>${p.name}</td><td>${p.cpf}</td><td>${p.phone}</td><td><button class="btn btn-teal btn-sm" onclick="APP.openPatientDrawer(${p.id})">Detalhes</button></td></tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    },
+
+    openPatientForm() {
+        const html = `
+            <div class="modal" id="patientModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Novo Paciente</h3>
+                        <span class="close" onclick="document.getElementById('patientModal').remove()">&times;</span>
+                    </div>
+                    <form id="patientForm">
+                        <label>Nome</label>
+                        <input type="text" id="pName" required>
+                        <label>CPF</label>
+                        <input type="text" id="pCpf" required>
+                        <label>Data Nascimento</label>
+                        <input type="date" id="pBirth" required>
+                        <label>Telefone</label>
+                        <input type="text" id="pPhone" required>
+                        <label>Email</label>
+                        <input type="email" id="pEmail">
+                        <label>Endereço</label>
+                        <input type="text" id="pAddress">
+                        <button type="submit" class="btn btn-teal">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.getElementById('patientForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.db.patients.push({
+                id: Date.now(),
+                name: document.getElementById('pName').value,
+                cpf: document.getElementById('pCpf').value,
+                birth: document.getElementById('pBirth').value,
+                phone: document.getElementById('pPhone').value,
+                email: document.getElementById('pEmail').value,
+                address: document.getElementById('pAddress').value,
+                professionalId: this.currentUser.id,
+                history: '', records: '', evolutions: [], documents: [], payments: [], attachments: [], observations: ''
+            });
+            this.saveData();
+            document.getElementById('patientModal').remove();
+            this.renderView();
+        });
+    },
+
+    openPatientDrawer(patientId) {
+        const patient = this.db.patients.find(p => p.id === patientId);
+        if (!patient) return;
+        this.currentPatient = patient;
+        const isPsychologist = this.currentUser.role === 'Psicologo';
+        const html = `
+            <div class="drawer open" id="patientDrawer">
+                <div class="modal-header">
+                    <h3>${patient.name}</h3>
+                    <span class="close" onclick="APP.closeDrawer()">&times;</span>
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="APP.showPatientTab('dados')">Dados</button>
+                    <button class="tab" onclick="APP.showPatientTab('historico')">Histórico</button>
+                    <button class="tab" onclick="APP.showPatientTab('prontuarios')">Prontuários</button>
+                    <button class="tab" onclick="APP.showPatientTab('evolucao')">Evolução</button>
+                    ${isPsychologist ? '<button class="tab" onclick="APP.showPatientTab(\'documentos\')">Documentos</button>' : ''}
+                    <button class="tab" onclick="APP.showPatientTab('pagamentos')">Pagamentos</button>
+                    <button class="tab" onclick="APP.showPatientTab('anexos')">Anexos</button>
+                    <button class="tab" onclick="APP.showPatientTab('observacoes')">Observações</button>
+                </div>
+                <div id="patientTabContent"></div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+        this.showPatientTab('dados');
+    },
+
+    showPatientTab(tab) {
+        const p = this.currentPatient;
+        const content = document.getElementById('patientTabContent');
+        let html = '';
+        switch(tab) {
+            case 'dados':
+                html = `<p><strong>CPF:</strong> ${p.cpf}</p><p><strong>Data Nascimento:</strong> ${p.birth}</p><p><strong>Telefone:</strong> ${p.phone}</p><p><strong>Email:</strong> ${p.email}</p><p><strong>Endereço:</strong> ${p.address}</p>`;
+                break;
+            case 'historico':
+                html = `<textarea id="historyField" rows="5" onchange="APP.updatePatientField('history', this.value)">${p.history || ''}</textarea>`;
+                break;
+            case 'prontuarios':
+                html = `<textarea id="recordsField" rows="5" onchange="APP.updatePatientField('records', this.value)">${p.records || ''}</textarea>`;
+                break;
+            case 'evolucao':
+                html = `<textarea id="evoField" rows="5" onchange="APP.updatePatientField('evolutions', this.value)">${p.evolutions || ''}</textarea>`;
+                break;
+            case 'documentos':
+                html = `<textarea id="docsField" rows="5" onchange="APP.updatePatientField('documents', this.value)">${p.documents || ''}</textarea>`;
+                break;
+            case 'pagamentos':
+                html = `<textarea id="payField" rows="5" onchange="APP.updatePatientField('payments', this.value)">${p.payments || ''}</textarea>`;
+                break;
+            case 'anexos':
+                html = `<input type="file" id="fileInput" onchange="APP.handleFileUpload(event)"><p>Anexos: ${(p.attachments || []).length}</p>`;
+                break;
+            case 'observacoes':
+                html = `<textarea id="obsField" rows="5" onchange="APP.updatePatientField('observations', this.value)">${p.observations || ''}</textarea>`;
+                break;
+        }
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        content.innerHTML = html;
+    },
+
+    updatePatientField(field, value) {
+        const idx = this.db.patients.findIndex(p => p.id === this.currentPatient.id);
+        if (idx !== -1) {
+            this.db.patients[idx][field] = value;
+            this.saveData();
+        }
+    },
+
+    handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const idx = this.db.patients.findIndex(p => p.id === this.currentPatient.id);
+            if (idx !== -1) {
+                if (!this.db.patients[idx].attachments) this.db.patients[idx].attachments = [];
+                this.db.patients[idx].attachments.push(file.name);
+                this.saveData();
+            }
+        }
+    },
+
+    closeDrawer() {
+        const drawer = document.getElementById('patientDrawer');
+        if (drawer) drawer.remove();
+        this.currentPatient = null;
+    },
+
+    renderProfissionais(container) {
+        if (this.currentUser.role !== 'Admin') {
+            container.innerHTML = '<p>Acesso restrito.</p>';
+            return;
+        }
+        let html = `
+            <button class="btn btn-orange" onclick="APP.openProfessionalForm()">+ Novo Profissional</button>
+            <table style="margin-top:20px;">
+                <thead><tr><th>Nome</th><th>Registro</th><th>Especialidade</th><th>Ações</th></tr></thead>
+                <tbody>
+        `;
+        this.db.professionals.forEach(p => {
+            html += `<tr><td>${p.name}</td><td>${p.register}</td><td>${p.specialty}</td><td><button class="btn btn-danger btn-sm" onclick="APP.deleteProfessional(${p.id})">Excluir</button></td></tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    },
+
+    openProfessionalForm() {
+        const html = `
+            <div class="modal" id="profModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Novo Profissional</h3>
+                        <span class="close" onclick="document.getElementById('profModal').remove()">&times;</span>
+                    </div>
+                    <form id="profForm">
+                        <label>Nome</label>
+                        <input type="text" id="profName" required>
+                        <label>CPF</label>
+                        <input type="text" id="profCpf">
+                        <label>Data Nascimento</label>
+                        <input type="date" id="profBirth">
+                        <label>Registro Profissional</label>
+                        <input type="text" id="profRegister">
+                        <label>Especialidade</label>
+                        <input type="text" id="profSpecialty">
+                        <label>Telefone</label>
+                        <input type="text" id="profPhone">
+                        <label>Email</label>
+                        <input type="email" id="profEmail">
+                        <button type="submit" class="btn btn-teal">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.getElementById('profForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.db.professionals.push({
+                id: Date.now(),
+                name: document.getElementById('profName').value,
+                cpf: document.getElementById('profCpf').value,
+                birth: document.getElementById('profBirth').value,
+                register: document.getElementById('profRegister').value,
+                specialty: document.getElementById('profSpecialty').value,
+                phone: document.getElementById('profPhone').value,
+                email: document.getElementById('profEmail').value
+            });
+            this.saveData();
+            document.getElementById('profModal').remove();
+            this.renderView();
+        });
+    },
+
+    deleteProfessional(id) {
+        if (confirm('Excluir profissional?')) {
+            this.db.professionals = this.db.professionals.filter(p => p.id !== id);
+            this.saveData();
+            this.renderView();
+        }
+    },
+
+    renderFinanceiro(container) {
+        if (this.currentUser.role !== 'Admin') {
+            container.innerHTML = '<p>Acesso restrito.</p>';
+            return;
+        }
+        const receitas = this.db.transactions.filter(t => t.type === 'receita').reduce((s,t) => s + t.value, 0);
+        const despesas = this.db.transactions.filter(t => t.type === 'despesa').reduce((s,t) => s + t.value, 0);
+        let html = `
+            <div class="grid">
+                <div class="card"><h3>Receitas</h3><p style="font-size:2em;color:#28a745;">R$ ${receitas.toFixed(2)}</p></div>
+                <div class="card"><h3>Despesas</h3><p style="font-size:2em;color:#dc3545;">R$ ${despesas.toFixed(2)}</p></div>
+            </div>
+            <button class="btn btn-orange" onclick="APP.openTransactionForm()">+ Nova Transação</button>
+            <table style="margin-top:20px;">
+                <thead><tr><th>Descrição</th><th>Valor</th><th>Data</th><th>Tipo</th><th>Ações</th></tr></thead>
+                <tbody>
+        `;
+        this.db.transactions.forEach(t => {
+            html += `<tr><td>${t.description}</td><td>R$ ${t.value.toFixed(2)}</td><td>${t.date}</td><td>${t.type}</td><td><button class="btn btn-danger btn-sm" onclick="APP.deleteTransaction(${t.id})">Excluir</button></td></tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    },
+
+    openTransactionForm() {
+        const html = `
+            <div class="modal" id="transModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Nova Transação</h3>
+                        <span class="close" onclick="document.getElementById('transModal').remove()">&times;</span>
+                    </div>
+                    <form id="transForm">
+                        <label>Tipo</label>
+                        <select id="transType"><option>receita</option><option>despesa</option></select>
+                        <label>Descrição</label>
+                        <input type="text" id="transDesc" required>
+                        <label>Valor</label>
+                        <input type="number" id="transValue" step="0.01" required>
+                        <label>Data</label>
+                        <input type="date" id="transDate" required>
+                        <button type="submit" class="btn btn-teal">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.getElementById('transForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.db.transactions.push({
+                id: Date.now(),
+                type: document.getElementById('transType').value,
+                description: document.getElementById('transDesc').value,
+                value: parseFloat(document.getElementById('transValue').value),
+                date: document.getElementById('transDate').value
+            });
+            this.saveData();
+            document.getElementById('transModal').remove();
+            this.renderView();
+        });
+    },
+
+    deleteTransaction(id) {
+        if (confirm('Excluir transação?')) {
+            this.db.transactions = this.db.transactions.filter(t => t.id !== id);
+            this.saveData();
+            this.renderView();
+        }
+    },
+
+    renderConfiguracoes(container) {
+        if (this.currentUser.role !== 'Admin') {
+            container.innerHTML = '<p>Acesso restrito.</p>';
+            return;
+        }
+        const clinic = this.db.clinic;
+        let html = `
+            <div class="card">
+                <h3>Dados da Clínica</h3>
+                <form id="clinicForm">
+                    <label>Nome</label>
+                    <input type="text" id="clinicName" value="${clinic.name}">
+                    <label>CNPJ</label>
+                    <input type="text" id="clinicCnpj" value="${clinic.cnpj}">
+                    <label>Endereço</label>
+                    <input type="text" id="clinicAddress" value="${clinic.address}">
+                    <label>Telefone</label>
+                    <input type="text" id="clinicPhone" value="${clinic.phone}">
+                    <button type="submit" class="btn btn-teal">Salvar</button>
+                </form>
+            </div>
+        `;
+        container.innerHTML = html;
+        document.getElementById('clinicForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.db.clinic = {
+                name: document.getElementById('clinicName').value,
+                cnpj: document.getElementById('clinicCnpj').value,
+                address: document.getElementById('clinicAddress').value,
+                phone: document.getElementById('clinicPhone').value
+            };
+            this.saveData();
+            alert('Configurações salvas!');
+        });
+    }
 };
-let currentUser = null;
-let editingPatientId = null;
-let editingProfessionalId = null;
-let selectedCalendarDate = null;
 
-// Initialize localStorage
-function initData() {
-  const saved = localStorage.getItem('ativamentedata');
-  if(saved) data = JSON.parse(saved);
-  else {
-    // default admin
-    data.users.push({ id: 'u1', name: 'Admin', email: 'admin@clinica.com', password: '123', type: 'admin' });
-    data.users.push({ id: 'u2', name: 'Dr. João', email: 'joao@clinica.com', password: '123', type: 'professional' });
-    saveData();
-  }
-}
-function saveData() {
-  localStorage.setItem('ativamentedata', JSON.stringify(data));
-}
-
-// === UTILITY ===
-function generateId() { return '_' + Math.random().toString(36).substr(2,9); }
-function getProfessionalPatients() {
-  if(!currentUser) return [];
-  if(currentUser.type === 'admin') return data.patients;
-  return data.patients.filter(p => p.professionalId === currentUser.id);
-}
-function getProfessionals() { return data.professionals; }
-function getAppointments() { return data.appointments; }
-
-// === VIEWS ===
-function showView(viewId) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  const el = document.getElementById('view-'+viewId);
-  if(el) el.classList.add('active');
-  // hide nav buttons based on login
-  const loggedIn = currentUser !== null;
-  document.getElementById('nav-login').classList.toggle('hidden', loggedIn);
-  document.getElementById('nav-register').classList.toggle('hidden', loggedIn);
-  document.getElementById('nav-logout').classList.toggle('hidden', !loggedIn);
-  // show other views if logged in
-  if(loggedIn) {
-    // after login, show dashboard by default
-    if(viewId === 'login' || viewId === 'register') showView('dashboard');
-  }
-  // render appropriate view
-  if(viewId === 'dashboard') renderDashboard();
-  else if(viewId === 'agenda') renderAgenda();
-  else if(viewId === 'patients') renderPatients();
-  else if(viewId === 'professionals') renderProfessionals();
-  else if(viewId === 'financial') renderFinancial();
-  else if(viewId === 'config') renderConfig();
-}
-
-function logout() {
-  currentUser = null;
-  showView('login');
-}
-
-// === LOGIN / REGISTER ===
-function login() {
-  const email = document.getElementById('login-email').value;
-  const password = document.getElementById('login-password').value;
-  const user = data.users.find(u => u.email === email && u.password === password);
-  if(!user) { alert('Credenciais inválidas'); return; }
-  currentUser = user;
-  showView('dashboard');
-}
-function register() {
-  const name = document.getElementById('reg-name').value;
-  const email = document.getElementById('reg-email').value;
-  const password = document.getElementById('reg-password').value;
-  const type = document.getElementById('reg-type').value;
-  if(!name || !email || !password) { alert('Preencha todos os campos'); return; }
-  if(data.users.find(u => u.email === email)) { alert('Email já cadastrado'); return; }
-  const user = { id: generateId(), name, email, password, type };
-  data.users.push(user);
-  saveData();
-  currentUser = user;
-  showView('dashboard');
-}
-
-// === DASHBOARD ===
-function renderDashboard() {
-  if(!currentUser) return;
-  const patients = getProfessionalPatients();
-  const appointments = getAppointments();
-  const professionals = getProfessionals();
-  const revenues = data.revenues;
-  const expenses = data.expenses;
-  document.getElementById('dash-patients').textContent = patients.length;
-  document.getElementById('dash-appointments').textContent = appointments.length;
-  document.getElementById('dash-professionals').textContent = professionals.length;
-  const totalRev = revenues.reduce((s,r) => s + r.value, 0);
-  const totalExp = expenses.reduce((s,e) => s + e.value, 0);
-  document.getElementById('dash-revenues').textContent = 'R$ ' + totalRev.toFixed(2);
-  document.getElementById('dash-expenses').textContent = 'R$ ' + totalExp.toFixed(2);
-  // chart
-  const canvas = document.getElementById('chart-appointments');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,400,200);
-  // simple bar chart of appointments per month
-  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const counts = new Array(12).fill(0);
-  appointments.forEach(a => {
-    const m = new Date(a.date).getMonth();
-    counts[m]++;
-  });
-  const max = Math.max(...counts,1);
-  ctx.fillStyle = '#1a3a5e';
-  for(let i=0;i<12;i++) {
-    const h = (counts[i]/max)*150;
-    ctx.fillRect(i*30+10, 175-h, 20, h);
-  }
-}
-
-// === AGENDA ===
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
-function renderAgenda() {
-  if(!currentUser) return;
-  // populate selects
-  const patientSelect = document.getElementById('agenda-patient');
-  patientSelect.innerHTML = '<option value="">Selecione</option>';
-  getProfessionalPatients().forEach(p => {
-    patientSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
-  });
-  const profSelect = document.getElementById('agenda-professional');
-  profSelect.innerHTML = '<option value="">Selecione</option>';
-  data.professionals.forEach(p => {
-    if(currentUser.type === 'admin' || p.id === currentUser.id)
-      profSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
-  });
-  // calendar
-  const monthInput = document.getElementById('agenda-month');
-  monthInput.value = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}`;
-  monthInput.onchange = function() {
-    const [y,m] = this.value.split('-');
-    currentYear = parseInt(y);
-    currentMonth = parseInt(m)-1;
-    renderCalendar();
-  };
-  renderCalendar();
-  renderAppointmentsList();
-}
-function renderCalendar() {
-  const grid = document.getElementById('calendar-grid');
-  grid.innerHTML = '';
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-  const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
-  for(let i=0;i<firstDay;i++) {
-    const div = document.createElement('div');
-    div.className = 'calendar-day empty';
-    grid.appendChild(div);
-  }
-  for(let d=1;d<=daysInMonth;d++) {
-    const div = document.createElement('div');
-    div.className = 'calendar-day';
-    if(selectedCalendarDate && selectedCalendarDate.getDate()===d && selectedCalendarDate.getMonth()===currentMonth && selectedCalendarDate.getFullYear()===currentYear)
-      div.classList.add('selected');
-    div.textContent = d;
-    div.onclick = function() {
-      selectedCalendarDate = new Date(currentYear, currentMonth, d);
-      document.getElementById('agenda-date').value = selectedCalendarDate.toISOString().slice(0,10);
-      renderCalendar();
-    };
-    grid.appendChild(div);
-  }
-}
-function addAppointment() {
-  if(!currentUser) return;
-  const patientId = document.getElementById('agenda-patient').value;
-  const professionalId = document.getElementById('agenda-professional').value;
-  const date = document.getElementById('agenda-date').value;
-  const time = document.getElementById('agenda-time').value;
-  const value = parseFloat(document.getElementById('agenda-value').value) || 0;
-  const payment = document.getElementById('agenda-payment').value;
-  if(!patientId || !professionalId || !date || !time) { alert('Preencha todos os campos'); return; }
-  const appointment = { id: generateId(), patientId, professionalId, date, time, value, payment, userId: currentUser.id };
-  data.appointments.push(appointment);
-  saveData();
-  renderAppointmentsList();
-}
-function renderAppointmentsList() {
-  const list = document.getElementById('appointments-list');
-  const appointments = data.appointments.filter(a => {
-    if(currentUser.type === 'admin') return true;
-    return a.professionalId === currentUser.id || a.patientId && getProfessionalPatients().some(p => p.id === a.patientId);
-  });
-  list.innerHTML = appointments.map(a => {
-    const patient = data.patients.find(p => p.id === a.patientId);
-    const professional = data.professionals.find(p => p.id === a.professionalId);
-    return `<div>${a.date} ${a.time} - ${patient ? patient.name : '?'} com ${professional ? professional.name : '?'} - R$ ${a.value.toFixed(2)} - ${a.payment} <button onclick="deleteAppointment('${a.id}')" class="danger small">Excluir</button></div>`;
-  }).join('') || '<p>Nenhuma consulta.</p>';
-}
-function deleteAppointment(id) {
-  data.appointments = data.appointments.filter(a => a.id !== id);
-  saveData();
-  renderAppointmentsList();
-}
-
-// === PACIENTES ===
-function openPatientModal(patientId) {
-  editingPatientId = patientId || null;
-  const modal = document.getElementById('patient-modal');
-  modal.classList.add('active');
-  if(patientId) {
-    const patient = data.patients.find(p => p.id === patientId);
-    if(patient) {
-      document.getElementById('p-nome').value = patient.name || '';
-      document.getElementById('p-cpf').value = patient.cpf || '';
-      document.getElementById('p-data-nasc').value = patient.birthDate || '';
-      document.getElementById('p-telefone').value = patient.phone || '';
-      document.getElementById('p-email').value = patient.email || '';
-      document.getElementById('p-endereco').value = patient.address || '';
-      document.getElementById('p-responsavel').value = patient.guardian || '';
-      document.getElementById('p-historico').value = patient.history || '';
-      document.getElementById('p-observacoes').value = patient.observations || '';
-      // prontuarios, evolucao, docs, pagamentos, anexos: render from patient
-      renderProntuarios(patient);
-      renderEvolucao(patient);
-      renderDocumentos(patient);
-      renderPagamentos(patient);
-      renderAnexos(patient);
-    }
-  } else {
-    // clear form
-    document.querySelectorAll('#patient-modal input, #patient-modal textarea, #patient-modal select').forEach(el => el.value = '');
-    document.getElementById('p-historico').value = '';
-    document.getElementById('p-observacoes').value = '';
-    document.getElementById('p-prontuarios-list').innerHTML = '';
-    document.getElementById('p-evolucao-list').innerHTML = '';
-    document.getElementById('p-docs-list').innerHTML = '';
-    document.getElementById('p-pagamentos-list').innerHTML = '';
-    document.getElementById('p-anexos-list').innerHTML = '';
-  }
-  document.getElementById('patient-modal-title').textContent = patientId ? 'Editar Paciente' : 'Novo Paciente';
-  // activate first tab
-  document.querySelector('#patient-tabs .tab').click();
-}
-function closePatientModal() {
-  document.getElementById('patient-modal').classList.remove('active');
-}
-function savePatient() {
-  if(!currentUser) return;
-  const name = document.getElementById('p-nome').value;
-  if(!name) { alert('Nome é obrigatório'); return; }
-  const patient = {
-    id: editingPatientId || generateId(),
-    name,
-    cpf: document.getElementById('p-cpf').value,
-    birthDate: document.getElementById('p-data-nasc').value,
-    phone: document.getElementById('p-telefone').value,
-    email: document.getElementById('p-email').value,
-    address: document.getElementById('p-endereco').value,
-    guardian: document.getElementById('p-responsavel').value,
-    history: document.getElementById('p-historico').value,
-    observations: document.getElementById('p-observacoes').value,
-    professionalId: currentUser.type === 'professional' ? currentUser.id : (data.patients.find(p => p.id === editingPatientId)?.professionalId || currentUser.id),
-    // sub-data
-    prontuarios: editingPatientId ? (data.patients.find(p => p.id === editingPatientId)?.prontuarios || []) : (document.getElementById('p-prontuarios-list').dataset.prontuarios ? JSON.parse(document.getElementById('p-prontuarios-list').dataset.prontuarios) : []),
-    evolucoes: editingPatientId ? (data.patients.find(p => p.id === editingPatientId)?.evolucoes || []) : (document.getElementById('p-evolucao-list').dataset.evolucoes ? JSON.parse(document.getElementById('p-evolucao-list').dataset.evolucoes) : []),
-    documentos: editingPatientId ? (data.patients.find(p => p.id === editingPatientId)?.documentos || []) : (document.getElementById('p-docs-list').dataset.documentos ? JSON.parse(document.getElementById('p-docs-list').dataset.documentos) : []),
-    pagamentos: editingPatientId ? (data.patients.find(p => p.id === editingPatientId)?.pagamentos || []) : (document.getElementById('p-pagamentos-list').dataset.pagamentos ? JSON.parse(document.getElementById('p-pagamentos-list').dataset.pagamentos) : []),
-    anexos: editingPatientId ? (data.patients.find(p => p.id === editingPatientId)?.anexos || []) : (document.getElementById('p-anexos-list').dataset.anexos ? JSON.parse(document.getElementById('p-anexos-list').dataset.anexos) : [])
-  };
-  if(editingPatientId) {
-    const idx = data.patients.findIndex(p => p.id === editingPatientId);
-    if(idx !== -1) data.patients[idx] = patient;
-  } else {
-    data.patients.push(patient);
-  }
-  saveData();
-  renderPatients();
-  closePatientModal();
-}
-function renderPatients() {
-  const list = document.getElementById('patients-list');
-  const patients = getProfessionalPatients();
-  list.innerHTML = patients.map(p => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #eee;">
-      <span>${p.name} - ${p.cpf || 'sem CPF'}</span>
-      <div>
-        <button onclick="openPatientModal('${p.id}')">Editar</button>
-        <button class="danger" onclick="deletePatient('${p.id}')">Excluir</button>
-      </div>
-    </div>
-  `).join('') || '<p>Nenhum paciente encontrado.</p>';
-}
-function deletePatient(id) {
-  if(confirm('Tem certeza?')) {
-    data.patients = data.patients.filter(p => p.id !== id);
-    saveData();
-    renderPatients();
-  }
-}
-
-// === TAB FUNCTIONS FOR PATIENT MODAL ===
-document.addEventListener('click', function(e) {
-  if(e.target.matches('#patient-tabs .tab')) {
-    document.querySelectorAll('#patient-tabs .tab').forEach(t => t.classList.remove('active'));
-    e.target.classList.add('active');
-    const tabId = e.target.dataset.tab;
-    document.querySelectorAll('#patient-tab-content .tab-content').forEach(c => c.classList.remove('active'));
-    document.getElementById('tab-'+tabId).classList.add('active');
-  }
-});
-function addProntuario() {
-  const date = document.getElementById('p-prontuario-data').value;
-  const text = document.getElementById('p-prontuario-texto').value;
-  if(!date || !text) return;
-  const list = document.getElementById('p-prontuarios-list');
-  const prontuarios = JSON.parse(list.dataset.prontuarios || '[]');
-  prontuarios.push({ date, text });
-  list.dataset.prontuarios = JSON.stringify(prontuarios);
-  renderProntuariosFromData(prontuarios);
-  document.getElementById('p-prontuario-data').value = '';
-  document.getElementById('p-prontuario-texto').value = '';
-}
-function renderProntuarios(patient) {
-  const list = document.getElementById('p-prontuarios-list');
-  const prontuarios = patient.prontuarios || [];
-  list.dataset.prontuarios = JSON.stringify(prontuarios);
-  renderProntuariosFromData(prontuarios);
-}
-function renderProntuariosFromData(prontuarios) {
-  const list = document.getElementById('p-prontuarios-list');
-  list.innerHTML = prontuarios.map(p => `<div><strong>${p.date}</strong>: ${p.text}</div>`).join('');
-}
-function addEvolution() {
-  const score = parseFloat(document.getElementById('p-evolucao-score').value);
-  if(isNaN(score)) return;
-  const list = document.getElementById('p-evolucao-list');
-  const evolucoes = JSON.parse(list.dataset.evolucoes || '[]');
-  evolucoes.push({ date: new Date().toISOString().slice(0,10), score });
-  list.dataset.evolucoes = JSON.stringify(evolucoes);
-  renderEvolucoesFromData(evolucoes);
-  document.getElementById('p-evolucao-score').value = '';
-}
-function renderEvolucao(patient) {
-  const list = document.getElementById('p-evolucao-list');
-  const evolucoes = patient.evolucoes || [];
-  list.dataset.evolucoes = JSON.stringify(evolucoes);
-  renderEvolucoesFromData(evolucoes);
-}
-function renderEvolucoesFromData(evolucoes) {
-  const list = document.getElementById('p-evolucao-list');
-  list.innerHTML = evolucoes.map(e => `<div>${e.date}: ${e.score}</div>`).join('');
-  // draw chart
-  const canvas = document.getElementById('chart-evolution');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,400,200);
-  if(evolucoes.length===0) return;
-  const maxScore = Math.max(...evolucoes.map(e=>e.score),1);
-  ctx.strokeStyle = '#ff7d00';
-  ctx.beginPath();
-  const step = 30;
-  evolucoes.forEach((e,i) => {
-    const x = i*step + 30;
-    const y = 180 - (e.score/maxScore)*150;
-    if(i===0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
-  });
-  ctx.stroke();
-}
-function addDocument() {
-  const tipo = document.getElementById('p-doc-tipo').value;
-  const conteudo = document.getElementById('p-doc-conteudo').value;
-  if(!conteudo) return;
-  const list = document.getElementById('p-docs-list');
-  const documentos = JSON.parse(list.dataset.documentos || '[]');
-  documentos.push({ tipo, conteudo, date: new Date().toISOString().slice(0,10) });
-  list.dataset.documentos = JSON.stringify(documentos);
-  renderDocumentosFromData(documentos);
-  document.getElementById('p-doc-conteudo').value = '';
-}
-function renderDocumentos(patient) {
-  const list = document.getElementById('p-docs-list');
-  const documentos = patient.documentos || [];
-  list.dataset.documentos = JSON.stringify(documentos);
-  renderDocumentosFromData(documentos);
-}
-function renderDocumentosFromData(documentos) {
-  const list = document.getElementById('p-docs-list');
-  list.innerHTML = documentos.map(d => `<div><strong>${d.tipo}</strong> (${d.date}): ${d.conteudo}</div>`).join('');
-}
-function addPayment() {
-  const date = document.getElementById('p-pag-data').value;
-  const value = parseFloat(document.getElementById('p-pag-valor').value);
-  const metodo = document.getElementById('p-pag-metodo').value;
-  if(!date || isNaN(value)) return;
-  const list = document.getElementById('p-pagamentos-list');
-  const pagamentos = JSON.parse(list.dataset.pagamentos || '[]');
-  pagamentos.push({ date, value, metodo });
-  list.dataset.pagamentos = JSON.stringify(pagamentos);
-  renderPagamentosFromData(pagamentos);
-  document.getElementById('p-pag-data').value = '';
-  document.getElementById('p-pag-valor').value = '';
-}
-function renderPagamentos(patient) {
-  const list = document.getElementById('p-pagamentos-list');
-  const pagamentos = patient.pagamentos || [];
-  list.dataset.pagamentos = JSON.stringify(pagamentos);
-  renderPagamentosFromData(pagamentos);
-}
-function renderPagamentosFromData(pagamentos) {
-  const list = document.getElementById('p-pagamentos-list');
-  list.innerHTML = pagamentos.map(p => `<div>${p.date} - R$ ${p.value.toFixed(2)} - ${p.metodo}</div>`).join('');
-}
-function uploadFile() {
-  const files = document.getElementById('p-anexo-file').files;
-  if(files.length===0) return;
-  const list = document.getElementById('p-anexos-list');
-  const anexos = JSON.parse(list.dataset.anexos || '[]');
-  for(let f of files) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      anexos.push({ name: f.name, data: e.target.result });
-      list.dataset.anexos = JSON.stringify(anexos);
-      renderAnexosFromData(anexos);
-    };
-    reader.readAsDataURL(f);
-  }
-}
-function renderAnexos(patient) {
-  const list = document.getElementById('p-anexos-list');
-  const anexos = patient.anexos || [];
-  list.dataset.anexos = JSON.stringify(anexos);
-  renderAnexosFromData(anexos);
-}
-function renderAnexosFromData(anexos) {
-  const list = document.getElementById('p-anexos-list');
-  list.innerHTML = anexos.map(a => `<div><a href="${a.data}" download="${a.name}">${a.name}</a></div>`).join('');
-}
-
-// === PROFISSIONAIS ===
-function openProfessionalModal(professionalId) {
-  editingProfessionalId = professionalId || null;
-  document.getElementById('professional-modal').classList.add('active');
-  if(professionalId) {
-    const prof = data.professionals.find(p => p.id === professionalId);
-    if(prof) {
-      document.getElementById('prof-nome').value = prof.name || '';
-      document.getElementById('prof-cpf').value = prof.cpf || '';
-      document.getElementById('prof-data-nasc').value = prof.birthDate || '';
-      document.getElementById('prof-registro').value = prof.registration || '';
-      document.getElementById('prof-especialidade').value = prof.specialty || '';
-      document.getElementById('prof-telefone').value = prof.phone || '';
-      document.getElementById('prof-email').value = prof.email || '';
-    }
-  } else {
-    document.querySelectorAll('#professional-modal input').forEach(el => el.value = '');
-  }
-  document.getElementById('professional-modal-title').textContent = professionalId ? 'Editar Profissional' : 'Novo Profissional';
-}
-function closeProfessionalModal() {
-  document.getElementById('professional-modal').classList.remove('active');
-}
-function saveProfessional() {
-  if(!currentUser || currentUser.type !== 'admin') return;
-  const name = document.getElementById('prof-nome').value;
-  if(!name) { alert('Nome é obrigatório'); return; }
-  const prof = {
-    id: editingProfessionalId || generateId(),
-    name,
-    cpf: document.getElementById('prof-cpf').value,
-    birthDate: document.getElementById('prof-data-nasc').value,
-    registration: document.getElementById('prof-registro').value,
-    specialty: document.getElementById('prof-especialidade').value,
-    phone: document.getElementById('prof-telefone').value,
-    email: document.getElementById('prof-email').value
-  };
-  if(editingProfessionalId) {
-    const idx = data.professionals.findIndex(p => p.id === editingProfessionalId);
-    if(idx !== -1) data.professionals[idx] = prof;
-  } else {
-    data.professionals.push(prof);
-  }
-  saveData();
-  renderProfessionals();
-  closeProfessionalModal();
-}
-function renderProfessionals() {
-  const list = document.getElementById('professionals-list');
-  if(currentUser.type !== 'admin') {
-    list.innerHTML = '<p>Apenas admin pode ver.</p>';
-    return;
-  }
-  list.innerHTML = data.professionals.map(p => `
-    <div style="display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #eee;">
-      <span>${p.name} - ${p.specialty || 'sem especialidade'}</span>
-      <div>
-        <button onclick="openProfessionalModal('${p.id}')">Editar</button>
-        <button class="danger" onclick="deleteProfessional('${p.id}')">Excluir</button>
-      </div>
-    </div>
-  `).join('') || '<p>Nenhum profissional.</p>';
-}
-function deleteProfessional(id) {
-  if(confirm('Tem certeza?')) {
-    data.professionals = data.professionals.filter(p => p.id !== id);
-    saveData();
-    renderProfessionals();
-  }
-}
-
-// === FINANCEIRO ===
-function addRevenue() {
-  if(currentUser.type !== 'admin') return;
-  const desc = document.getElementById('fin-revenue-desc').value;
-  const value = parseFloat(document.getElementById('fin-revenue-value').value);
-  if(!desc || isNaN(value)) return;
-  data.revenues.push({ id: generateId(), desc, value, date: new Date().toISOString().slice(0,10) });
-  saveData();
-  renderFinancial();
-}
-function addExpense() {
-  if(currentUser.type !== 'admin') return;
-  const desc = document.getElementById('fin-expense-desc').value;
-  const value = parseFloat(document.getElementById('fin-expense-value').value);
-  if(!desc || isNaN(value)) return;
-  data.expenses.push({ id: generateId(), desc, value, date: new Date().toISOString().slice(0,10) });
-  saveData();
-  renderFinancial();
-}
-function renderFinancial() {
-  if(!currentUser || currentUser.type !== 'admin') {
-    document.getElementById('revenues-list').innerHTML = '<p>Apenas admin.</p>';
-    document.getElementById('expenses-list').innerHTML = '';
-    return;
-  }
-  const revenuesList = document.getElementById('revenues-list');
-  revenuesList.innerHTML = data.revenues.map(r => `<li>${r.desc} - R$ ${r.value.toFixed(2)} <button class="danger small" onclick="deleteRevenue('${r.id}')">X</button></li>`).join('');
-  const expensesList = document.getElementById('expenses-list');
-  expensesList.innerHTML = data.expenses.map(e => `<li>${e.desc} - R$ ${e.value.toFixed(2)} <button class="danger small" onclick="deleteExpense('${e.id}')">X</button></li>`).join('');
-  // Pareto chart
-  const canvas = document.getElementById('chart-pareto');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,400,200);
-  const all = [...data.expenses];
-  all.sort((a,b) => b.value - a.value);
-  const max = all.length>0 ? all[0].value : 1;
-  ctx.fillStyle = '#1a3a5e';
-  all.forEach((e,i) => {
-    const h = (e.value/max)*150;
-    ctx.fillRect(i*30+10, 175-h, 20, h);
-  });
-  // AI analysis
-  const totalExp = data.expenses.reduce((s,e) => s + e.value, 0);
-  const totalRev = data.revenues.reduce((s,r) => s + r.value, 0);
-  let analysis = '';
-  if(totalRev > totalExp) analysis = 'Boa saúde financeira. Receitas maiores que despesas.';
-  else if(totalRev === totalExp) analysis = 'Equilíbrio financeiro.';
-  else analysis = 'Atenção: despesas maiores que receitas. Considere reduzir custos.';
-  document.getElementById('ai-analysis').textContent = 'Análise IA: ' + analysis;
-}
-function deleteRevenue(id) {
-  data.revenues = data.revenues.filter(r => r.id !== id);
-  saveData();
-  renderFinancial();
-}
-function deleteExpense(id) {
-  data.expenses = data.expenses.filter(e => e.id !== id);
-  saveData();
-  renderFinancial();
-}
-
-// === CONFIG ===
-function renderConfig() {
-  if(!currentUser || currentUser.type !== 'admin') {
-    document.querySelector('#view-config .card').innerHTML = '<p>Apenas admin.</p>';
-    return;
-  }
-  const c = data.config;
-  document.getElementById('config-name').value = c.name || 'ATIVAMENTE+ Clinic';
-  document.getElementById('config-address').value = c.address || '';
-  document.getElementById('config-phone').value = c.phone || '';
-  document.getElementById('config-open').value = c.open || '08:00';
-  document.getElementById('config-close').value = c.close || '18:00';
-}
-function saveConfig() {
-  if(!currentUser || currentUser.type !== 'admin') return;
-  data.config.name = document.getElementById('config-name').value;
-  data.config.address = document.getElementById('config-address').value;
-  data.config.phone = document.getElementById('config-phone').value;
-  data.config.open = document.getElementById('config-open').value;
-  data.config.close = document.getElementById('config-close').value;
-  saveData();
-  alert('Configurações salvas!');
-}
-
-// === INIT ===
-initData();
-// If already logged in, show dashboard
-if(currentUser) showView('dashboard');
-else showView('login');
-
-// === NAV ===
-document.querySelectorAll('nav button').forEach(btn => {
-  btn.addEventListener('click', function(e) {
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-  });
-});
+document.addEventListener('DOMContentLoaded', () => APP.init());
 </script>
 </body>
 </html>
