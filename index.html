@@ -1,665 +1,591 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ATIVAMENTE+ CLINIC</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; height: 100vh; overflow: hidden; color: #333; }
-.sidebar { width: 250px; background: #0B2D4F; color: white; display: flex; flex-direction: column; padding: 20px 0; }
-.logo { text-align: center; padding: 10px; }
-.logo svg { width: 200px; height: auto; }
-.menu { flex: 1; padding: 20px 0; }
-.menu-item { padding: 12px 20px; cursor: pointer; transition: 0.3s; border-left: 4px solid transparent; }
-.menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); border-left-color: #FF6B4A; }
-.main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 20px; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.header h1 { color: #0B2D4F; }
-.auth-btn { background: #FF6B4A; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-.modal-content { background: white; padding: 30px; border-radius: 10px; width: 400px; max-width: 90%; }
-.modal-content h2 { margin-bottom: 20px; color: #0B2D4F; }
-.form-group { margin-bottom: 15px; }
-label { display: block; margin-bottom: 5px; color: #555; }
-input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-button { padding: 10px 20px; background: #FF6B4A; color: white; border: none; border-radius: 5px; cursor: pointer; }
-button:hover { opacity: 0.9; }
-.section { display: none; }
-.section.active { display: block; }
-.grid { display: grid; gap: 20px; }
-.card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
-.tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-.tab { padding: 8px 16px; background: #e0e0e0; border-radius: 5px; cursor: pointer; }
-.tab.active { background: #00C2B8; color: white; }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-.time-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-.time-slot { padding: 10px; background: #f0f0f0; text-align: center; border-radius: 5px; cursor: pointer; }
-.time-slot.selected { background: #FF6B4A; color: white; }
-.calendar { margin-bottom: 20px; }
-.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-.calendar-day { padding: 10px; background: white; text-align: center; border-radius: 5px; cursor: pointer; }
-.calendar-day.selected { background: #00C2B8; color: white; }
-.calendar-day.empty { background: transparent; }
-.pareto { display: flex; align-items: flex-end; gap: 5px; height: 200px; border-bottom: 2px solid #ccc; }
-.bar { flex: 1; background: #FF6B4A; text-align: center; color: white; min-height: 5px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATIVAMENTE+ CLINIC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    :root {
+      --navy: #0B2D4F;
+      --orange: #FF6B4A;
+      --teal: #00C2B8;
+    }
+    body { background: #f4f7fc; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .container { width: 100%; max-width: 400px; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .logo { text-align: center; margin-bottom: 20px; }
+    .logo svg { width: 80px; height: 80px; }
+    h2 { text-align: center; color: var(--navy); margin-bottom: 10px; }
+    input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
+    button { width: 100%; padding: 12px; background: var(--orange); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    button:hover { background: #e55a3c; }
+    .error { color: red; font-size: 0.9em; text-align: center; margin-top: 10px; }
+    .link { text-align: center; margin-top: 15px; font-size: 0.9em; color: var(--navy); }
+    .link span { color: var(--orange); cursor: pointer; }
+    .app { display: none; width: 100%; max-width: 1200px; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab { padding: 10px 20px; background: #eee; border-radius: 20px; cursor: pointer; font-weight: 500; }
+    .tab.active { background: var(--orange); color: white; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .card { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .card h3 { font-size: 0.9em; color: #666; }
+    .card p { font-size: 2em; font-weight: 700; color: var(--navy); }
+    .chart-box { background: white; border-radius: 10px; padding: 20px; border: 1px solid #ddd; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: var(--navy); color: white; }
+    .btn { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; }
+    .btn-edit { background: var(--teal); color: white; }
+    .btn-delete { background: #ff4d4d; color: white; }
+    .btn-impressao { background: var(--navy); color: white; }
+    .autocomplete { position: relative; }
+    .autocomplete-items { position: absolute; background: white; border: 1px solid #ddd; max-height: 150px; overflow-y: auto; z-index: 10; width: 100%; }
+    .autocomplete-items div { padding: 10px; cursor: pointer; }
+    .autocomplete-items div:hover { background: #eee; }
+    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+    .calendar-day { background: #f9f9f9; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; }
+    .calendar-day.appointed { background: #90EE90; }
+    .calendar-day.confirmed { background: #ffcc00; }
+    .calendar-day.cancelled { background: #ff9999; }
+    .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+    .time-slot { padding: 10px; background: #e0f7fa; border-radius: 5px; text-align: center; cursor: pointer; }
+    .time-slot.selected { background: var(--orange); color: white; }
+    .drawer { position: fixed; top: 0; right: -400px; width: 400px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: right 0.3s; padding: 20px; z-index: 100; }
+    .drawer.open { right: 0; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .drawer-header h3 { color: var(--navy); }
+    .drawer-close { cursor: pointer; font-size: 1.5em; }
+    .drawer-tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+    .drawer-tab { padding: 5px 10px; background: #eee; border-radius: 15px; cursor: pointer; font-size: 0.8em; }
+    .drawer-tab.active { background: var(--teal); color: white; }
+    .drawer-content { display: none; }
+    .drawer-content.active { display: block; }
+    .folha-texto { width: 100%; height: 300px; border: 1px solid #ddd; border-radius: 5px; padding: 15px; font-family: 'Poppins', sans-serif; resize: vertical; }
+    .ia-analysis { background: #f0f8ff; padding: 15px; border-radius: 8px; margin-top: 10px; }
+    @media (max-width: 768px) { .app { padding: 10px; } .tabs { flex-direction: column; } }
+  </style>
 </head>
 <body>
-<div class="sidebar">
-<div class="logo">
-<svg viewBox="0 0 200 60">
-<defs>
-<linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-<stop offset="0%" stop-color="#FF6B4A"/>
-<stop offset="100%" stop-color="#00C2B8"/>
-</linearGradient>
-</defs>
-<text x="10" y="40" font-family="Arial" font-size="30" font-weight="bold" fill="url(#logoGrad)">ATIVAMENTE+</text>
-<text x="10" y="55" font-family="Arial" font-size="12" fill="white">CLINIC</text>
-</svg>
-</div>
-<div class="menu">
-<div class="menu-item active" data-section="dashboard">Dashboard</div>
-<div class="menu-item" data-section="agenda">Agenda</div>
-<div class="menu-item" data-section="pacientes">Pacientes</div>
-<div class="menu-item" data-section="profissionais">Profissionais</div>
-<div class="menu-item" data-section="financeiro">Financeiro</div>
-</div>
-</div>
-<div class="main">
-<div class="header">
-<h1 id="sectionTitle">Dashboard</h1>
-<button class="auth-btn" id="authBtn" onclick="openAuthModal()">Login</button>
-</div>
-<div id="dashboard" class="section active">
-<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-<div class="card">
-<h3>Pacientes</h3>
-<p id="totalPacientes">0</p>
-</div>
-<div class="card">
-<h3>Profissionais</h3>
-<p id="totalProfissionais">0</p>
-</div>
-<div class="card">
-<h3>Consultas Hoje</h3>
-<p id="consultasHoje">0</p>
-</div>
-<div class="card">
-<h3>Faturamento Mês</h3>
-<p id="faturamentoMes">R$ 0,00</p>
-</div>
-</div>
-</div>
-<div id="agenda" class="section">
-<h2>Agenda</h2>
-<div class="card">
-<div class="calendar" id="calendar">
-<div class="calendar-header">
-<button onclick="changeMonth(-1)">&lt;</button>
-<span id="monthYear"></span>
-<button onclick="changeMonth(1)">&gt;</button>
-</div>
-<div class="calendar-days" id="calendarDays"></div>
-</div>
-<div class="form-group">
-<label>Paciente (autocomplete)</label>
-<input type="text" id="pacienteAgenda" list="pacientesList" placeholder="Digite o nome do paciente">
-<datalist id="pacientesList"></datalist>
-</div>
-<div class="form-group">
-<label>Horário</label>
-<div class="time-picker" id="timePicker">
-<div class="time-slot" onclick="selectTime(this)">08:00</div>
-<div class="time-slot" onclick="selectTime(this)">08:30</div>
-<div class="time-slot" onclick="selectTime(this)">09:00</div>
-<div class="time-slot" onclick="selectTime(this)">09:30</div>
-<div class="time-slot" onclick="selectTime(this)">10:00</div>
-<div class="time-slot" onclick="selectTime(this)">10:30</div>
-<div class="time-slot" onclick="selectTime(this)">11:00</div>
-<div class="time-slot" onclick="selectTime(this)">11:30</div>
-<div class="time-slot" onclick="selectTime(this)">14:00</div>
-<div class="time-slot" onclick="selectTime(this)">14:30</div>
-<div class="time-slot" onclick="selectTime(this)">15:00</div>
-<div class="time-slot" onclick="selectTime(this)">15:30</div>
-</div>
-</div>
-<div class="form-group">
-<label>Recorrência</label>
-<select id="recorrencia">
-<option value="none">Não repetir</option>
-<option value="daily">Diariamente</option>
-<option value="weekly">Semanalmente</option>
-<option value="monthly">Mensalmente</option>
-</select>
-</div>
-<button onclick="agendarConsulta()">Agendar</button>
-</div>
-<div id="consultasList"></div>
-</div>
-<div id="pacientes" class="section">
-<h2>Pacientes</h2>
-<div class="btn-group">
-<button onclick="abrirDrawerPaciente()">Novo Paciente</button>
-</div>
-<div id="pacientesLista"></div>
-<div id="drawerPaciente" class="modal" style="display:none;">
-<div class="modal-content">
-<h2 id="drawerTitle">Novo Paciente</h2>
-<div class="tabs" id="pacienteTabs">
-<div class="tab active" data-tab="dados-pessoais">Dados Pessoais</div>
-<div class="tab" data-tab="historico">Histórico</div>
-<div class="tab" data-tab="anamnese">Anamnese</div>
-<div class="tab" data-tab="exames">Exames</div>
-<div class="tab" data-tab="diagnosticos">Diagnósticos</div>
-<div class="tab" data-tab="tratamentos">Tratamentos</div>
-<div class="tab" data-tab="evolucao">Evolução</div>
-<div class="tab" data-tab="documentos">Documentos</div>
-<div class="tab" data-tab="ia-evolucao">IA Evolução</div>
-</div>
-<div id="tab-content-container">
-<div class="tab-content active" id="tab-dados-pessoais">
-<div class="form-group"><label>Nome</label><input type="text" id="pacNome"></div>
-<div class="form-group"><label>CPF</label><input type="text" id="pacCpf"></div>
-<div class="form-group"><label>Data Nascimento</label><input type="date" id="pacDataNasc"></div>
-<div class="form-group"><label>Telefone</label><input type="text" id="pacTelefone"></div>
-<div class="form-group"><label>Email</label><input type="email" id="pacEmail"></div>
-</div>
-<div class="tab-content" id="tab-historico"><textarea style="width:100%;height:100px;" placeholder="Histórico médico"></textarea></div>
-<div class="tab-content" id="tab-anamnese"><textarea style="width:100%;height:100px;" placeholder="Anamnese"></textarea></div>
-<div class="tab-content" id="tab-exames"><textarea style="width:100%;height:100px;" placeholder="Exames"></textarea></div>
-<div class="tab-content" id="tab-diagnosticos"><textarea style="width:100%;height:100px;" placeholder="Diagnósticos"></textarea></div>
-<div class="tab-content" id="tab-tratamentos"><textarea style="width:100%;height:100px;" placeholder="Tratamentos"></textarea></div>
-<div class="tab-content" id="tab-evolucao"><textarea style="width:100%;height:100px;" placeholder="Evolução"></textarea></div>
-<div class="tab-content" id="tab-documentos">
-<div class="form-group"><label>Documento (texto)</label><textarea style="width:100%;height:200px;" placeholder="Escreva o documento aqui..."></textarea></div>
-</div>
-<div class="tab-content" id="tab-ia-evolucao">
-<button onclick="gerarEvolucaoIA()">Gerar Evolução com IA</button>
-<p id="iaResultado"></p>
-</div>
-</div>
-<div class="btn-group" style="margin-top:20px;">
-<button onclick="salvarPaciente()">Salvar</button>
-<button onclick="fecharDrawerPaciente()">Cancelar</button>
-</div>
-</div>
-</div>
-</div>
-<div id="profissionais" class="section">
-<h2>Profissionais</h2>
-<div class="btn-group">
-<button onclick="abrirModalProfissional()">Novo Profissional</button>
-</div>
-<div id="profissionaisLista"></div>
-<div id="modalProfissional" class="modal">
-<div class="modal-content">
-<h2 id="modalProfTitle">Novo Profissional</h2>
-<div class="form-group"><label>Nome</label><input type="text" id="profNome"></div>
-<div class="form-group"><label>Especialidade</label><input type="text" id="profEspecialidade"></div>
-<div class="form-group"><label>Registro</label><input type="text" id="profRegistro"></div>
-<div class="form-group"><label>Telefone</label><input type="text" id="profTelefone"></div>
-<div class="form-group"><label>Email</label><input type="email" id="profEmail"></div>
-<div class="btn-group" style="margin-top:20px;">
-<button onclick="salvarProfissional()">Salvar</button>
-<button onclick="fecharModalProfissional()">Cancelar</button>
-</div>
-</div>
-</div>
-</div>
-<div id="financeiro" class="section">
-<h2>Financeiro</h2>
-<div class="card">
-<h3>Pareto - Últimos 6 Meses</h3>
-<div class="pareto" id="paretoChart"></div>
-<button onclick="analisarIAFinanceiro()" style="margin-top:20px;">Análise IA</button>
-<p id="iaFinanceiroResultado"></p>
-</div>
-</div>
-</div>
-<div id="authModal" class="modal">
-<div class="modal-content">
-<h2 id="authTitle">Login</h2>
-<div class="form-group">
-<label>Email</label>
-<input type="email" id="authEmail">
-</div>
-<div class="form-group">
-<label>Senha</label>
-<input type="password" id="authPassword">
-</div>
-<div class="btn-group">
-<button id="authActionBtn" onclick="login()">Entrar</button>
-<button onclick="toggleAuthMode()">Registrar</button>
-</div>
-<p id="authMsg" style="margin-top:10px;color:red;"></p>
-</div>
-</div>
-<script>
-// Dados iniciais simulados (localStorage)
-let pacientes = JSON.parse(localStorage.getItem('pacientes')) || [];
-let profissionais = JSON.parse(localStorage.getItem('profissionais')) || [];
-let consultas = JSON.parse(localStorage.getItem('consultas')) || [];
-let currentUser = localStorage.getItem('currentUser') || null;
-let authMode = 'login';
-let currentPacienteId = null;
-let selectedDate = new Date();
-let selectedTime = null;
+  <div id="authContainer" class="container">
+    <div class="logo">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF6B4A;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#00C2B8;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="45" fill="url(#grad)"/>
+        <text x="50" y="55" text-anchor="middle" font-size="40" font-weight="bold" fill="white" font-family="Poppins">A+</text>
+      </svg>
+    </div>
+    <div id="loginForm">
+      <h2>Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPassword" placeholder="Senha">
+      <button onclick="login()">Entrar</button>
+      <div class="error" id="loginError"></div>
+      <div class="link">Não tem conta? <span onclick="showRegister()">Registre-se</span></div>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <h2>Registro</h2>
+      <input type="text" id="regName" placeholder="Nome">
+      <input type="email" id="regEmail" placeholder="Email">
+      <input type="password" id="regPassword" placeholder="Senha">
+      <select id="regRole">
+        <option value="medico">Médico</option>
+        <option value="recepcionista">Recepcionista</option>
+        <option value="admin">Administrador</option>
+      </select>
+      <button onclick="register()">Registrar</button>
+      <div class="error" id="regError"></div>
+      <div class="link">Já tem conta? <span onclick="showLogin()">Faça login</span></div>
+    </div>
+  </div>
 
-// Inicialização
-function init() {
-    renderAll();
-    updateAuthUI();
-    renderCalendar();
-    updatePacientesAutocomplete();
-}
+  <div id="appContainer" class="app">
+    <div class="tabs" id="tabs">
+      <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
+      <div class="tab" onclick="switchTab('agenda')">Agenda</div>
+      <div class="tab" onclick="switchTab('pacientes')">Pacientes</div>
+      <div class="tab" onclick="switchTab('profissionais')">Profissionais</div>
+      <div class="tab" onclick="switchTab('financeiro')">Financeiro</div>
+      <div class="tab" onclick="switchTab('config')">Configuração</div>
+    </div>
 
-// Autenticação
-function openAuthModal() {
-    document.getElementById('authModal').style.display = 'flex';
-    authMode = 'login';
-    document.getElementById('authTitle').textContent = 'Login';
-    document.getElementById('authActionBtn').textContent = 'Entrar';
-    document.getElementById('authMsg').textContent = '';
-}
+    <!-- Dashboard -->
+    <div id="dashboard" class="page active">
+      <div class="cards">
+        <div class="card"><h3>Faturamento Mensal</h3><p>R$ 45.200</p></div>
+        <div class="card"><h3>Consultas Hoje</h3><p>12</p></div>
+        <div class="card"><h3>Pacientes Ativos</h3><p>340</p></div>
+        <div class="card"><h3>Taxa de Ocupação</h3><p>78%</p></div>
+      </div>
+      <div class="chart-box">
+        <h3>Faturamento Últimos 6 Meses</h3>
+        <canvas id="fatChart" width="400" height="200"></canvas>
+      </div>
+    </div>
 
-function closeAuthModal() {
-    document.getElementById('authModal').style.display = 'none';
-}
+    <!-- Agenda -->
+    <div id="agenda" class="page">
+      <h3>Agenda</h3>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <div class="autocomplete" style="flex:1;">
+          <input type="text" id="agendaPaciente" placeholder="Paciente" oninput="autocomplete(this, 'pacientes')">
+          <div class="autocomplete-items" id="agendaPacienteList"></div>
+        </div>
+        <div class="autocomplete" style="flex:1;">
+          <input type="text" id="agendaProfissional" placeholder="Profissional" oninput="autocomplete(this, 'profissionais')">
+          <div class="autocomplete-items" id="agendaProfissionalList"></div>
+        </div>
+      </div>
+      <div class="calendar" id="calendar"></div>
+      <div class="time-grid" id="timeGrid"></div>
+      <div style="margin-top:10px;">
+        <label><input type="checkbox" id="recorrencia"> Recorrência semanal</label>
+      </div>
+      <button onclick="salvarAgendamento()">Salvar Agendamento</button>
+    </div>
 
-function toggleAuthMode() {
-    authMode = (authMode === 'login') ? 'register' : 'login';
-    document.getElementById('authTitle').textContent = (authMode === 'login') ? 'Login' : 'Registro';
-    document.getElementById('authActionBtn').textContent = (authMode === 'login') ? 'Entrar' : 'Registrar';
-    document.getElementById('authMsg').textContent = '';
-}
+    <!-- Pacientes -->
+    <div id="pacientes" class="page">
+      <h3>Pacientes</h3>
+      <button class="btn btn-add" onclick="addPaciente()">Novo Paciente</button>
+      <table id="pacientesTable">
+        <thead><tr><th>Nome</th><th>Email</th><th>Telefone</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-function login() {
-    const email = document.getElementById('authEmail').value.trim();
-    const password = document.getElementById('authPassword').value;
-    try {
-        if (authMode === 'login') {
-            const users = JSON.parse(localStorage.getItem('users')) || {};
-            if (users[email] && users[email] === password) {
-                currentUser = email;
-                localStorage.setItem('currentUser', email);
-                closeAuthModal();
-                updateAuthUI();
-            } else {
-                document.getElementById('authMsg').textContent = 'Email ou senha incorretos.';
-            }
-        } else {
-            const users = JSON.parse(localStorage.getItem('users')) || {};
-            if (users[email]) {
-                document.getElementById('authMsg').textContent = 'Email já cadastrado.';
-            } else if (email && password) {
-                users[email] = password;
-                localStorage.setItem('users', JSON.stringify(users));
-                currentUser = email;
-                localStorage.setItem('currentUser', email);
-                closeAuthModal();
-                updateAuthUI();
-            } else {
-                document.getElementById('authMsg').textContent = 'Preencha todos os campos.';
-            }
-        }
-    } catch (e) {
-        document.getElementById('authMsg').textContent = 'Erro: ' + e.message;
+    <!-- Profissionais -->
+    <div id="profissionais" class="page">
+      <h3>Profissionais</h3>
+      <button class="btn btn-add" onclick="addProfissional()">Novo Profissional</button>
+      <table id="profissionaisTable">
+        <thead><tr><th>Nome</th><th>Especialidade</th><th>Email</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Financeiro -->
+    <div id="financeiro" class="page">
+      <h3>Financeiro</h3>
+      <div style="display:flex; gap:20px;">
+        <div style="flex:1;">
+          <h4>Receitas</h4>
+          <p>R$ 52.000</p>
+        </div>
+        <div style="flex:1;">
+          <h4>Despesas</h4>
+          <p>R$ 18.500</p>
+        </div>
+      </div>
+      <div class="chart-box" style="margin-top:20px;">
+        <h3>Gráfico Pareto</h3>
+        <canvas id="paretoChart" width="400" height="200"></canvas>
+      </div>
+      <div class="ia-analysis">
+        <h4>Análise IA</h4>
+        <p>A receita aumentou 12% em relação ao mês anterior. Despesas com fornecedores estão 20% acima do esperado.</p>
+      </div>
+    </div>
+
+    <!-- Configuração -->
+    <div id="config" class="page">
+      <h3>Configuração</h3>
+      <h4>Dados da Clínica</h4>
+      <input type="text" id="cfgNome" placeholder="Nome da Clínica">
+      <input type="text" id="cfgEndereco" placeholder="Endereço">
+      <input type="text" id="cfgTelefone" placeholder="Telefone">
+      <h4>Horários Pré-definidos</h4>
+      <div id="horariosContainer"></div>
+      <button onclick="salvarConfig()">Salvar</button>
+    </div>
+  </div>
+
+  <!-- Drawer Paciente -->
+  <div id="pacienteDrawer" class="drawer">
+    <div class="drawer-header">
+      <h3>Detalhes do Paciente</h3>
+      <span class="drawer-close" onclick="closeDrawer()">&times;</span>
+    </div>
+    <div class="drawer-tabs">
+      <div class="drawer-tab active" onclick="switchDrawerTab('dados')">Dados</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('prontuarios')">Prontuários</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('evolucao')">Evolução</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('doc1')">Atestados</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('doc2')">Receitas</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('doc3')">Exames</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('doc4')">Contratos</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('doc5')">Relatórios</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('doc6')">Outros</div>
+    </div>
+    <div id="drawer-dados" class="drawer-content active">
+      <input type="text" id="editPacienteNome" placeholder="Nome">
+      <input type="email" id="editPacienteEmail" placeholder="Email">
+      <input type="text" id="editPacienteTelefone" placeholder="Telefone">
+      <button onclick="salvarPaciente()">Salvar</button>
+    </div>
+    <div id="drawer-prontuarios" class="drawer-content">
+      <textarea class="folha-texto" id="prontuarioTexto" placeholder="Escreva o prontuário..."></textarea>
+      <button onclick="salvarProntuario()">Salvar Prontuário</button>
+    </div>
+    <div id="drawer-evolucao" class="drawer-content">
+      <p>Análise de Evolução com IA</p>
+      <div class="ia-analysis" id="evolucaoIa">Carregando análise...</div>
+      <canvas id="evolucaoChart" width="300" height="150"></canvas>
+    </div>
+    <div id="drawer-doc1" class="drawer-content">
+      <textarea class="folha-texto" id="doc1Texto" placeholder="Modelo de Atestado..."></textarea>
+      <button class="btn btn-impressao" onclick="imprimirPDF('doc1Texto')">Imprimir</button>
+    </div>
+    <div id="drawer-doc2" class="drawer-content">
+      <textarea class="folha-texto" id="doc2Texto" placeholder="Modelo de Receita..."></textarea>
+      <button class="btn btn-impressao" onclick="imprimirPDF('doc2Texto')">Imprimir</button>
+    </div>
+    <div id="drawer-doc3" class="drawer-content">
+      <textarea class="folha-texto" id="doc3Texto" placeholder="Modelo de Exame..."></textarea>
+      <button class="btn btn-impressao" onclick="imprimirPDF('doc3Texto')">Imprimir</button>
+    </div>
+    <div id="drawer-doc4" class="drawer-content">
+      <textarea class="folha-texto" id="doc4Texto" placeholder="Modelo de Contrato..."></textarea>
+      <button class="btn btn-impressao" onclick="imprimirPDF('doc4Texto')">Imprimir</button>
+    </div>
+    <div id="drawer-doc5" class="drawer-content">
+      <textarea class="folha-texto" id="doc5Texto" placeholder="Modelo de Relatório..."></textarea>
+      <button class="btn btn-impressao" onclick="imprimirPDF('doc5Texto')">Imprimir</button>
+    </div>
+    <div id="drawer-doc6" class="drawer-content">
+      <textarea class="folha-texto" id="doc6Texto" placeholder="Modelo de Documento..."></textarea>
+      <button class="btn btn-impressao" onclick="imprimirPDF('doc6Texto')">Imprimir</button>
+    </div>
+  </div>
+
+  <script>
+    // Dados mockados
+    let pacientes = [
+      {id: 1, nome: 'Maria Silva', email: 'maria@email.com', telefone: '11999999999'},
+      {id: 2, nome: 'João Santos', email: 'joao@email.com', telefone: '11988888888'}
+    ];
+    let profissionais = [
+      {id: 1, nome: 'Dr. Carlos', especialidade: 'Cardiologia', email: 'carlos@email.com'}
+    ];
+    let currentPacienteId = null;
+    let currentUser = null;
+
+    // Autenticação
+    function showRegister() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('loginError').innerText = '';
     }
-}
-
-function logout() {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    updateAuthUI();
-}
-
-function updateAuthUI() {
-    const btn = document.getElementById('authBtn');
-    if (currentUser) {
-        btn.textContent = 'Sair';
-        btn.onclick = logout;
-    } else {
-        btn.textContent = 'Login';
-        btn.onclick = openAuthModal;
+    function showLogin() {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('regError').innerText = '';
     }
-}
-
-// Sidebar navigation
-document.querySelectorAll('.menu-item').forEach(item => {
-    item.addEventListener('click', function() {
-        document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-        this.classList.add('active');
-        const section = this.dataset.section;
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(section).classList.add('active');
-        document.getElementById('sectionTitle').textContent = this.textContent;
-        if (section === 'dashboard') updateDashboard();
-        if (section === 'pacientes') renderPacientes();
-        if (section === 'profissionais') renderProfissionais();
-        if (section === 'financeiro') renderPareto();
-        if (section === 'agenda') renderConsultas();
-    });
-});
-
-// Dashboard
-function updateDashboard() {
-    document.getElementById('totalPacientes').textContent = pacientes.length;
-    document.getElementById('totalProfissionais').textContent = profissionais.length;
-    const hoje = new Date().toLocaleDateString('pt-BR');
-    const consultasHoje = consultas.filter(c => c.data === hoje).length;
-    document.getElementById('consultasHoje').textContent = consultasHoje;
-    // Faturamento simulado
-    const fat = consultas.reduce((sum, c) => sum + (c.valor || 0), 0);
-    document.getElementById('faturamentoMes').textContent = 'R$ ' + fat.toFixed(2).replace('.', ',');
-}
-
-// Pacientes CRUD
-function renderPacientes() {
-    const container = document.getElementById('pacientesLista');
-    container.innerHTML = '';
-    pacientes.forEach((p, index) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<strong>${p.nome}</strong> - ${p.telefone} <button onclick="editarPaciente(${index})">Editar</button> <button onclick="excluirPaciente(${index})">Excluir</button>`;
-        container.appendChild(card);
-    });
-}
-
-function abrirDrawerPaciente() {
-    currentPacienteId = null;
-    document.getElementById('drawerTitle').textContent = 'Novo Paciente';
-    document.getElementById('pacNome').value = '';
-    document.getElementById('pacCpf').value = '';
-    document.getElementById('pacDataNasc').value = '';
-    document.getElementById('pacTelefone').value = '';
-    document.getElementById('pacEmail').value = '';
-    document.getElementById('drawerPaciente').style.display = 'flex';
-    // Reset tabs
-    document.querySelectorAll('#pacienteTabs .tab').forEach((t,i) => {
-        t.classList.toggle('active', i===0);
-        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-        document.getElementById('tab-dados-pessoais').classList.add('active');
-    });
-}
-
-function editarPaciente(index) {
-    const p = pacientes[index];
-    currentPacienteId = index;
-    document.getElementById('drawerTitle').textContent = 'Editar Paciente';
-    document.getElementById('pacNome').value = p.nome;
-    document.getElementById('pacCpf').value = p.cpf;
-    document.getElementById('pacDataNasc').value = p.dataNasc;
-    document.getElementById('pacTelefone').value = p.telefone;
-    document.getElementById('pacEmail').value = p.email;
-    document.getElementById('drawerPaciente').style.display = 'flex';
-}
-
-function salvarPaciente() {
-    const nome = document.getElementById('pacNome').value.trim();
-    const cpf = document.getElementById('pacCpf').value.trim();
-    const dataNasc = document.getElementById('pacDataNasc').value;
-    const telefone = document.getElementById('pacTelefone').value.trim();
-    const email = document.getElementById('pacEmail').value.trim();
-    if (!nome) { alert('Nome é obrigatório'); return; }
-    try {
-        if (currentPacienteId === null) {
-            pacientes.push({ nome, cpf, dataNasc, telefone, email });
-        } else {
-            pacientes[currentPacienteId] = { ...pacientes[currentPacienteId], nome, cpf, dataNasc, telefone, email };
-        }
-        localStorage.setItem('pacientes', JSON.stringify(pacientes));
-        fecharDrawerPaciente();
-        renderPacientes();
-        updatePacientesAutocomplete();
-        updateDashboard();
-    } catch (e) {
-        alert('Erro ao salvar: ' + e.message);
+    function register() {
+      try {
+        const nome = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const role = document.getElementById('regRole').value;
+        if (!nome || !email || !password) { throw new Error('Preencha todos os campos'); }
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (users.find(u => u.email === email)) { throw new Error('Email já registrado'); }
+        users.push({nome, email, password, role});
+        localStorage.setItem('users', JSON.stringify(users));
+        showLogin();
+        document.getElementById('loginError').innerText = 'Registro realizado com sucesso! Faça login.';
+      } catch (e) {
+        document.getElementById('regError').innerText = e.message;
+      }
     }
-}
-
-function excluirPaciente(index) {
-    if (confirm('Excluir paciente?')) {
-        pacientes.splice(index, 1);
-        localStorage.setItem('pacientes', JSON.stringify(pacientes));
-        renderPacientes();
-        updatePacientesAutocomplete();
-        updateDashboard();
+    function login() {
+      try {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const user = users.find(u => u.email === email && u.password === password);
+        if (!user) { throw new Error('Email ou senha inválidos'); }
+        currentUser = user;
+        document.getElementById('authContainer').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        initApp();
+      } catch (e) {
+        document.getElementById('loginError').innerText = e.message;
+      }
     }
-}
 
-function fecharDrawerPaciente() {
-    document.getElementById('drawerPaciente').style.display = 'none';
-}
+    // Inicialização do App
+    function initApp() {
+      renderPacientes();
+      renderProfissionais();
+      renderCalendar();
+      renderTimeGrid();
+      renderHorarios();
+      drawFatChart();
+      drawParetoChart();
+      document.getElementById('cfgNome').value = 'Clínica ATIVAMENTE+';
+      document.getElementById('cfgEndereco').value = 'Rua Exemplo, 123';
+      document.getElementById('cfgTelefone').value = '(11) 99999-9999';
+    }
 
-// Tabs paciente
-document.querySelectorAll('#pacienteTabs .tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-        document.querySelectorAll('#pacienteTabs .tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-        document.getElementById('tab-' + this.dataset.tab).classList.add('active');
-    });
-});
+    // Abas
+    function switchTab(tabId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+    }
 
-// IA Evolução
-function gerarEvolucaoIA() {
-    const prontuario = pacientes[currentPacienteId] ? JSON.stringify(pacientes[currentPacienteId]) : 'Paciente não selecionado';
-    // Simulação de IA
-    const evolucao = 'Paciente apresenta melhora significativa. Baseado no prontuário: ' + prontuario;
-    document.getElementById('iaResultado').textContent = evolucao;
-}
+    // Pacientes CRUD
+    function renderPacientes() {
+      const tbody = document.querySelector('#pacientesTable tbody');
+      tbody.innerHTML = '';
+      pacientes.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.nome}</td><td>${p.email}</td><td>${p.telefone}</td>
+          <td>
+            <button class="btn btn-edit" onclick="editPaciente(${p.id})">Editar</button>
+            <button class="btn btn-delete" onclick="deletePaciente(${p.id})">Excluir</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function addPaciente() {
+      currentPacienteId = null;
+      document.getElementById('editPacienteNome').value = '';
+      document.getElementById('editPacienteEmail').value = '';
+      document.getElementById('editPacienteTelefone').value = '';
+      document.getElementById('pacienteDrawer').classList.add('open');
+      switchDrawerTab('dados');
+    }
+    function editPaciente(id) {
+      currentPacienteId = id;
+      const p = pacientes.find(p => p.id === id);
+      document.getElementById('editPacienteNome').value = p.nome;
+      document.getElementById('editPacienteEmail').value = p.email;
+      document.getElementById('editPacienteTelefone').value = p.telefone;
+      document.getElementById('pacienteDrawer').classList.add('open');
+      switchDrawerTab('dados');
+    }
+    function deletePaciente(id) {
+      pacientes = pacientes.filter(p => p.id !== id);
+      renderPacientes();
+    }
+    function salvarPaciente() {
+      const nome = document.getElementById('editPacienteNome').value;
+      const email = document.getElementById('editPacienteEmail').value;
+      const telefone = document.getElementById('editPacienteTelefone').value;
+      if (currentPacienteId) {
+        const p = pacientes.find(p => p.id === currentPacienteId);
+        p.nome = nome; p.email = email; p.telefone = telefone;
+      } else {
+        const newId = pacientes.length ? Math.max(...pacientes.map(p => p.id)) + 1 : 1;
+        pacientes.push({id: newId, nome, email, telefone});
+      }
+      renderPacientes();
+      closeDrawer();
+    }
 
-// Profissionais CRUD
-function renderProfissionais() {
-    const container = document.getElementById('profissionaisLista');
-    container.innerHTML = '';
-    profissionais.forEach((p, index) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<strong>${p.nome}</strong> - ${p.especialidade} <button onclick="editarProfissional(${index})">Editar</button> <button onclick="excluirProfissional(${index})">Excluir</button>`;
-        container.appendChild(card);
-    });
-}
-
-function abrirModalProfissional() {
-    document.getElementById('modalProfTitle').textContent = 'Novo Profissional';
-    document.getElementById('profNome').value = '';
-    document.getElementById('profEspecialidade').value = '';
-    document.getElementById('profRegistro').value = '';
-    document.getElementById('profTelefone').value = '';
-    document.getElementById('profEmail').value = '';
-    document.getElementById('modalProfissional').style.display = 'flex';
-}
-
-function editarProfissional(index) {
-    const p = profissionais[index];
-    document.getElementById('modalProfTitle').textContent = 'Editar Profissional';
-    document.getElementById('profNome').value = p.nome;
-    document.getElementById('profEspecialidade').value = p.especialidade;
-    document.getElementById('profRegistro').value = p.registro;
-    document.getElementById('profTelefone').value = p.telefone;
-    document.getElementById('profEmail').value = p.email;
-    document.getElementById('modalProfissional').style.display = 'flex';
-}
-
-function salvarProfissional() {
-    const nome = document.getElementById('profNome').value.trim();
-    const especialidade = document.getElementById('profEspecialidade').value.trim();
-    const registro = document.getElementById('profRegistro').value.trim();
-    const telefone = document.getElementById('profTelefone').value.trim();
-    const email = document.getElementById('profEmail').value.trim();
-    if (!nome) { alert('Nome é obrigatório'); return; }
-    try {
-        if (document.getElementById('modalProfTitle').textContent === 'Novo Profissional') {
-            profissionais.push({ nome, especialidade, registro, telefone, email });
-        } else {
-            // Editar: encontrar indice
-            const index = profissionais.findIndex(p => p.nome === nome && p.email === email);
-            if (index !== -1) {
-                profissionais[index] = { nome, especialidade, registro, telefone, email };
-            }
-        }
-        localStorage.setItem('profissionais', JSON.stringify(profissionais));
-        fecharModalProfissional();
+    // Profissionais CRUD
+    function renderProfissionais() {
+      const tbody = document.querySelector('#profissionaisTable tbody');
+      tbody.innerHTML = '';
+      profissionais.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.nome}</td><td>${p.especialidade}</td><td>${p.email}</td>
+          <td>
+            <button class="btn btn-edit" onclick="editProfissional(${p.id})">Editar</button>
+            <button class="btn btn-delete" onclick="deleteProfissional(${p.id})">Excluir</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function addProfissional() {
+      const nome = prompt('Nome:');
+      const especialidade = prompt('Especialidade:');
+      const email = prompt('Email:');
+      if (nome && especialidade && email) {
+        const newId = profissionais.length ? Math.max(...profissionais.map(p => p.id)) + 1 : 1;
+        profissionais.push({id: newId, nome, especialidade, email});
         renderProfissionais();
-        updateDashboard();
-    } catch (e) {
-        alert('Erro ao salvar: ' + e.message);
+      }
     }
-}
-
-function excluirProfissional(index) {
-    if (confirm('Excluir profissional?')) {
-        profissionais.splice(index, 1);
-        localStorage.setItem('profissionais', JSON.stringify(profissionais));
+    function editProfissional(id) {
+      const p = profissionais.find(p => p.id === id);
+      const nome = prompt('Nome:', p.nome);
+      const especialidade = prompt('Especialidade:', p.especialidade);
+      const email = prompt('Email:', p.email);
+      if (nome && especialidade && email) {
+        p.nome = nome; p.especialidade = especialidade; p.email = email;
         renderProfissionais();
-        updateDashboard();
+      }
     }
-}
+    function deleteProfissional(id) {
+      profissionais = profissionais.filter(p => p.id !== id);
+      renderProfissionais();
+    }
 
-function fecharModalProfissional() {
-    document.getElementById('modalProfissional').style.display = 'none';
-}
-
-// Agenda
-function changeMonth(delta) {
-    selectedDate.setMonth(selectedDate.getMonth() + delta);
-    renderCalendar();
-}
-
-function renderCalendar() {
-    const year = selectedDate.getFullYear();
-    const month = selectedDate.getMonth();
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    document.getElementById('monthYear').textContent = monthNames[month] + ' ' + year;
-    const container = document.getElementById('calendarDays');
-    container.innerHTML = '';
-    for (let i = 0; i < firstDay; i++) {
+    // Autocomplete
+    function autocomplete(input, listType) {
+      const itemsList = listType === 'pacientes' ? pacientes : profissionais;
+      const val = input.value.toLowerCase();
+      const container = input.nextElementSibling;
+      container.innerHTML = '';
+      if (!val) return;
+      const filtered = itemsList.filter(item => item.nome.toLowerCase().includes(val));
+      filtered.forEach(item => {
         const div = document.createElement('div');
-        div.className = 'calendar-day empty';
+        div.textContent = item.nome;
+        div.onclick = function() { input.value = item.nome; container.innerHTML = ''; };
         container.appendChild(div);
+      });
     }
-    for (let day = 1; day <= daysInMonth; day++) {
+
+    // Calendário
+    function renderCalendar() {
+      const calendar = document.getElementById('calendar');
+      calendar.innerHTML = '';
+      const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+      days.forEach(d => {
         const div = document.createElement('div');
         div.className = 'calendar-day';
-        div.textContent = day;
-        div.dataset.date = `${day}/${month+1}/${year}`;
-        div.addEventListener('click', function() {
-            document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedDate = new Date(year, month, day);
-            renderConsultas();
-        });
+        div.textContent = d;
+        calendar.appendChild(div);
+      });
+      for (let i=1; i<=30; i++) {
+        const div = document.createElement('div');
+        div.className = 'calendar-day' + (i===15?' appointed':'') + (i===10?' confirmed':'') + (i===5?' cancelled':'');
+        div.textContent = i;
+        div.onclick = function() { document.querySelectorAll('.calendar-day').forEach(d => d.style.border='none'); this.style.border='2px solid var(--orange)'; };
+        calendar.appendChild(div);
+      }
+    }
+
+    // Grade de horários
+    function renderTimeGrid() {
+      const grid = document.getElementById('timeGrid');
+      grid.innerHTML = '';
+      const horarios = ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+      horarios.forEach(h => {
+        const div = document.createElement('div');
+        div.className = 'time-slot';
+        div.textContent = h;
+        div.onclick = function() { this.classList.toggle('selected'); };
+        grid.appendChild(div);
+      });
+    }
+
+    // Salvar agendamento (simples)
+    function salvarAgendamento() {
+      alert('Agendamento salvo com sucesso!');
+    }
+
+    // Drawer Paciente
+    function closeDrawer() {
+      document.getElementById('pacienteDrawer').classList.remove('open');
+    }
+    function switchDrawerTab(tabId) {
+      document.querySelectorAll('.drawer-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('drawer-' + tabId).classList.add('active');
+      document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      if (tabId === 'evolucao') {
+        analisarEvolucao();
+      }
+    }
+
+    // Prontuários
+    function salvarProntuario() {
+      const texto = document.getElementById('prontuarioTexto').value;
+      alert('Prontuário salvo!');
+    }
+
+    // Evolução com IA
+    function analisarEvolucao() {
+      const iaDiv = document.getElementById('evolucaoIa');
+      iaDiv.innerHTML = 'Análise: Paciente apresenta melhora no quadro, com redução de sintomas. Recomenda-se continuar tratamento.';
+      const ctx = document.getElementById('evolucaoChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan','Fev','Mar','Abr','Mai','Jun'],
+          datasets: [{
+            label: 'Progresso',
+            data: [30, 40, 55, 70, 85, 95],
+            borderColor: '#00C2B8',
+            fill: false
+          }]
+        },
+        options: { responsive: true }
+      });
+    }
+
+    // Documentos e Impressão
+    function imprimirPDF(textareaId) {
+      const text = document.getElementById(textareaId).value;
+      const win = window.open('', '', 'width=800,height=600');
+      win.document.write('<html><head><style>body{font-family:Poppins;padding:40px;}</style></head><body>');
+      win.document.write('<p>' + text.replace(/\n/g, '<br>') + '</p>');
+      win.document.write('</body></html>');
+      win.document.close();
+      win.print();
+    }
+
+    // Configuração
+    function renderHorarios() {
+      const container = document.getElementById('horariosContainer');
+      container.innerHTML = '';
+      const dias = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+      dias.forEach(d => {
+        const div = document.createElement('div');
+        div.innerHTML = `<label>${d}: <input type="time" value="08:00"> - <input type="time" value="18:00"></label><br>`;
         container.appendChild(div);
+      });
     }
-}
-
-function selectTime(el) {
-    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedTime = el.textContent;
-}
-
-function agendarConsulta() {
-    if (!currentUser) { alert('Faça login primeiro.'); return; }
-    const paciente = document.getElementById('pacienteAgenda').value.trim();
-    if (!paciente || !selectedTime) { alert('Selecione paciente e horário.'); return; }
-    try {
-        const consulta = {
-            id: Date.now(),
-            paciente,
-            data: selectedDate.toLocaleDateString('pt-BR'),
-            hora: selectedTime,
-            recorrencia: document.getElementById('recorrencia').value,
-            valor: 150 // valor fixo simulado
-        };
-        consultas.push(consulta);
-        localStorage.setItem('consultas', JSON.stringify(consultas));
-        renderConsultas();
-        updateDashboard();
-        document.getElementById('pacienteAgenda').value = '';
-        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-        selectedTime = null;
-    } catch (e) {
-        alert('Erro ao agendar: ' + e.message);
+    function salvarConfig() {
+      alert('Configurações salvas!');
     }
-}
 
-function renderConsultas() {
-    const container = document.getElementById('consultasList');
-    container.innerHTML = '';
-    const dataStr = selectedDate.toLocaleDateString('pt-BR');
-    const consultasDia = consultas.filter(c => c.data === dataStr);
-    if (consultasDia.length === 0) {
-        container.innerHTML = '<p>Nenhuma consulta neste dia.</p>';
-    } else {
-        consultasDia.forEach(c => {
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.innerHTML = `${c.hora} - ${c.paciente} <button onclick="cancelarConsulta(${c.id})">Cancelar</button>`;
-            container.appendChild(div);
-        });
+    // Gráficos usando Chart.js (CDN)
+    function drawFatChart() {
+      const ctx = document.getElementById('fatChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Jan','Fev','Mar','Abr','Mai','Jun'],
+          datasets: [{
+            label: 'Faturamento',
+            data: [40000, 45000, 42000, 48000, 50000, 45200],
+            backgroundColor: '#FF6B4A'
+          }]
+        },
+        options: { responsive: true }
+      });
     }
-}
-
-function cancelarConsulta(id) {
-    consultas = consultas.filter(c => c.id !== id);
-    localStorage.setItem('consultas', JSON.stringify(consultas));
-    renderConsultas();
-    updateDashboard();
-}
-
-function updatePacientesAutocomplete() {
-    const datalist = document.getElementById('pacientesList');
-    datalist.innerHTML = '';
-    pacientes.forEach(p => {
-        const option = document.createElement('option');
-        option.value = p.nome;
-        datalist.appendChild(option);
-    });
-}
-
-// Financeiro
-function renderPareto() {
-    // Simular dados dos últimos 6 meses
-    const meses = ['Jan','Fev','Mar','Abr','Mai','Jun'];
-    const valores = [8000, 12000, 9500, 11000, 14000, 10500];
-    const max = Math.max(...valores);
-    const container = document.getElementById('paretoChart');
-    container.innerHTML = '';
-    valores.forEach((v, index) => {
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        bar.style.height = (v / max * 200) + 'px';
-        bar.textContent = meses[index] + '\nR$' + v.toLocaleString('pt-BR');
-        container.appendChild(bar);
-    });
-}
-
-function analisarIAFinanceiro() {
-    // Simulação de análise IA
-    const analise = 'Análise: O mês com maior faturamento foi Maio. Sugere-se focar em marketing para manter a tendência.';
-    document.getElementById('iaFinanceiroResultado').textContent = analise;
-}
-
-// Inicialização
-init();
-
-// Fechar modais ao clicar fora
-document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.style.display = 'none';
-        }
-    });
-});
-</script>
+    function drawParetoChart() {
+      const ctx = document.getElementById('paretoChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Serviços','Produtos','Consultas','Exames','Outros'],
+          datasets: [{
+            label: 'Acumulado',
+            data: [40, 25, 20, 10, 5],
+            borderColor: '#0B2D4F',
+            fill: false
+          }]
+        },
+        options: { responsive: true }
+      });
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
