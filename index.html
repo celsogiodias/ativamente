@@ -57,7 +57,15 @@
 <div id="app"></div>
 <script>
 const APP = {
-    db: { users: [], patients: [], professionals: [], appointments: [], transactions: [], clinic: { name: '', cnpj: '', address: '', phone: '' }, schedule: [] },
+    db: { 
+        users: [], 
+        patients: [], 
+        professionals: [], 
+        appointments: [], 
+        transactions: [], 
+        clinic: { name: '', cnpj: '', address: '', phone: '' }, 
+        schedule: [] 
+    },
     currentUser: null,
     currentView: 'dashboard',
     currentPatient: null,
@@ -69,7 +77,14 @@ const APP = {
         this.loadData();
         const storedUser = localStorage.getItem('loggedUser');
         if (storedUser) {
-            this.currentUser = JSON.parse(storedUser);
+            try {
+                this.currentUser = JSON.parse(storedUser);
+            } catch (e) {
+                console.error('Erro ao parsear usuário salvo:', e);
+                this.currentUser = null;
+            }
+        }
+        if (this.currentUser) {
             this.renderApp();
         } else {
             this.renderLogin();
@@ -79,36 +94,47 @@ const APP = {
     loadData() {
         const stored = localStorage.getItem('ativamenteDB');
         if (stored) {
-            this.db = JSON.parse(stored);
+            try {
+                this.db = JSON.parse(stored);
+                // Garantir que todos os arrays existam
+                this.db.users = this.db.users || [];
+                this.db.patients = this.db.patients || [];
+                this.db.professionals = this.db.professionals || [];
+                this.db.appointments = this.db.appointments || [];
+                this.db.transactions = this.db.transactions || [];
+                this.db.clinic = this.db.clinic || { name: '', cnpj: '', address: '', phone: '' };
+                this.db.schedule = this.db.schedule || [];
+            } catch (e) {
+                console.error('Erro ao carregar dados do localStorage:', e);
+                this.initDefaults();
+            }
         } else {
-            this.db.users = [
-                { id: 1, name: 'Admin', email: 'admin@clinica.com', password: 'admin123', role: 'Admin' },
-                { id: 2, name: 'Psicologo', email: 'psi@clinica.com', password: 'psi123', role: 'Psicologo' }
-            ];
-            this.db.clinic = { name: 'ATIVAMENTE+ CLINIC', cnpj: '', address: '', phone: '' };
-            this.db.schedule = ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00'];
-            this.db.professionals = [
-                { id: 1, name: 'Dr. João', cpf: '000.000.000-01', birth: '1980-01-01', register: 'CRP 01/12345', specialty: 'Psicologia', phone: '(11) 99999-0001', email: 'joao@clinica.com' },
-                { id: 2, name: 'Dra. Maria', cpf: '000.000.000-02', birth: '1985-05-05', register: 'CRM 12345', specialty: 'Medicina', phone: '(11) 99999-0002', email: 'maria@clinica.com' }
-            ];
-            this.db.patients = [
-                { id: 1, name: 'Ana Souza', cpf: '111.111.111-11', birth: '1990-02-15', phone: '(11) 98888-1111', email: 'ana@email.com', address: 'Rua A, 100', guardian: '', professionalId: 1, history: '', records: '', evolutions: [], documents: [], payments: [], attachments: [], observations: '' },
-                { id: 2, name: 'Carlos Lima', cpf: '222.222.222-22', birth: '2010-07-20', phone: '(11) 97777-2222', email: 'carlos@email.com', address: 'Rua B, 200', guardian: 'Maria Lima', professionalId: 2, history: '', records: '', evolutions: [], documents: [], payments: [], attachments: [], observations: '' }
-            ];
-            this.db.appointments = [
-                { id: 1, patientId: 1, professionalId: 1, date: '2025-04-15', time: '10:00', status: 'confirmed', value: 200, payment: 'Pix', recurring: false, createdBy: 1 },
-                { id: 2, patientId: 2, professionalId: 2, date: '2025-04-16', time: '14:00', status: 'pending', value: 150, payment: 'Dinheiro', recurring: false, createdBy: 2 }
-            ];
-            this.db.transactions = [
-                { id: 1, type: 'receita', description: 'Consulta Ana', value: 200, date: '2025-04-15' },
-                { id: 2, type: 'despesa', description: 'Aluguel', value: 3000, date: '2025-04-01' }
-            ];
-            this.saveData();
+            this.initDefaults();
         }
     },
 
+    initDefaults() {
+        this.db = {
+            users: [
+                { id: 1, name: 'Admin', email: 'admin@clinica.com', password: 'admin123', role: 'Admin' },
+                { id: 2, name: 'Psicologo', email: 'psi@clinica.com', password: 'psi123', role: 'Psicologo' }
+            ],
+            patients: [],
+            professionals: [],
+            appointments: [],
+            transactions: [],
+            clinic: { name: 'ATIVAMENTE+ CLINIC', cnpj: '', address: '', phone: '' },
+            schedule: ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00']
+        };
+        this.saveData();
+    },
+
     saveData() {
-        localStorage.setItem('ativamenteDB', JSON.stringify(this.db));
+        try {
+            localStorage.setItem('ativamenteDB', JSON.stringify(this.db));
+        } catch (e) {
+            console.error('Erro ao salvar dados:', e);
+        }
     },
 
     renderLogin() {
@@ -128,23 +154,26 @@ const APP = {
                 </div>
             </div>
         `;
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const user = this.db.users.find(u => u.email === email && u.password === password);
-            if (user) {
-                this.currentUser = user;
-                localStorage.setItem('loggedUser', JSON.stringify(user));
-                this.renderApp();
-            } else {
-                alert('Credenciais inválidas');
-            }
-        });
-        document.getElementById('goToRegister').addEventListener('click', (e) => {
-            e.preventDefault();
-            this.renderRegister();
-        });
+        const form = document.getElementById('loginForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail')?.value?.trim() || '';
+                const password = document.getElementById('loginPassword')?.value?.trim() || '';
+                if (!email || !password) {
+                    alert('Por favor, preencha todos os campos');
+                    return;
+                }
+                const user = this.db.users?.find(u => u.email === email && u.password === password);
+                if (user) {
+                    this.currentUser = user;
+                    localStorage.setItem('loggedUser', JSON.stringify(this.currentUser));
+                    this.renderApp();
+                } else {
+                    alert('Credenciais inválidas');
+                }
+            });
+        }
     },
 
     renderRegister() {
@@ -176,30 +205,48 @@ const APP = {
                 </div>
             </div>
         `;
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const role = document.getElementById('regRole').value;
-            const newUser = { id: Date.now(), name, email, password, role };
-            this.db.users.push(newUser);
-            this.saveData();
-            alert('Registrado com sucesso! Faça login.');
-            this.renderLogin();
-        });
-        document.getElementById('goToLogin').addEventListener('click', (e) => {
+        const form = document.getElementById('registerForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('regName')?.value?.trim() || '';
+                const email = document.getElementById('regEmail')?.value?.trim() || '';
+                const password = document.getElementById('regPassword')?.value?.trim() || '';
+                const role = document.getElementById('regRole')?.value || '';
+                if (!name || !email || !password || !role) {
+                    alert('Por favor, preencha todos os campos');
+                    return;
+                }
+                const exists = this.db.users?.some(u => u.email === email);
+                if (exists) {
+                    alert('Email já cadastrado');
+                    return;
+                }
+                const newUser = { 
+                    id: Date.now(), 
+                    name, 
+                    email, 
+                    password, 
+                    role 
+                };
+                this.db.users.push(newUser);
+                this.saveData();
+                alert('Registrado com sucesso! Faça login.');
+                this.renderLogin();
+            });
+        }
+        document.getElementById('goToLogin')?.addEventListener('click', (e) => {
             e.preventDefault();
             this.renderLogin();
         });
     },
 
     renderApp() {
-        const isAdmin = this.currentUser.role === 'Admin';
+        const isAdmin = this.currentUser?.role === 'Admin';
         document.getElementById('app').innerHTML = `
             <div id="sidebar">
                 <h2>ATIVAMENTE+</h2>
-                <span style="color:#ff7d00;">Olá, ${this.currentUser.name}</span>
+                <span style="color:#ff7d00;">Olá, ${this.currentUser?.name || 'Usuário'}</span>
                 <a class="menu-item active" data-view="dashboard">Dashboard</a>
                 <a class="menu-item" data-view="agenda">Agenda</a>
                 <a class="menu-item" data-view="pacientes">Pacientes</a>
@@ -223,7 +270,7 @@ const APP = {
                 this.renderView();
             });
         });
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
             localStorage.removeItem('loggedUser');
             this.currentUser = null;
             this.renderLogin();
@@ -234,6 +281,7 @@ const APP = {
     renderView() {
         const viewTitle = document.getElementById('viewTitle');
         const content = document.getElementById('content');
+        if (!viewTitle || !content) return;
         switch(this.currentView) {
             case 'dashboard':
                 viewTitle.textContent = 'Dashboard';
@@ -265,18 +313,18 @@ const APP = {
     },
 
     renderDashboard(container) {
-        const patients = this.db.patients.length;
-        const appointments = this.db.appointments.length;
-        const professionals = this.db.professionals.length;
-        const receitas = this.db.transactions.filter(t => t.type === 'receita').reduce((s,t) => s + t.value, 0);
-        const despesas = this.db.transactions.filter(t => t.type === 'despesa').reduce((s,t) => s + t.value, 0);
+        if (!container) return;
+        const patients = this.db.patients?.length || 0;
+        const appointments = this.db.appointments?.length || 0;
+        const professionals = this.db.professionals?.length || 0;
+        const receitas = this.db.transactions?.filter(t => t.type === 'receita')?.reduce((s,t) => s + (t.value || 0), 0) || 0;
+        const despesas = this.db.transactions?.filter(t => t.type === 'despesa')?.reduce((s,t) => s + (t.value || 0), 0) || 0;
         container.innerHTML = `
             <div class="grid">
                 <div class="card"><h3>Total Pacientes</h3><p>${patients}</p></div>
                 <div class="card"><h3>Total Consultas</h3><p>${appointments}</p></div>
                 <div class="card"><h3>Total Profissionais</h3><p>${professionals}</p></div>
-                <div. 
-        <div class="card"><h3>Receitas</h3><p>R$ ${receitas.toFixed(2)}</p></div>
+                <div class="card"><h3>Receitas</h3><p>R$ ${receitas.toFixed(2)}</p></div>
                 <div class="card"><h3>Despesas</h3><p>R$ ${despesas.toFixed(2)}</p></div>
             </div>
             <div class="card">
@@ -286,29 +334,34 @@ const APP = {
         `;
         const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
         const counts = Array(12).fill(0);
-        this.db.appointments.forEach(a => {
-            const m = new Date(a.date).getMonth();
-            counts[m]++;
+        this.db.appointments?.forEach(a => {
+            const m = new Date(a.date)?.getMonth();
+            if (m !== undefined && m !== null && !isNaN(m)) {
+                counts[m] = (counts[m] || 0) + 1;
+            }
         });
         const canvas = document.getElementById('chartConsultas');
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        const barWidth = 30;
-        const gap = 10;
-        const startX = 30;
-        const maxVal = Math.max(...counts,1);
-        counts.forEach((val,i) => {
-            const x = startX + i * (barWidth + gap);
-            const h = (val / maxVal) * 150;
-            ctx.fillStyle = '#ff7d00';
-            ctx.fillRect(x, 180 - h, barWidth, h);
-            ctx.fillStyle = '#1a3a5e';
-            ctx.fillText(months[i], x, 195);
-            ctx.fillText(val, x, 170 - h);
-        });
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            const barWidth = 30;
+            const gap = 10;
+            const startX = 30;
+            const maxVal = Math.max(...counts,1);
+            counts.forEach((val,i) => {
+                const x = startX + i * (barWidth + gap);
+                const h = (val / maxVal) * 150;
+                ctx.fillStyle = '#ff7d00';
+                ctx.fillRect(x, 180 - h, barWidth, h);
+                ctx.fillStyle = '#1a3a5e';
+                ctx.fillText(months[i], x, 195);
+                ctx.fillText(val, x, 170 - h);
+            });
+        }
     },
 
     renderAgenda(container) {
+        if (!container) return;
         const month = this.calendarMonth;
         const year = this.calendarYear;
         const firstDay = new Date(year, month, 1).getDay();
@@ -336,10 +389,10 @@ const APP = {
         for (let day = 1; day <= daysInMonth; day++) {
             const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
             const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-            const events = this.db.appointments.filter(a => a.date === dateStr);
+            const events = this.db.appointments?.filter(a => a.date === dateStr) || [];
             let eventsHtml = '';
             events.forEach(e => {
-                const patient = this.db.patients.find(p => p.id === e.patientId);
+                const patient = this.db.patients?.find(p => p.id === e.patientId);
                 const name = patient ? patient.name : 'Desconhecido';
                 const statusClass = e.status === 'confirmed' ? 'event-confirmed' : e.status === 'canceled' ? 'event-canceled' : 'event-pending';
                 eventsHtml += `<div class="event ${statusClass}">${e.time} ${name}</div>`;
@@ -354,12 +407,12 @@ const APP = {
                 if (date) this.openAppointmentModal(date);
             });
         });
-        document.getElementById('prevMonth').addEventListener('click', () => {
+        document.getElementById('prevMonth')?.addEventListener('click', () => {
             this.calendarMonth--;
             if (this.calendarMonth < 0) { this.calendarMonth = 11; this.calendarYear--; }
             this.renderAgenda(container);
         });
-        document.getElementById('nextMonth').addEventListener('click', () => {
+        document.getElementById('nextMonth')?.addEventListener('click', () => {
             this.calendarMonth++;
             if (this.calendarMonth > 11) { this.calendarMonth = 0; this.calendarYear++; }
             this.renderAgenda(container);
@@ -369,9 +422,9 @@ const APP = {
     openAppointmentModal(date, editAppointment = null) {
         const isEdit = editAppointment !== null;
         const title = isEdit ? 'Editar Consulta' : 'Nova Consulta';
-        const patients = this.db.patients.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-        const professionals = this.db.professionals.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-        const times = this.db.schedule.map(t => `<option value="${t}">${t}</option>`).join('');
+        const patients = this.db.patients?.map(p => `<option value="${p.id}">${p.name}</option>`).join('') || '<option value="">Nenhum paciente</option>';
+        const professionals = this.db.professionals?.map(p => `<option value="${p.id}">${p.name}</option>`).join('') || '<option value="">Nenhum profissional</option>';
+        const times = this.db.schedule?.map(t => `<option value="${t}">${t}</option>`).join('') || '<option value="">Nenhum horário</option>';
         const statuses = ['confirmed','canceled','pending'].map(s => `<option value="${s}" ${editAppointment && editAppointment.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
         const payments = ['Pix','Dinheiro','Cartao'].map(p => `<option value="${p}" ${editAppointment && editAppointment.payment === p ? 'selected' : ''}>${p}</option>`).join('');
         const modalHtml = `
@@ -404,41 +457,58 @@ const APP = {
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        document.getElementById('appointmentForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const data = {
-                patientId: parseInt(document.getElementById('appPatient').value),
-                professionalId: parseInt(document.getElementById('appProfessional').value),
-                date: document.getElementById('appDate').value,
-                time: document.getElementById('appTime').value,
-                status: document.getElementById('appStatus').value,
-                value: parseFloat(document.getElementById('appValue').value) || 0,
-                payment: document.getElementById('appPayment').value,
-                recurring: document.getElementById('appRecurring').checked,
-                createdBy: this.currentUser.id
-            };
-            if (isEdit) {
-                const idx = this.db.appointments.findIndex(a => a.id === editAppointment.id);
-                this.db.appointments[idx] = { ...this.db.appointments[idx], ...data };
-            } else {
-                data.id = Date.now();
-                this.db.appointments.push(data);
-            }
-            this.saveData();
-            this.closeModal('appointmentModal');
-            this.renderView();
-        });
+        const form = document.getElementById('appointmentForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const patientId = parseInt(document.getElementById('appPatient')?.value) || 0;
+                const professionalId = parseInt(document.getElementById('appProfessional')?.value) || 0;
+                const dateVal = document.getElementById('appDate')?.value || '';
+                const timeVal = document.getElementById('appTime')?.value || '';
+                const statusVal = document.getElementById('appStatus')?.value || '';
+                const valueVal = parseFloat(document.getElementById('appValue')?.value) || 0;
+                const paymentVal = document.getElementById('appPayment')?.value || '';
+                const recurringVal = document.getElementById('appRecurring')?.checked || false;
+                if (!patientId || !professionalId || !dateVal || !timeVal) {
+                    alert('Por favor, preencha todos os campos obrigatórios');
+                    return;
+                }
+                const data = {
+                    patientId,
+                    professionalId,
+                    date: dateVal,
+                    time: timeVal,
+                    status: statusVal,
+                    value: valueVal,
+                    payment: paymentVal,
+                    recurring: recurringVal,
+                    createdBy: this.currentUser?.id || 0
+                };
+                if (isEdit) {
+                    const idx = this.db.appointments?.findIndex(a => a.id === editAppointment.id);
+                    if (idx !== -1) {
+                        this.db.appointments[idx] = { ...this.db.appointments[idx], ...data };
+                    }
+                } else {
+                    data.id = Date.now();
+                    this.db.appointments.push(data);
+                }
+                this.saveData();
+                this.closeModal('appointmentModal');
+                this.renderView();
+            });
+        }
     },
 
     deleteAppointment(id) {
         if (!confirm('Excluir consulta?')) return;
-        const appointment = this.db.appointments.find(a => a.id === id);
+        const appointment = this.db.appointments?.find(a => a.id === id);
         if (!appointment) return;
-        if (appointment.createdBy !== this.currentUser.id && this.currentUser.role !== 'Admin') {
+        if (appointment.createdBy !== this.currentUser?.id && this.currentUser?.role !== 'Admin') {
             alert('Você não tem permissão para excluir esta consulta.');
             return;
         }
-        this.db.appointments = this.db.appointments.filter(a => a.id !== id);
+        this.db.appointments = this.db.appointments?.filter(a => a.id !== id) || [];
         this.saveData();
         this.closeModal('appointmentModal');
         this.renderView();
@@ -450,10 +520,11 @@ const APP = {
     },
 
     renderPacientes(container) {
-        const isAdmin = this.currentUser.role === 'Admin';
-        let patients = this.db.patients;
+        if (!container) return;
+        const isAdmin = this.currentUser?.role === 'Admin';
+        let patients = this.db.patients || [];
         if (!isAdmin) {
-            patients = patients.filter(p => p.professionalId === this.currentUser.id);
+            patients = patients.filter(p => p.professionalId === this.currentUser?.id);
         }
         let html = `
             <button class="btn btn-orange" id="newPatientBtn">Novo Paciente</button>
@@ -466,14 +537,14 @@ const APP = {
         });
         html += '</tbody></table>';
         container.innerHTML = html;
-        document.getElementById('newPatientBtn').addEventListener('click', () => this.openPatientForm(null));
+        document.getElementById('newPatientBtn')?.addEventListener('click', () => this.openPatientForm(null));
     },
 
     openPatientDrawer(patientId) {
-        const patient = this.db.patients.find(p => p.id === patientId);
+        const patient = this.db.patients?.find(p => p.id === patientId);
         if (!patient) return;
         this.currentPatient = patient;
-        const isPsychologist = this.currentUser.role === 'Psicologo';
+        const isPsychologist = this.currentUser?.role === 'Psicologo';
         let tabsHtml = `
             <div class="tabs">
                 <span class="tab active" data-tab="dados">Dados</span>
@@ -511,6 +582,7 @@ const APP = {
         const patient = this.currentPatient;
         if (!patient) return;
         const container = document.getElementById('tabContent');
+        if (!container) return;
         let html = '';
         switch(tab) {
             case 'dados':
@@ -554,9 +626,11 @@ const APP = {
         const patient = this.currentPatient;
         if (patient) {
             patient[field] = value;
-            const idx = this.db.patients.findIndex(p => p.id === patient.id);
-            this.db.patients[idx] = patient;
-            this.saveData();
+            const idx = this.db.patients?.findIndex(p => p.id === patient.id);
+            if (idx !== -1) {
+                this.db.patients[idx] = patient;
+                this.saveData();
+            }
         }
     },
 
@@ -614,16 +688,20 @@ const APP = {
         }, 0);
         document.getElementById('evolutionForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            const data = {
-                date: document.getElementById('evoDate').value,
-                score: parseInt(document.getElementById('evoScore').value),
-                summary: document.getElementById('evoSummary').value
-            };
+            const dateVal = document.getElementById('evoDate')?.value || '';
+            const scoreVal = parseInt(document.getElementById('evoScore')?.value) || 0;
+            const summaryVal = document.getElementById('evoSummary')?.value || '';
+            if (!dateVal || isNaN(scoreVal)) {
+                alert('Por favor, preencha data e score válidos');
+                return;
+            }
             if (!patient.evolutions) patient.evolutions = [];
-            patient.evolutions.push(data);
-            const idx = this.db.patients.findIndex(p => p.id === patient.id);
-            this.db.patients[idx] = patient;
-            this.saveData();
+            patient.evolutions.push({ date: dateVal, score: scoreVal, summary: summaryVal });
+            const idx = this.db.patients?.findIndex(p => p.id === patient.id);
+            if (idx !== -1) {
+                this.db.patients[idx] = patient;
+                this.saveData();
+            }
             this.renderPatientTab('evolucao');
         });
         return html;
@@ -651,16 +729,21 @@ const APP = {
         html += '</ul>';
         document.getElementById('documentForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            const doc = {
-                type: document.getElementById('docType').value,
-                content: document.getElementById('docContent').value,
-                date: document.getElementById('docDate').value
-            };
+            const typeVal = document.getElementById('docType')?.value || '';
+            const contentVal = document.getElementById('docContent')?.value || '';
+            const dateVal = document.getElementById('docDate')?.value || '';
+            if (!typeVal || !contentVal || !dateVal) {
+                alert('Por favor, preencha todos os campos do documento');
+                return;
+            }
+            const doc = { type: typeVal, content: contentVal, date: dateVal };
             if (!patient.documents) patient.documents = [];
             patient.documents.push(doc);
-            const idx = this.db.patients.findIndex(p => p.id === patient.id);
-            this.db.patients[idx] = patient;
-            this.saveData();
+            const idx = this.db.patients?.findIndex(p => p.id === patient.id);
+            if (idx !== -1) {
+                this.db.patients[idx] = patient;
+                this.saveData();
+            }
             this.renderPatientTab('documentos');
         });
         return html;
@@ -668,11 +751,15 @@ const APP = {
 
     deleteDocument(index) {
         const patient = this.currentPatient;
-        patient.documents.splice(index, 1);
-        const idx = this.db.patients.findIndex(p => p.id === patient.id);
-        this.db.patients[idx] = patient;
-        this.saveData();
-        this.renderPatientTab('documentos');
+        if (patient && patient.documents) {
+            patient.documents.splice(index, 1);
+            const idx = this.db.patients?.findIndex(p => p.id === patient.id);
+            if (idx !== -1) {
+                this.db.patients[idx] = patient;
+                this.saveData();
+            }
+            this.renderPatientTab('documentos');
+        }
     },
 
     renderPagamentos(patient) {
@@ -696,16 +783,21 @@ const APP = {
         html += '</ul>';
         document.getElementById('paymentForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            const payment = {
-                date: document.getElementById('payDate').value,
-                value: parseFloat(document.getElementById('payValue').value),
-                method: document.getElementById('payMethod').value
-            };
+            const dateVal = document.getElementById('payDate')?.value || '';
+            const valueVal = parseFloat(document.getElementById('payValue')?.value) || 0;
+            const methodVal = document.getElementById('payMethod')?.value || '';
+            if (!dateVal || isNaN(valueVal) || !methodVal) {
+                alert('Por favor, preencha todos os campos do pagamento');
+                return;
+            }
+            const payment = { date: dateVal, value: valueVal, method: methodVal };
             if (!patient.payments) patient.payments = [];
             patient.payments.push(payment);
-            const idx = this.db.patients.findIndex(p => p.id === patient.id);
-            this.db.patients[idx] = patient;
-            this.saveData();
+            const idx = this.db.patients?.findIndex(p => p.id === patient.id);
+            if (idx !== -1) {
+                this.db.patients[idx] = patient;
+                this.saveData();
+            }
             this.renderPatientTab('pagamentos');
         });
         return html;
@@ -713,11 +805,15 @@ const APP = {
 
     deletePayment(index) {
         const patient = this.currentPatient;
-        patient.payments.splice(index, 1);
-        const idx = this.db.patients.findIndex(p => p.id === patient.id);
-        this.db.patients[idx] = patient;
-        this.saveData();
-        this.renderPatientTab('pagamentos');
+        if (patient && patient.payments) {
+            patient.payments.splice(index, 1);
+            const idx = this.db.patients?.findIndex(p => p.id === patient.id);
+            if (idx !== -1) {
+                this.db.patients[idx] = patient;
+                this.saveData();
+            }
+            this.renderPatientTab('pagamentos');
+        }
     },
 
     renderAnexos(patient) {
@@ -738,27 +834,35 @@ const APP = {
         const file = event.target.files[0];
         if (file) {
             const patient = this.currentPatient;
-            if (!patient.attachments) patient.attachments = [];
-            patient.attachments.push({ name: file.name });
-            const idx = this.db.patients.findIndex(p => p.id === patient.id);
-            this.db.patients[idx] = patient;
-            this.saveData();
-            this.renderPatientTab('anexos');
+            if (patient && !patient.attachments) patient.attachments = [];
+            if (patient) {
+                patient.attachments.push({ name: file.name });
+                const idx = this.db.patients?.findIndex(p => p.id === patient.id);
+                if (idx !== -1) {
+                    this.db.patients[idx] = patient;
+                    this.saveData();
+                }
+                this.renderPatientTab('anexos');
+            }
         }
     },
 
     deleteAttachment(index) {
         const patient = this.currentPatient;
-        patient.attachments.splice(index, 1);
-        const idx = this.db.patients.findIndex(p => p.id === patient.id);
-        this.db.patients[idx] = patient;
-        this.saveData();
-        this.renderPatientTab('anexos');
+        if (patient && patient.attachments) {
+            patient.attachments.splice(index, 1);
+            const idx = this.db.patients?.findIndex(p => p.id === patient.id);
+            if (idx !== -1) {
+                this.db.patients[idx] = patient;
+                this.saveData();
+            }
+            this.renderPatientTab('anexos');
+        }
     },
 
     openPatientForm(patientId) {
         const isEdit = patientId !== null;
-        const patient = isEdit ? this.db.patients.find(p => p.id === patientId) : null;
+        const patient = isEdit ? this.db.patients?.find(p => p.id === patientId) : null;
         const title = isEdit ? 'Editar Paciente' : 'Novo Paciente';
         const modalHtml = `
             <div class="modal" id="patientFormModal">
@@ -791,49 +895,74 @@ const APP = {
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        document.getElementById('pBirth').addEventListener('change', function() {
-            const age = new Date().getFullYear() - new Date(this.value).getFullYear();
-            document.getElementById('guardianField').classList.toggle('hidden', age >= 18);
-        });
+        const birthInput = document.getElementById('pBirth');
+        if (birthInput) {
+            birthInput.addEventListener('change', function() {
+                const age = new Date().getFullYear() - new Date(this.value).getFullYear();
+                const guardianField = document.getElementById('guardianField');
+                if (guardianField) {
+                    guardianField.classList.toggle('hidden', age >= 18);
+                }
+            });
+        }
         if (patient && patient.birth) {
             const age = new Date().getFullYear() - new Date(patient.birth).getFullYear();
-            if (age < 18) document.getElementById('guardianField').classList.remove('hidden');
-        }
-        document.getElementById('patientForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const data = {
-                name: document.getElementById('pName').value,
-                cpf: document.getElementById('pCpf').value,
-                birth: document.getElementById('pBirth').value,
-                phone: document.getElementById('pPhone').value,
-                email: document.getElementById('pEmail').value,
-                address: document.getElementById('pAddress').value,
-                guardian: document.getElementById('pGuardian').value || '',
-                professionalId: isEdit ? patient.professionalId : this.currentUser.id
-            };
-            if (isEdit) {
-                const idx = this.db.patients.findIndex(p => p.id === patient.id);
-                this.db.patients[idx] = { ...this.db.patients[idx], ...data };
-            } else {
-                data.id = Date.now();
-                data.history = '';
-                data.records = '';
-                data.evolutions = [];
-                data.documents = [];
-                data.payments = [];
-                data.attachments = [];
-                data.observations = '';
-                this.db.patients.push(data);
+            if (age < 18) {
+                const guardianField = document.getElementById('guardianField');
+                if (guardianField) guardianField.classList.remove('hidden');
             }
-            this.saveData();
-            this.closeModal('patientFormModal');
-            this.renderView();
-        });
+        }
+        const form = document.getElementById('patientForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameVal = document.getElementById('pName')?.value?.trim() || '';
+                const cpfVal = document.getElementById('pCpf')?.value?.trim() || '';
+                const birthVal = document.getElementById('pBirth')?.value || '';
+                const phoneVal = document.getElementById('pPhone')?.value?.trim() || '';
+                const emailVal = document.getElementById('pEmail')?.value?.trim() || '';
+                const addressVal = document.getElementById('pAddress')?.value?.trim() || '';
+                const guardianVal = document.getElementById('pGuardian')?.value?.trim() || '';
+                if (!nameVal || !cpfVal || !birthVal || !phoneVal) {
+                    alert('Por favor, preencha todos os campos obrigatórios');
+                    return;
+                }
+                const data = {
+                    name: nameVal,
+                    cpf: cpfVal,
+                    birth: birthVal,
+                    phone: phoneVal,
+                    email: emailVal,
+                    address: addressVal,
+                    guardian: guardianVal,
+                    professionalId: isEdit ? patient?.professionalId : this.currentUser?.id || 0
+                };
+                if (isEdit) {
+                    const idx = this.db.patients?.findIndex(p => p.id === patient.id);
+                    if (idx !== -1) {
+                        this.db.patients[idx] = { ...this.db.patients[idx], ...data };
+                    }
+                } else {
+                    data.id = Date.now();
+                    data.history = '';
+                    data.records = '';
+                    data.evolutions = [];
+                    data.documents = [];
+                    data.payments = [];
+                    data.attachments = [];
+                    data.observations = '';
+                    this.db.patients.push(data);
+                }
+                this.saveData();
+                this.closeModal('patientFormModal');
+                this.renderView();
+            });
+        }
     },
 
     deletePatient(id) {
         if (!confirm('Excluir paciente?')) return;
-        this.db.patients = this.db.patients.filter(p => p.id !== id);
+        this.db.patients = this.db.patients?.filter(p => p.id !== id) || [];
         this.saveData();
         this.closeModal('patientFormModal');
         this.renderView();
@@ -841,12 +970,15 @@ const APP = {
 
     closeDrawer(id) {
         const drawer = document.getElementById(id);
-        if (drawer) drawer.remove();
-        this.currentPatient = null;
+        if (drawer) {
+            drawer.remove();
+            this.currentPatient = null;
+        }
     },
 
     renderProfissionais(container) {
-        if (this.currentUser.role !== 'Admin') {
+        if (!container) return;
+        if (this.currentUser?.role !== 'Admin') {
             container.innerHTML = '<p>Acesso restrito.</p>';
             return;
         }
@@ -856,17 +988,17 @@ const APP = {
                 <thead><tr><th>Nome</th><th>Registro</th><th>Especialidade</th><th>Ações</th></tr></thead>
                 <tbody>
         `;
-        this.db.professionals.forEach(p => {
+        this.db.professionals?.forEach(p => {
             html += `<tr><td>${p.name}</td><td>${p.register}</td><td>${p.specialty}</td><td><button class="btn btn-teal" onclick="APP.editProfessional(${p.id})">Editar</button> <button class="btn btn-danger" onclick="APP.deleteProfessional(${p.id})">Excluir</button></td></tr>`;
         });
         html += '</tbody></table>';
         container.innerHTML = html;
-        document.getElementById('newProfBtn').addEventListener('click', () => this.openProfessionalForm(null));
+        document.getElementById('newProfBtn')?.addEventListener('click', () => this.openProfessionalForm(null));
     },
 
     openProfessionalForm(profId) {
         const isEdit = profId !== null;
-        const prof = isEdit ? this.db.professionals.find(p => p.id === profId) : null;
+        const prof = isEdit ? this.db.professionals?.find(p => p.id === profId) : null;
         const title = isEdit ? 'Editar Profissional' : 'Novo Profissional';
         const modalHtml = `
             <div class="modal" id="profModal">
@@ -896,28 +1028,44 @@ const APP = {
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        document.getElementById('profForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const data = {
-                name: document.getElementById('profName').value,
-                cpf: document.getElementById('profCpf').value,
-                birth: document.getElementById('profBirth').value,
-                register: document.getElementById('profRegister').value,
-                specialty: document.getElementById('profSpecialty').value,
-                phone: document.getElementById('profPhone').value,
-                email: document.getElementById('profEmail').value
-            };
-            if (isEdit) {
-                const idx = this.db.professionals.findIndex(p => p.id === prof.id);
-                this.db.professionals[idx] = { ...this.db.professionals[idx], ...data };
-            } else {
-                data.id = Date.now();
-                this.db.professionals.push(data);
-            }
-            this.saveData();
-            this.closeModal('profModal');
-            this.renderView();
-        });
+        const form = document.getElementById('profForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameVal = document.getElementById('profName')?.value?.trim() || '';
+                const cpfVal = document.getElementById('profCpf')?.value?.trim() || '';
+                const birthVal = document.getElementById('profBirth')?.value || '';
+                const registerVal = document.getElementById('profRegister')?.value?.trim() || '';
+                const specialtyVal = document.getElementById('profSpecialty')?.value?.trim() || '';
+                const phoneVal = document.getElementById('profPhone')?.value?.trim() || '';
+                const emailVal = document.getElementById('profEmail')?.value?.trim() || '';
+                if (!nameVal) {
+                    alert('Por favor, preencha o nome');
+                    return;
+                }
+                const data = {
+                    name: nameVal,
+                    cpf: cpfVal,
+                    birth: birthVal,
+                    register: registerVal,
+                    specialty: specialtyVal,
+                    phone: phoneVal,
+                    email: emailVal
+                };
+                if (isEdit) {
+                    const idx = this.db.professionals?.findIndex(p => p.id === prof.id);
+                    if (idx !== -1) {
+                        this.db.professionals[idx] = { ...this.db.professionals[idx], ...data };
+                    }
+                } else {
+                    data.id = Date.now();
+                    this.db.professionals.push(data);
+                }
+                this.saveData();
+                this.closeModal('profModal');
+                this.renderView();
+            });
+        }
     },
 
     editProfessional(id) {
@@ -926,18 +1074,19 @@ const APP = {
 
     deleteProfessional(id) {
         if (!confirm('Excluir profissional?')) return;
-        this.db.professionals = this.db.professionals.filter(p => p.id !== id);
+        this.db.professionals = this.db.professionals?.filter(p => p.id !== id) || [];
         this.saveData();
         this.renderView();
     },
 
     renderFinanceiro(container) {
-        if (this.currentUser.role !== 'Admin') {
+        if (!container) return;
+        if (this.currentUser?.role !== 'Admin') {
             container.innerHTML = '<p>Acesso restrito.</p>';
             return;
         }
-        const receitas = this.db.transactions.filter(t => t.type === 'receita').reduce((s,t) => s + t.value, 0);
-        const despesas = this.db.transactions.filter(t => t.type === 'despesa').reduce((s,t) => s + t.value, 0);
+        const receitas = this.db.transactions?.filter(t => t.type === 'receita')?.reduce((s,t) => s + (t.value || 0), 0) || 0;
+        const despesas = this.db.transactions?.filter(t => t.type === 'despesa')?.reduce((s,t) => s + (t.value || 0), 0) || 0;
         let html = `
             <div class="grid">
                 <div class="card"><h3>Receitas</h3><p>R$ ${receitas.toFixed(2)}</p></div>
@@ -953,13 +1102,13 @@ const APP = {
                 <thead><tr><th>Descrição</th><th>Valor</th><th>Data</th><th>Tipo</th><th>Ações</th></tr></thead>
                 <tbody>
         `;
-        this.db.transactions.forEach(t => {
+        this.db.transactions?.forEach(t => {
             html += `<tr><td>${t.description}</td><td>R$ ${t.value.toFixed(2)}</td><td>${t.date}</td><td>${t.type}</td><td><button class="btn btn-danger" onclick="APP.deleteTransaction(${t.id})">Excluir</button></td></tr>`;
         });
         html += '</tbody></table>';
         container.innerHTML = html;
-        document.getElementById('newTransBtn').addEventListener('click', () => this.openTransactionForm(null));
-        document.getElementById('aiAnalysisBtn').addEventListener('click', () => {
+        document.getElementById('newTransBtn')?.addEventListener('click', () => this.openTransactionForm(null));
+        document.getElementById('aiAnalysisBtn')?.addEventListener('click', () => {
             const balance = receitas - despesas;
             const msg = balance >= 0 ? `Saldo positivo de R$${balance.toFixed(2)}. Continue assim!` : `Saldo negativo de R$${Math.abs(balance).toFixed(2)}. Corte despesas!`;
             alert(msg);
@@ -970,8 +1119,10 @@ const APP = {
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 const despesasAgg = {};
-                this.db.transactions.filter(t => t.type === 'despesa').forEach(t => {
-                    despesasAgg[t.description] = (despesasAgg[t.description] || 0) + t.value;
+                this.db.transactions?.filter(t => t.type === 'despesa')?.forEach(t => {
+                    const desc = t.description;
+                    const val = t.value || 0;
+                    despesasAgg[desc] = (despesasAgg[desc] || 0) + val;
                 });
                 const sorted = Object.entries(despesasAgg).sort((a,b) => b[1] - a[1]);
                 const labels = sorted.map(s => s[0]);
@@ -993,7 +1144,7 @@ const APP = {
 
     openTransactionForm(transId) {
         const isEdit = transId !== null;
-        const trans = isEdit ? this.db.transactions.find(t => t.id === transId) : null;
+        const trans = isEdit ? this.db.transactions?.find(t => t.id === transId) : null;
         const title = isEdit ? 'Editar Transação' : 'Nova Transação';
         const modalHtml = `
             <div class="modal" id="transModal">
@@ -1020,42 +1171,56 @@ const APP = {
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        document.getElementById('transForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const data = {
-                type: document.getElementById('transType').value,
-                description: document.getElementById('transDesc').value,
-                value: parseFloat(document.getElementById('transValue').value),
-                date: document.getElementById('transDate').value
-            };
-            if (isEdit) {
-                const idx = this.db.transactions.findIndex(t => t.id === trans.id);
-                this.db.transactions[idx] = { ...this.db.transactions[idx], ...data };
-            } else {
-                data.id = Date.now();
-                this.db.transactions.push(data);
-            }
-            this.saveData();
-            this.closeModal('transModal');
-            this.renderView();
-        });
+        const form = document.getElementById('transForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const typeVal = document.getElementById('transType')?.value || '';
+                const descVal = document.getElementById('transDesc')?.value?.trim() || '';
+                const valueVal = parseFloat(document.getElementById('transValue')?.value) || 0;
+                const dateVal = document.getElementById('transDate')?.value || '';
+                if (!typeVal || !descVal || isNaN(valueVal) || !dateVal) {
+                    alert('Por favor, preencha todos os campos da transação');
+                    return;
+                }
+                const data = {
+                    type: typeVal,
+                    description: descVal,
+                    value: valueVal,
+                    date: dateVal
+                };
+                if (isEdit) {
+                    const idx = this.db.transactions?.findIndex(t => t.id === trans.id);
+                    if (idx !== -1) {
+                        this.db.transactions[idx] = { ...this.db.transactions[idx], ...data };
+                    }
+                } else {
+                    data.id = Date.now();
+                    this.db.transactions.push(data);
+                }
+                this.saveData();
+                this.closeModal('transModal');
+                this.renderView();
+            });
+        }
     },
 
     deleteTransaction(id) {
         if (!confirm('Excluir transação?')) return;
-        this.db.transactions = this.db.transactions.filter(t => t.id !== id);
+        this.db.transactions = this.db.transactions?.filter(t => t.id !== id) || [];
         this.saveData();
         this.renderView();
     },
 
     renderConfiguracoes(container) {
-        if (this.currentUser.role !== 'Admin') {
+        if (!container) return;
+        if (this.currentUser?.role !== 'Admin') {
             container.innerHTML = '<p>Acesso restrito.</p>';
             return;
         }
-        const clinic = this.db.clinic;
+        const clinic = this.db.clinic || {};
         let scheduleHtml = '';
-        this.db.schedule.forEach((time, i) => {
+        this.db.schedule?.forEach((time, i) => {
             scheduleHtml += `<div class="flex"><input type="time" value="${time}" onchange="APP.updateSchedule(${i}, this.value)"><button class="btn btn-danger" onclick="APP.removeSchedule(${i})">Remover</button></div>`;
         });
         let html = `
@@ -1063,13 +1228,13 @@ const APP = {
                 <h3>Dados da Clínica</h3>
                 <form id="clinicForm">
                     <label>Nome</label>
-                    <input type="text" id="clinicName" value="${clinic.name}">
+                    <input type="text" id="clinicName" value="${clinic.name || ''}">
                     <label>CNPJ</label>
-                    <input type="text" id="clinicCnpj" value="${clinic.cnpj}">
+                    <input type="text" id="clinicCnpj" value="${clinic.cnpj || ''}">
                     <label>Endereço</label>
-                    <input type="text" id="clinicAddress" value="${clinic.address}">
+                    <input type="text" id="clinicAddress" value="${clinic.address || ''}">
                     <label>Telefone</label>
-                    <input type="text" id="clinicPhone" value="${clinic.phone}">
+                    <input type="text" id="clinicPhone" value="${clinic.phone || ''}">
                     <button type="submit" class="btn btn-teal" style="margin-top:20px;">Salvar</button>
                 </form>
             </div>
@@ -1081,13 +1246,17 @@ const APP = {
             <button class="btn btn-navy" onclick="APP.loadFakeData()">Carregar Dados Fictícios</button>
         `;
         container.innerHTML = html;
-        document.getElementById('clinicForm').addEventListener('submit', (e) => {
+        document.getElementById('clinicForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
+            const nameVal = document.getElementById('clinicName')?.value?.trim() || '';
+            const cnpjVal = document.getElementById('clinicCnpj')?.value?.trim() || '';
+            const addressVal = document.getElementById('clinicAddress')?.value?.trim() || '';
+            const phoneVal = document.getElementById('clinicPhone')?.value?.trim() || '';
             this.db.clinic = {
-                name: document.getElementById('clinicName').value,
-                cnpj: document.getElementById('clinicCnpj').value,
-                address: document.getElementById('clinicAddress').value,
-                phone: document.getElementById('clinicPhone').value
+                name: nameVal,
+                cnpj: cnpjVal,
+                address: addressVal,
+                phone: phoneVal
             };
             this.saveData();
             alert('Dados salvos!');
@@ -1095,20 +1264,26 @@ const APP = {
     },
 
     updateSchedule(index, value) {
-        this.db.schedule[index] = value;
-        this.saveData();
+        if (this.db.schedule) {
+            this.db.schedule[index] = value;
+            this.saveData();
+        }
     },
 
     removeSchedule(index) {
-        this.db.schedule.splice(index, 1);
-        this.saveData();
-        this.renderView();
+        if (this.db.schedule) {
+            this.db.schedule.splice(index, 1);
+            this.saveData();
+            this.renderView();
+        }
     },
 
     addSchedule() {
-        this.db.schedule.push('12:00');
-        this.saveData();
-        this.renderView();
+        if (this.db.schedule) {
+            this.db.schedule.push('12:00');
+            this.saveData();
+            this.renderView();
+        }
     },
 
     loadFakeData() {
