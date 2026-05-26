@@ -1,592 +1,1057 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ATIVAMENTE+ CLINIC</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-body { background: #f4f6f9; color: #00204A; display: flex; height: 100vh; }
-.sidebar { width: 260px; background: #00204A; padding: 20px; color: white; display: flex; flex-direction: column; position: fixed; height: 100%; overflow-y: auto; z-index: 1000; transition: transform 0.3s; }
-.sidebar.hidden { transform: translateX(-100%); }
-.logo { text-align: center; margin-bottom: 30px; }
-.logo .ativa { font-size: 24px; font-weight: 700; color: white; }
-.logo .mente { font-weight: 700; background: linear-gradient(45deg, #FF6B35, #008080); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.logo .clinic { font-size: 14px; letter-spacing: 2px; border-top: 1px solid #FF6B35; border-bottom: 1px solid #FF6B35; padding: 2px 0; }
-.logo .icon { font-size: 40px; margin-bottom: 5px; background: linear-gradient(45deg, #FF6B35, #008080); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.sidebar nav a { display: block; padding: 12px 15px; margin: 4px 0; border-radius: 6px; color: white; text-decoration: none; transition: background 0.2s; cursor: pointer; }
-.sidebar nav a:hover, .sidebar nav a.active { background: #FF6B35; }
-.main { margin-left: 260px; flex: 1; padding: 20px; overflow-y: auto; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.header .menu-toggle { background: none; border: none; color: #00204A; font-size: 28px; cursor: pointer; display: none; }
-@media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main { margin-left: 0; } .header .menu-toggle { display: block; } }
+body { background: #F5F5F5; }
+.login-container, .register-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #1a3a52 50%, #00A896 50%); }
+.login-box, .register-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 350px; text-align: center; }
+.login-box h1, .register-box h1 { font-size: 28px; background: linear-gradient(to right, #FF6B35, #00A896); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+.login-box h2, .register-box h2 { color: #1a3a52; font-weight: 600; margin-bottom: 20px; }
+input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+button { background: #1a3a52; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+button:hover { background: #FF6B35; }
+.link { color: #1a3a52; cursor: pointer; margin-top: 10px; display: block; }
+.error { color: red; font-size: 12px; }
+.sidebar { position: fixed; left: 0; top: 0; width: 220px; height: 100%; background: #1a3a52; color: white; padding: 20px; transition: 0.3s; z-index: 100; }
+.sidebar .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+.sidebar .logo .aplus { font-size: 36px; font-weight: 700; background: linear-gradient(to right, #FF6B35, #00A896); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.sidebar .logo h1 { font-size: 18px; color: white; font-weight: 600; }
+.sidebar nav a { display: flex; align-items: center; color: white; text-decoration: none; padding: 12px 15px; margin: 5px 0; border-radius: 6px; transition: 0.3s; font-size: 14px; }
+.sidebar nav a i { margin-right: 10px; width: 24px; text-align: center; }
+.sidebar nav a:hover, .sidebar nav a.active { background: #FF6B35; color: white; }
+.content { margin-left: 240px; padding: 20px; min-height: 100vh; }
+.page { display: none; }
+.page.active { display: block; }
+.card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+.card-title { font-size: 18px; font-weight: 600; color: #1a3a52; margin-bottom: 15px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; border-left: 4px solid #FF6B35; }
+.stat-card h3 { font-size: 24px; color: #1a3a52; }
+.stat-card p { color: #666; font-size: 14px; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+.table th { background: #1a3a52; color: white; }
+ .badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+.badge-green { background: #28a745; color: white; }
+.badge-red { background: #dc3545; color: white; }
+.badge-gray { background: #6c757d; color: white; }
+.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 2px; }
+.btn-primary { background: #1a3a52; color: white; }
+.btn-primary:hover { background: #FF6B35; }
+.btn-danger { background: #dc3545; color: white; }
+.btn-sm { padding: 4px 8px; font-size: 12px; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 200; }
+.modal.active { display: flex; }
+.modal-content { background: white; border-radius: 12px; width: 90%; max-width: 500px; padding: 20px; max-height: 80vh; overflow-y: auto; }
+.modal-content h2 { color: #1a3a52; margin-bottom: 15px; }
+.drawer { position: fixed; top: 0; right: -400px; width: 90%; max-width: 400px; height: 100%; background: white; box-shadow: -4px 0 12px rgba(0,0,0,0.2); transition: 0.3s; z-index: 150; padding: 20px; overflow-y: auto; }
+.drawer.open { right: 0; }
+.overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 140; }
+.overlay.show { display: block; }
+.tabs { display: flex; flex-wrap: wrap; border-bottom: 2px solid #eee; margin-bottom: 15px; }
+.tab-btn { padding: 10px 15px; border: none; background: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+.tab-btn.active { color: #1a3a52; border-bottom-color: #FF6B35; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-.card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-.card h3 { margin-bottom: 15px; color: #00204A; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 15px; }
-.stat { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
-.stat h4 { font-size: 14px; color: #666; }
-.stat p { font-size: 28px; font-weight: 700; color: #00204A; }
-.btn { background: #00204A; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
-.btn:hover { background: #FF6B35; }
-.btn-sm { padding: 4px 10px; font-size: 12px; }
-.btn-orange { background: #FF6B35; }
-.btn-teal { background: #008080; }
-.btn-danger { background: #c0392b; }
-input, select, textarea { width: 100%; padding: 8px; margin: 6px 0; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-label { font-weight: 600; font-size: 13px; }
-.drawer { position: fixed; top: 0; right: -100%; width: 600px; max-width: 100%; height: 100%; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1); transition: right 0.3s; padding: 20px; overflow-y: auto; z-index: 999; }
-.drawer.open { right: 0; }
-.drawer .close { float: right; font-size: 24px; cursor: pointer; }
-.tabs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
-.tabs button { background: #f0f0f0; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-.tabs button.active { background: #00204A; color: white; }
-.tab-body { margin-top: 10px; }
-.hidden { display: none; }
-.chart-placeholder { height: 200px; background: linear-gradient(135deg, #FF6B35, #008080); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.calendar-header { grid-column: 1/-1; display: flex; justify-content: space-between; align-items: center; }
+.calendar-day { border: 1px solid #eee; padding: 10px; min-height: 80px; cursor: pointer; }
+.calendar-day.today { background: #e8f0fe; }
+.calendar-day .date { font-weight: 600; }
+.calendar-day .events { font-size: 12px; }
+.autocomplete { position: relative; }
+.autocomplete-items { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; max-height: 150px; overflow-y: auto; z-index: 10; }
+.autocomplete-items div { padding: 10px; cursor: pointer; }
+.autocomplete-items div:hover { background: #f0f0f0; }
+.time-selector { display: flex; gap: 5px; flex-wrap: wrap; }
+.time-btn { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background: white; }
+.time-btn.selected { background: #1a3a52; color: white; border-color: #1a3a52; }
+.chart-container { width: 100%; height: 300px; }
+@media (max-width: 768px) {
+  .sidebar { width: 60px; }
+  .sidebar .logo h1, .sidebar nav a span { display: none; }
+  .content { margin-left: 70px; }
+  .sidebar nav a { justify-content: center; }
+  .sidebar nav a i { margin: 0; }
+}
 </style>
 </head>
 <body>
-
-<div class="sidebar" id="sidebar">
-  <div class="logo">
-    <div class="icon">A+</div>
-    <div><span class="ativa">ATIVA</span><span class="mente">MENTE+</span></div>
-    <div class="clinic">CLINIC</div>
+<!-- Login Screen -->
+<div id="loginScreen" class="login-container">
+  <div class="login-box">
+    <h1>A+</h1>
+    <h2>ATIVAMENTE+ CLINIC</h2>
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Senha" required>
+    <button onclick="login()">Entrar</button>
+    <span class="link" onclick="showRegister()">Não tem conta? Registre-se</span>
+    <div id="loginError" class="error"></div>
   </div>
-  <nav>
-    <a class="active" onclick="showTab('dashboard')">🏠 Dashboard</a>
-    <a onclick="showTab('agenda')">📅 Agenda</a>
-    <a onclick="showTab('pacientes')">👥 Pacientes</a>
-    <a onclick="showTab('profissionais')">👨‍⚕️ Profissionais</a>
-    <a onclick="showTab('financeiro')">💰 Financeiro</a>
-  </nav>
 </div>
 
-<div class="main">
-  <div class="header">
-    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-    <h2 id="titulo">Dashboard</h2>
-    <div>
-      <span id="userInfo" style="margin-right:10px;"></span>
-      <button class="btn btn-sm" onclick="logout()">Sair</button>
-    </div>
+<!-- Register Screen -->
+<div id="registerScreen" class="register-container" style="display:none;">
+  <div class="register-box">
+    <h1>A+</h1>
+    <h2>ATIVAMENTE+ CLINIC</h2>
+    <input type="text" id="regName" placeholder="Nome completo" required>
+    <input type="email" id="regEmail" placeholder="Email" required>
+    <input type="password" id="regPassword" placeholder="Senha" required>
+    <select id="regRole">
+      <option value="admin">Administrador</option>
+      <option value="profissional">Profissional</option>
+    </select>
+    <button onclick="register()">Registrar</button>
+    <span class="link" onclick="showLogin()">Já tem conta? Faça login</span>
+    <div id="registerError" class="error"></div>
   </div>
+</div>
 
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="tab-content active">
-    <div class="grid">
-      <div class="stat"><h4>Pacientes</h4><p id="qtdPacientes">0</p></div>
-      <div class="stat"><h4>Profissionais</h4><p id="qtdProfissionais">0</p></div>
-      <div class="stat"><h4>Agendamentos Próximos</h4><p id="qtdAgendamentos">0</p></div>
-      <div class="stat"><h4>Receitas do Mês</h4><p id="receitasMes">R$ 0</p></div>
+<!-- Main App -->
+<div id="app" style="display:none;">
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="aplus">A+</span>
+      <h1>ATIVAMENTE+ CLINIC</h1>
     </div>
-    <div class="card">
-      <h3>Bem-vindo(a) ao ATIVAMENTE+ CLINIC</h3>
-      <p>Selecione uma aba para gerenciar.</p>
-    </div>
-  </div>
-
-  <!-- AGENDA -->
-  <div id="agenda" class="tab-content">
-    <div class="card">
-      <h3>Agenda</h3>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="agPaciente" placeholder="Paciente (autocomplete)" list="pacientesList" style="flex:1;">
-        <datalist id="pacientesList"></datalist>
-        <input type="text" id="agProfissional" placeholder="Profissional" list="profsList" style="flex:1;">
-        <datalist id="profsList"></datalist>
-        <input type="datetime-local" id="agDataHora">
-        <select id="agStatus"><option value="Agendado">Agendado</option><option value="Confirmado">Confirmado</option><option value="Cancelado">Cancelado</option></select>
-        <button class="btn" onclick="addAgendamento()">Adicionar</button>
+    <nav>
+      <a href="#" onclick="showPage('dashboard')"><i>🏠</i><span>Dashboard</span></a>
+      <a href="#" onclick="showPage('agenda')"><i>📅</i><span>Agenda</span></a>
+      <a href="#" onclick="showPage('pacientes')"><i>👥</i><span>Pacientes</span></a>
+      <a href="#" onclick="showPage('profissionais')"><i>👨‍⚕️</i><span>Profissionais</span></a>
+      <a href="#" onclick="showPage('financeiro')"><i>💰</i><span>Financeiro</span></a>
+    </nav>
+  </aside>
+  <main class="content">
+    <!-- Dashboard -->
+    <div id="page-dashboard" class="page active">
+      <h2>Dashboard</h2>
+      <div class="grid">
+        <div class="stat-card"><h3 id="dashReceitas">R$ 0</h3><p>Receitas</p></div>
+        <div class="stat-card"><h3 id="dashPacientes">0</h3><p>Pacientes</p></div>
+        <div class="stat-card"><h3 id="dashAgendamentos">0</h3><p>Agendamentos</p></div>
+        <div class="stat-card"><h3 id="dashProfissionais">0</h3><p>Profissionais</p></div>
       </div>
-      <div id="agendaList" style="margin-top:15px;"></div>
     </div>
-  </div>
-
-  <!-- PACIENTES -->
-  <div id="pacientes" class="tab-content">
-    <div class="card">
-      <h3>Pacientes</h3>
-      <button class="btn" onclick="abrirDrawerPaciente(null)">+ Novo Paciente</button>
-      <div id="pacientesList" style="margin-top:15px;"></div>
+    <!-- Agenda -->
+    <div id="page-agenda" class="page">
+      <h2>Agenda</h2>
+      <div class="card">
+        <form id="agendaForm">
+          <div class="autocomplete">
+            <label>Paciente</label>
+            <input type="text" id="agPaciente" placeholder="Digite o nome" oninput="autocomplete(this, 'pacientes')">
+            <div class="autocomplete-items" id="agPacienteList"></div>
+          </div>
+          <div class="autocomplete">
+            <label>Profissional</label>
+            <input type="text" id="agProfissional" placeholder="Digite o nome" oninput="autocomplete(this, 'profissionais')">
+            <div class="autocomplete-items" id="agProfissionalList"></div>
+          </div>
+          <label>Data</label>
+          <input type="date" id="agData" required>
+          <label>Horário</label>
+          <div class="time-selector" id="timeSelector">
+            <!-- Horários de 8h às 18h -->
+            <span class="time-btn" onclick="selectTime(this,'08:00')">08:00</span>
+            <span class="time-btn" onclick="selectTime(this,'09:00')">09:00</span>
+            <span class="time-btn" onclick="selectTime(this,'10:00')">10:00</span>
+            <span class="time-btn" onclick="selectTime(this,'11:00')">11:00</span>
+            <span class="time-btn" onclick="selectTime(this,'12:00')">12:00</span>
+            <span class="time-btn" onclick="selectTime(this,'13:00')">13:00</span>
+            <span class="time-btn" onclick="selectTime(this,'14:00')">14:00</span>
+            <span class="time-btn" onclick="selectTime(this,'15:00')">15:00</span>
+            <span class="time-btn" onclick="selectTime(this,'16:00')">16:00</span>
+            <span class="time-btn" onclick="selectTime(this,'17:00')">17:00</span>
+          </div>
+          <input type="hidden" id="agHorario">
+          <label>Status</label>
+          <select id="agStatus">
+            <option value="agendado">Agendado</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="cancelou">Cancelou</option>
+          </select>
+          <label><input type="checkbox" id="agRecorrencia"> Recorrência semanal</label>
+          <button type="submit" class="btn btn-primary">Agendar</button>
+        </form>
+      </div>
+      <div class="card">
+        <div class="calendar-header">
+          <button onclick="mudarMes(-1)">◀</button>
+          <span id="mesAno"></span>
+          <button onclick="mudarMes(1)">▶</button>
+        </div>
+        <div class="calendar" id="calendario"></div>
+      </div>
     </div>
-    <!-- Drawer Paciente -->
-    <div class="drawer" id="drawerPaciente">
-      <span class="close" onclick="fecharDrawer('drawerPaciente')">&times;</span>
-      <h3 id="drawerTitle">Novo Paciente</h3>
-      <div class="tabs" id="pacienteTabs">
-        <button class="active" onclick="mudaAbaPaciente('dados')">Dados</button>
-        <button onclick="mudaAbaPaciente('prontuario')">Prontuário</button>
-        <button onclick="mudaAbaPaciente('evolucao')">Evolução</button>
-        <button onclick="mudaAbaPaciente('declaracao')">Declaração</button>
-        <button onclick="mudaAbaPaciente('atestado')">Atestado</button>
-        <button onclick="mudaAbaPaciente('relatorio')">Relatório</button>
-        <button onclick="mudaAbaPaciente('laudo')">Laudo</button>
-        <button onclick="mudaAbaPaciente('parecer')">Parecer</button>
-        <button onclick="mudaAbaPaciente('outros')">Outros</button>
+    <!-- Pacientes -->
+    <div id="page-pacientes" class="page">
+      <h2>Pacientes</h2>
+      <button class="btn btn-primary" onclick="abrirDrawerPaciente()">+ Novo Paciente</button>
+      <div class="card">
+        <table class="table" id="pacientesTable">
+          <thead><tr><th>Nome</th><th>Documento</th><th>Telefone</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
-      <div id="pacienteDrawerBody"></div>
     </div>
-  </div>
-
-  <!-- PROFISSIONAIS -->
-  <div id="profissionais" class="tab-content">
-    <div class="card">
-      <h3>Profissionais</h3>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="profNome" placeholder="Nome">
-        <input type="text" id="profEspecialidade" placeholder="Especialidade">
-        <input type="text" id="profTelefone" placeholder="Telefone">
-        <button class="btn" onclick="addProfissional()">Adicionar</button>
+    <!-- Profissionais -->
+    <div id="page-profissionais" class="page">
+      <h2>Profissionais</h2>
+      <button class="btn btn-primary" onclick="abrirModalProfissional()">+ Novo Profissional</button>
+      <div class="card">
+        <table class="table" id="profissionaisTable">
+          <thead><tr><th>Nome</th><th>Especialidade</th><th>Telefone</th><th>Email</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
-      <div id="profissionaisList" style="margin-top:15px;"></div>
     </div>
-  </div>
-
-  <!-- FINANCEIRO -->
-  <div id="financeiro" class="tab-content">
-    <div class="card">
-      <h3>Financeiro</h3>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <select id="finTipo"><option value="receita">Receita</option><option value="despesa">Despesa</option></select>
-        <input type="text" id="finDescricao" placeholder="Descrição">
-        <input type="number" id="finValor" placeholder="Valor" step="0.01">
-        <input type="date" id="finData">
-        <button class="btn" onclick="addFinanceiro()">Adicionar</button>
+    <!-- Financeiro -->
+    <div id="page-financeiro" class="page">
+      <h2>Financeiro</h2>
+      <div class="grid">
+        <div class="stat-card"><h3 id="finReceitas">R$ 0</h3><p>Receitas</p></div>
+        <div class="stat-card"><h3 id="finDespesas">R$ 0</h3><p>Despesas</p></div>
+        <div class="stat-card"><h3 id="finSaldo">R$ 0</h3><p>Saldo</p></div>
       </div>
-      <div class="grid" style="margin-top:15px;">
-        <div class="stat"><h4>Receitas</h4><p id="totalReceitas">R$ 0</p></div>
-        <div class="stat"><h4>Despesas</h4><p id="totalDespesas">R$ 0</p></div>
-        <div class="stat"><h4>Saldo</h4><p id="saldo">R$ 0</p></div>
+      <button class="btn btn-primary" onclick="abrirModalFinanceiro()">+ Nova Transação</button>
+      <div class="card">
+        <table class="table" id="financasTable">
+          <thead><tr><th>Descrição</th><th>Tipo</th><th>Valor</th><th>Data</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
-      <div id="financeiroList"></div>
-      <div class="card" style="margin-top:15px;">
+      <div class="card">
         <h3>Gráfico Pareto (últimos 6 meses)</h3>
-        <div class="chart-placeholder">[Gráfico aqui - Simulado]</div>
+        <canvas id="paretoChart" width="400" height="200"></canvas>
       </div>
       <div class="card">
         <h3>Análise IA</h3>
-        <p id="iaAnalysis">Gastos com materiais estão acima da média. Sugerimos revisão de fornecedores.</p>
+        <p id="iaAnalysis">Carregando análise...</p>
       </div>
     </div>
+  </main>
+</div>
+
+<!-- Modal Profissional -->
+<div id="modalProfissional" class="modal">
+  <div class="modal-content">
+    <h2 id="modalProfTitle">Novo Profissional</h2>
+    <form id="profissionalForm">
+      <input type="hidden" id="profId">
+      <input type="text" id="profNome" placeholder="Nome" required>
+      <input type="text" id="profEspecialidade" placeholder="Especialidade" required>
+      <input type="tel" id="profTelefone" placeholder="Telefone">
+      <input type="email" id="profEmail" placeholder="Email" required>
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <button type="button" class="btn" onclick="fecharModal('modalProfissional')">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Drawer Paciente -->
+<div class="overlay" id="drawerOverlay" onclick="fecharDrawerPaciente()"></div>
+<div class="drawer" id="drawerPaciente">
+  <button onclick="fecharDrawerPaciente()" style="float:right;background:none;border:none;font-size:24px;cursor:pointer;">×</button>
+  <h2 id="drawerPacienteNome">Paciente</h2>
+  <div class="tabs" id="pacienteTabs">
+    <button class="tab-btn active" onclick="abrirTabPaciente(this, 'dados')">Dados</button>
+    <button class="tab-btn" onclick="abrirTabPaciente(this, 'prontuarios')">Prontuários</button>
+    <button class="tab-btn" onclick="abrirTabPaciente(this, 'evolucao')">Evolução</button>
+    <button class="tab-btn" onclick="abrirTabPaciente(this, 'declaracao')">Declaração</button>
+    <button class="tab-btn" onclick="abrirTabPaciente(this, 'atestado')">Atestado</button>
+    <button class="tab-btn" onclick="abrirTabPaciente(this, 'relatorio')">Relatório</button>
+    <button class="tab-btn" onclick="abrirTabPaciente(this, 'relatorioMulti')">Rel. Multi</button>
+    <button class="tab-btn" onclick="abrirTabPaciente(this, 'laudo')">Laudo</button>
+    <button class="tab-btn" onclick="abrirTabPaciente(this, 'parecer')">Parecer</button>
+  </div>
+  <div id="tab-dados" class="tab-content active">
+    <form id="pacienteForm">
+      <input type="hidden" id="pacienteId">
+      <input type="text" id="pacNome" placeholder="Nome" required>
+      <input type="text" id="pacDoc" placeholder="Documento">
+      <input type="date" id="pacDataNasc">
+      <input type="tel" id="pacTelefone" placeholder="Telefone">
+      <input type="text" id="pacResponsavel" placeholder="Responsável (se menor)">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </form>
+  </div>
+  <div id="tab-prontuarios" class="tab-content">
+    <button class="btn btn-primary btn-sm" onclick="adicionarProntuario()">+ Adicionar</button>
+    <div id="prontuariosList"></div>
+  </div>
+  <div id="tab-evolucao" class="tab-content">
+    <canvas id="evolucaoChart" width="300" height="200"></canvas>
+    <div id="evolucaoTexto"></div>
+  </div>
+  <div id="tab-declaracao" class="tab-content">
+    <button class="btn btn-primary btn-sm" onclick="adicionarDocumento('declaracao')">+ Nova Declaração</button>
+    <div id="declaracoesList"></div>
+  </div>
+  <div id="tab-atestado" class="tab-content">
+    <button class="btn btn-primary btn-sm" onclick="adicionarDocumento('atestado')">+ Novo Atestado</button>
+    <div id="atestadosList"></div>
+  </div>
+  <div id="tab-relatorio" class="tab-content">
+    <button class="btn btn-primary btn-sm" onclick="adicionarDocumento('relatorio')">+ Novo Relatório</button>
+    <div id="relatoriosList"></div>
+  </div>
+  <div id="tab-relatorioMulti" class="tab-content">
+    <button class="btn btn-primary btn-sm" onclick="adicionarDocumento('relatorioMulti')">+ Novo Relatório Multi</button>
+    <div id="relatorioMultiList"></div>
+  </div>
+  <div id="tab-laudo" class="tab-content">
+    <button class="btn btn-primary btn-sm" onclick="adicionarDocumento('laudo')">+ Novo Laudo</button>
+    <div id="laudosList"></div>
+  </div>
+  <div id="tab-parecer" class="tab-content">
+    <button class="btn btn-primary btn-sm" onclick="adicionarDocumento('parecer')">+ Novo Parecer</button>
+    <div id="pareceresList"></div>
+  </div>
+</div>
+
+<!-- Modal Documento -->
+<div id="modalDocumento" class="modal">
+  <div class="modal-content">
+    <h2 id="modalDocTitle">Documento</h2>
+    <form id="documentoForm">
+      <input type="hidden" id="docId">
+      <input type="hidden" id="docTipo">
+      <label>Título</label>
+      <input type="text" id="docTitulo" required>
+      <label>Conteúdo</label>
+      <textarea id="docConteudo" rows="10" style="width:100%;padding:10px;font-family:monospace;"></textarea>
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <button type="button" class="btn" onclick="fecharModal('modalDocumento')">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Financeiro -->
+<div id="modalFinanceiro" class="modal">
+  <div class="modal-content">
+    <h2>Nova Transação</h2>
+    <form id="financeiroForm">
+      <input type="hidden" id="finId">
+      <input type="text" id="finDescricao" placeholder="Descrição" required>
+      <select id="finTipo">
+        <option value="receita">Receita</option>
+        <option value="despesa">Despesa</option>
+      </select>
+      <input type="number" id="finValor" placeholder="Valor" step="0.01" required>
+      <input type="date" id="finData" required>
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <button type="button" class="btn" onclick="fecharModal('modalFinanceiro')">Cancelar</button>
+    </form>
   </div>
 </div>
 
 <script>
-// ============ AUTENTICAÇÃO ============
-let usuarioLogado = JSON.parse(sessionStorage.getItem('userLogado'));
-if (!usuarioLogado) {
-  const tela = prompt('Deseja Registrar (R) ou Logar (L)? Digite R ou L');
-  if (tela && tela.toUpperCase() === 'R') {
-    const nome = prompt('Nome completo:');
-    const email = prompt('Email:');
-    const senha = prompt('Senha:');
-    const funcao = prompt('Função (Psicólogo, Recepcionista, Gerente):');
-    if (nome && email && senha && funcao) {
-      const users = JSON.parse(localStorage.getItem('users')||'[]');
-      users.push({nome,email,senha,funcao});
-      localStorage.setItem('users',JSON.stringify(users));
-      alert('Registrado com sucesso! Faça login.');
-    }
-  }
-  const emailLogin = prompt('Email:');
-  const senhaLogin = prompt('Senha:');
-  const users = JSON.parse(localStorage.getItem('users')||'[]');
-  const user = users.find(u => u.email===emailLogin && u.senha===senhaLogin);
-  if (user) {
-    sessionStorage.setItem('userLogado',JSON.stringify(user));
-    usuarioLogado = user;
-  } else {
-    alert('Usuário ou senha inválidos. Recarregue para tentar novamente.');
-    throw new Error('Login falhou');
-  }
-}
-document.getElementById('userInfo').textContent = usuarioLogado.nome + ' ('+usuarioLogado.funcao+')';
-
-function logout() {
-  sessionStorage.removeItem('userLogado');
-  location.reload();
-}
-
-// ============ UTILITÁRIOS ============
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-function showTab(tabId) {
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
-  document.querySelectorAll('.sidebar nav a').forEach(a=>a.classList.remove('active'));
-  document.querySelector(`.sidebar nav a[onclick*="${tabId}"]`).classList.add('active');
-  document.getElementById('titulo').textContent = tabId.charAt(0).toUpperCase() + tabId.slice(1);
-  if (tabId === 'dashboard') atualizarDashboard();
-  if (tabId === 'agenda') renderizarAgenda();
-  if (tabId === 'pacientes') renderizarPacientes();
-  if (tabId === 'profissionais') renderizarProfissionais();
-  if (tabId === 'financeiro') atualizarFinanceiro();
-}
+// ============ STORAGE ============
+const STORAGE_KEYS = {
+  users: 'ativamente_users',
+  pacientes: 'ativamente_pacientes',
+  profissionais: 'ativamente_profissionais',
+  agendamentos: 'ativamente_agendamentos',
+  financas: 'ativamente_financas',
+  currentUser: 'ativamente_currentUser'
+};
 
 function getData(key) {
-  return JSON.parse(localStorage.getItem(key)||'[]');
+  return JSON.parse(localStorage.getItem(key)) || [];
 }
 function setData(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
 }
 
+// ============ AUTH ============
+let currentUser = null;
+function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const users = getData(STORAGE_KEYS.users);
+  const user = users.find(u => u.email === email && u.password === password);
+  if (user) {
+    currentUser = user;
+    localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(user));
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  } else {
+    document.getElementById('loginError').textContent = 'Email ou senha inválidos.';
+  }
+}
+function register() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value.trim();
+  const role = document.getElementById('regRole').value;
+  if (!name || !email || !password) {
+    document.getElementById('registerError').textContent = 'Preencha todos os campos.';
+    return;
+  }
+  let users = getData(STORAGE_KEYS.users);
+  if (users.some(u => u.email === email)) {
+    document.getElementById('registerError').textContent = 'Email já registrado.';
+    return;
+  }
+  users.push({ id: Date.now(), name, email, password, role });
+  setData(STORAGE_KEYS.users, users);
+  document.getElementById('registerError').textContent = '';
+  showLogin();
+}
+function showRegister() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('registerScreen').style.display = 'flex';
+}
+function showLogin() {
+  document.getElementById('registerScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+// ============ APP INIT ============
+function initApp() {
+  showPage('dashboard');
+  renderDashboard();
+  renderCalendario();
+  renderPacientes();
+  renderProfissionais();
+  renderFinancas();
+  desenharPareto();
+  analisarIA();
+}
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+  document.querySelector(`.sidebar nav a[onclick*="${page}"]`).classList.add('active');
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'agenda') renderCalendario();
+  if (page === 'pacientes') renderPacientes();
+  if (page === 'profissionais') renderProfissionais();
+  if (page === 'financeiro') { renderFinancas(); desenharPareto(); analisarIA(); }
+}
+
 // ============ DASHBOARD ============
-function atualizarDashboard() {
-  const pacientes = getData('pacientes');
-  const profissionais = getData('profissionais');
-  const agenda = getData('agenda');
-  const financeiro = getData('financeiro');
-  document.getElementById('qtdPacientes').textContent = pacientes.length;
-  document.getElementById('qtdProfissionais').textContent = profissionais.length;
-  const proximos = agenda.filter(a => new Date(a.dataHora) > new Date());
-  document.getElementById('qtdAgendamentos').textContent = proximos.length;
-  const mesAtual = new Date().getMonth();
-  const receitas = financeiro.filter(f => f.tipo==='receita' && new Date(f.data).getMonth()===mesAtual);
-  const total = receitas.reduce((s,r)=>s+parseFloat(r.valor),0);
-  document.getElementById('receitasMes').textContent = 'R$ '+total.toFixed(2);
+function renderDashboard() {
+  const pacientes = getData(STORAGE_KEYS.pacientes);
+  const agendamentos = getData(STORAGE_KEYS.agendamentos);
+  const profissionais = getData(STORAGE_KEYS.profissionais);
+  const financas = getData(STORAGE_KEYS.financas);
+  const receitas = financas.filter(f => f.tipo === 'receita').reduce((a, b) => a + parseFloat(b.valor), 0);
+  document.getElementById('dashReceitas').textContent = 'R$ ' + receitas.toFixed(2);
+  document.getElementById('dashPacientes').textContent = pacientes.length;
+  document.getElementById('dashAgendamentos').textContent = agendamentos.length;
+  document.getElementById('dashProfissionais').textContent = profissionais.length;
 }
 
 // ============ AGENDA ============
-function renderizarAgenda() {
-  const agenda = getData('agenda');
-  const lista = document.getElementById('agendaList');
-  lista.innerHTML = '';
-  // Atualizar datalists
-  const pacientes = getData('pacientes');
-  document.getElementById('pacientesList').innerHTML = pacientes.map(p=>`<option value="${p.nome}">`).join('');
-  const profs = getData('profissionais');
-  document.getElementById('profsList').innerHTML = profs.map(p=>`<option value="${p.nome}">`).join('');
-  agenda.sort((a,b)=>new Date(a.dataHora)-new Date(b.dataHora));
-  agenda.forEach((a,i)=>{
+let mesAtual = new Date().getMonth();
+let anoAtual = new Date().getFullYear();
+
+function mudarMes(delta) {
+  mesAtual += delta;
+  if (mesAtual < 0) { mesAtual = 11; anoAtual--; }
+  if (mesAtual > 11) { mesAtual = 0; anoAtual++; }
+  renderCalendario();
+}
+
+function renderCalendario() {
+  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('mesAno').textContent = months[mesAtual] + ' ' + anoAtual;
+  const firstDay = new Date(anoAtual, mesAtual, 1).getDay();
+  const daysInMonth = new Date(anoAtual, mesAtual + 1, 0).getDate();
+  let html = '<div class="calendar-header"></div>';
+  for (let i = 0; i < firstDay; i++) { html += '<div></div>'; }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = `${anoAtual}-${String(mesAtual+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const agendamentos = getData(STORAGE_KEYS.agendamentos).filter(a => a.data === date);
+    const isToday = date === new Date().toISOString().slice(0,10);
+    html += `<div class="calendar-day ${isToday ? 'today' : ''}" onclick="mostrarAgendamentosDia('${date}')">
+      <div class="date">${d}</div>
+      <div class="events">${agendamentos.map(a => `<span class="badge badge-${statusClass(a.status)}">${a.paciente}</span>`).join('')}</div>
+    </div>`;
+  }
+  document.getElementById('calendario').innerHTML = html;
+}
+
+function statusClass(status) {
+  if (status === 'confirmado') return 'green';
+  if (status === 'cancelou') return 'red';
+  return 'gray';
+}
+
+function selectTime(btn, time) {
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('agHorario').value = time;
+}
+
+document.getElementById('agendaForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const paciente = document.getElementById('agPaciente').value.trim();
+  const profissional = document.getElementById('agProfissional').value.trim();
+  const data = document.getElementById('agData').value;
+  const horario = document.getElementById('agHorario').value;
+  const status = document.getElementById('agStatus').value;
+  const recorrencia = document.getElementById('agRecorrencia').checked;
+  if (!paciente || !profissional || !data || !horario) { alert('Preencha todos os campos'); return; }
+  let agendamentos = getData(STORAGE_KEYS.agendamentos);
+  const novo = { id: Date.now(), paciente, profissional, data, horario, status };
+  agendamentos.push(novo);
+  if (recorrencia) {
+    const diaSemana = new Date(data + 'T12:00:00').getDay();
+    for (let i = 1; i <= 8; i++) {
+      const prox = new Date(data);
+      prox.setDate(prox.getDate() + i * 7);
+      const novaData = prox.toISOString().slice(0,10);
+      agendamentos.push({ ...novo, id: Date.now() + i, data: novaData });
+    }
+  }
+  setData(STORAGE_KEYS.agendamentos, agendamentos);
+  renderCalendario();
+  this.reset();
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+});
+
+function autocomplete(input, type) {
+  const listId = input.id + 'List';
+  const list = document.getElementById(listId);
+  const val = input.value.toLowerCase();
+  let items = [];
+  if (type === 'pacientes') items = getData(STORAGE_KEYS.pacientes).map(p => p.nome);
+  else items = getData(STORAGE_KEYS.profissionais).map(p => p.nome);
+  const matches = items.filter(i => i.toLowerCase().includes(val));
+  list.innerHTML = '';
+  if (val === '' || matches.length === 0) { list.style.display = 'none'; return; }
+  list.style.display = 'block';
+  matches.forEach(m => {
     const div = document.createElement('div');
-    div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px;margin:4px 0;background:#f9f9f9;border-radius:5px;border-left:5px solid '+(a.status==='Confirmado'?'#27ae60':a.status==='Cancelado'?'#e74c3c':'#bdc3c7');
-    div.innerHTML = `<span><strong>${a.paciente}</strong> - ${a.profissional} - ${new Date(a.dataHora).toLocaleString('pt-BR')} - ${a.status}</span>
-      <div>
-        <button class="btn btn-sm btn-teal" onclick="editarAgendamento(${i})">Editar</button>
-        <button class="btn btn-sm btn-danger" onclick="excluirAgendamento(${i})">Excluir</button>
-      </div>`;
-    lista.appendChild(div);
+    div.textContent = m;
+    div.onclick = function() { input.value = m; list.style.display = 'none'; };
+    list.appendChild(div);
   });
 }
 
-function addAgendamento() {
-  const paciente = document.getElementById('agPaciente').value.trim();
-  const profissional = document.getElementById('agProfissional').value.trim();
-  const dataHora = document.getElementById('agDataHora').value;
-  const status = document.getElementById('agStatus').value;
-  if (!paciente || !profissional || !dataHora) { alert('Preencha todos os campos!'); return; }
-  const agenda = getData('agenda');
-  agenda.push({paciente,profissional,dataHora,status});
-  setData('agenda',agenda);
-  renderizarAgenda();
-  document.getElementById('agPaciente').value=''; document.getElementById('agProfissional').value=''; document.getElementById('agDataHora').value='';
-}
-
-function excluirAgendamento(index) {
-  if (!confirm('Excluir agendamento?')) return;
-  const agenda = getData('agenda');
-  agenda.splice(index,1);
-  setData('agenda',agenda);
-  renderizarAgenda();
-}
-
-function editarAgendamento(index) {
-  const agenda = getData('agenda');
-  const a = agenda[index];
-  const novaPaciente = prompt('Paciente:', a.paciente);
-  const novaProf = prompt('Profissional:', a.profissional);
-  const novaData = prompt('Data e Hora (YYYY-MM-DDTHH:mm):', a.dataHora);
-  const novoStatus = prompt('Status (Agendado, Confirmado, Cancelado):', a.status);
-  if (novaPaciente && novaProf && novaData && novoStatus) {
-    agenda[index] = {paciente:novaPaciente, profissional:novaProf, dataHora:novaData, status:novoStatus};
-    setData('agenda',agenda);
-    renderizarAgenda();
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.autocomplete')) {
+    document.querySelectorAll('.autocomplete-items').forEach(el => el.style.display = 'none');
   }
+});
+
+function mostrarAgendamentosDia(date) {
+  // Simple alert with list
+  const agendamentos = getData(STORAGE_KEYS.agendamentos).filter(a => a.data === date);
+  if (agendamentos.length === 0) { alert('Nenhum agendamento neste dia.'); return; }
+  let msg = 'Agendamentos para ' + date + ':\n';
+  agendamentos.forEach(a => { msg += a.horario + ' - ' + a.paciente + ' (' + a.status + ')\n'; });
+  alert(msg);
 }
 
 // ============ PACIENTES ============
-function renderizarPacientes() {
-  const pacientes = getData('pacientes');
-  const lista = document.getElementById('pacientesList');
-  lista.innerHTML = pacientes.map((p,i) => `<div style="display:flex;justify-content:space-between;padding:8px;margin:4px 0;background:#f9f9f9;border-radius:5px;">
-    <span><strong>${p.nome}</strong> - ${p.documento || 'Sem doc'}</span>
-    <div>
-      <button class="btn btn-sm" onclick="abrirDrawerPaciente(${i})">Abrir</button>
-      <button class="btn btn-sm btn-danger" onclick="excluirPaciente(${i})">Excluir</button>
-    </div>
-  </div>`).join('');
-  // Atualizar datalist da agenda
-  const datalist = document.getElementById('pacientesList');
-  if (datalist) datalist.innerHTML = pacientes.map(p=>`<option value="${p.nome}">`).join('');
+let pacienteAtualEditando = null;
+
+function renderPacientes() {
+  const pacientes = getData(STORAGE_KEYS.pacientes);
+  const tbody = document.querySelector('#pacientesTable tbody');
+  tbody.innerHTML = '';
+  pacientes.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p.nome}</td><td>${p.documento || ''}</td><td>${p.telefone || ''}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="abrirDrawerPaciente('${p.id}')">Abrir</button>
+      <button class="btn btn-danger btn-sm" onclick="excluirPaciente('${p.id}')">Excluir</button></td>`;
+    tbody.appendChild(tr);
+  });
 }
 
-function excluirPaciente(index) {
-  if (!confirm('Excluir paciente?')) return;
-  const pacientes = getData('pacientes');
-  pacientes.splice(index,1);
-  setData('pacientes',pacientes);
-  renderizarPacientes();
-}
-
-let pacienteEditandoIndex = null;
-
-function abrirDrawerPaciente(index) {
-  pacienteEditandoIndex = index;
-  if (index === null) {
-    document.getElementById('drawerTitle').textContent = 'Novo Paciente';
-    document.getElementById('pacienteDrawerBody').innerHTML = `
-      <div><label>Nome</label><input type="text" id="pNome" placeholder="Nome"></div>
-      <div><label>Documento</label><input type="text" id="pDoc"></div>
-      <div><label>Data de Nascimento</label><input type="date" id="pNasc"></div>
-      <div><label>Telefone</label><input type="text" id="pTel"></div>
-      <div><label>Responsável (se menor)</label><input type="text" id="pResp"></div>
-      <button class="btn" onclick="salvarPaciente()">Salvar</button>
-    `;
-    // limpa outros campos das abas
+function abrirDrawerPaciente(id = null) {
+  const overlay = document.getElementById('drawerOverlay');
+  overlay.classList.add('show');
+  const drawer = document.getElementById('drawerPaciente');
+  drawer.classList.add('open');
+  if (id) {
+    const paciente = getData(STORAGE_KEYS.pacientes).find(p => p.id.toString() === id);
+    if (paciente) {
+      document.getElementById('pacienteId').value = paciente.id;
+      document.getElementById('pacNome').value = paciente.nome;
+      document.getElementById('pacDoc').value = paciente.documento || '';
+      document.getElementById('pacDataNasc').value = paciente.dataNasc || '';
+      document.getElementById('pacTelefone').value = paciente.telefone || '';
+      document.getElementById('pacResponsavel').value = paciente.responsavel || '';
+      document.getElementById('drawerPacienteNome').textContent = paciente.nome;
+    }
   } else {
-    const pacientes = getData('pacientes');
-    const p = pacientes[index];
-    document.getElementById('drawerTitle').textContent = 'Editando: '+p.nome;
-    // Preencher dados
-    document.getElementById('pacienteDrawerBody').innerHTML = `
-      <div><label>Nome</label><input type="text" id="pNome" value="${p.nome||''}"></div>
-      <div><label>Documento</label><input type="text" id="pDoc" value="${p.documento||''}"></div>
-      <div><label>Data de Nascimento</label><input type="date" id="pNasc" value="${p.nascimento||''}"></div>
-      <div><label>Telefone</label><input type="text" id="pTel" value="${p.telefone||''}"></div>
-      <div><label>Responsável (se menor)</label><input type="text" id="pResp" value="${p.responsavel||''}"></div>
-      <button class="btn" onclick="salvarPaciente()">Salvar</button>
-    `;
-    // Outras abas com conteúdo vazio por enquanto
+    document.getElementById('pacienteForm').reset();
+    document.getElementById('pacienteId').value = '';
+    document.getElementById('drawerPacienteNome').textContent = 'Novo Paciente';
   }
-  document.getElementById('drawerPaciente').classList.add('open');
+  // Reset tabs
+  document.querySelectorAll('#pacienteTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.drawer .tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector('#pacienteTabs .tab-btn').classList.add('active');
+  document.getElementById('tab-dados').classList.add('active');
+  carregarProntuarios();
+  carregarDocumentos('declaracao');
+  carregarDocumentos('atestado');
+  carregarDocumentos('relatorio');
+  carregarDocumentos('relatorioMulti');
+  carregarDocumentos('laudo');
+  carregarDocumentos('parecer');
+  desenharEvolucao();
 }
 
-function fecharDrawer(id) {
-  document.getElementById(id).classList.remove('open');
+function fecharDrawerPaciente() {
+  document.getElementById('drawerOverlay').classList.remove('show');
+  document.getElementById('drawerPaciente').classList.remove('open');
 }
 
-function salvarPaciente() {
-  const nome = document.getElementById('pNome').value.trim();
-  if (!nome) { alert('Nome é obrigatório!'); return; }
-  const documento = document.getElementById('pDoc').value.trim();
-  const nascimento = document.getElementById('pNasc').value;
-  const telefone = document.getElementById('pTel').value.trim();
-  const responsavel = document.getElementById('pResp').value.trim();
-  const paciente = {nome,documento,nascimento,telefone,responsavel,
-    prontuarios:[], evolucao:[], declaracao:'', atestado:'', relatorioPsic:'', relatorioMulti:'', laudo:'', parecer:'', outros:''
+document.getElementById('pacienteForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('pacienteId').value;
+  const nome = document.getElementById('pacNome').value.trim();
+  if (!nome) { alert('Nome é obrigatório'); return; }
+  let pacientes = getData(STORAGE_KEYS.pacientes);
+  const data = {
+    id: id ? parseInt(id) : Date.now(),
+    nome,
+    documento: document.getElementById('pacDoc').value.trim(),
+    dataNasc: document.getElementById('pacDataNasc').value,
+    telefone: document.getElementById('pacTelefone').value.trim(),
+    responsavel: document.getElementById('pacResponsavel').value.trim()
   };
-  const pacientes = getData('pacientes');
-  if (pacienteEditandoIndex === null) {
-    pacientes.push(paciente);
+  if (id) {
+    const idx = pacientes.findIndex(p => p.id === parseInt(id));
+    if (idx !== -1) pacientes[idx] = data;
   } else {
-    // Manter outros dados que não estão no formulário
-    const antigo = pacientes[pacienteEditandoIndex];
-    paciente.prontuarios = antigo.prontuarios || [];
-    paciente.evolucao = antigo.evolucao || [];
-    paciente.declaracao = antigo.declaracao || '';
-    paciente.atestado = antigo.atestado || '';
-    paciente.relatorioPsic = antigo.relatorioPsic || '';
-    paciente.relatorioMulti = antigo.relatorioMulti || '';
-    paciente.laudo = antigo.laudo || '';
-    paciente.parecer = antigo.parecer || '';
-    paciente.outros = antigo.outros || '';
-    pacientes[pacienteEditandoIndex] = paciente;
+    pacientes.push(data);
   }
-  setData('pacientes', pacientes);
-  renderizarPacientes();
-  fecharDrawer('drawerPaciente');
+  setData(STORAGE_KEYS.pacientes, pacientes);
+  renderPacientes();
+  fecharDrawerPaciente();
+});
+
+function excluirPaciente(id) {
+  if (!confirm('Tem certeza?')) return;
+  let pacientes = getData(STORAGE_KEYS.pacientes);
+  pacientes = pacientes.filter(p => p.id.toString() !== id);
+  setData(STORAGE_KEYS.pacientes, pacientes);
+  renderPacientes();
 }
 
-function mudaAbaPaciente(aba) {
-  // Simples: mostra placeholder para cada aba
-  const body = document.getElementById('pacienteDrawerBody');
-  const paciente = pacienteEditandoIndex !== null ? getData('pacientes')[pacienteEditandoIndex] : null;
-  // Ativar botão
-  document.querySelectorAll('#pacienteTabs button').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  // Conteúdo
-  let html = '';
-  if (aba === 'dados') {
-    html = `
-      <div><label>Nome</label><input type="text" id="pNome" value="${paciente?paciente.nome:''}"></div>
-      <div><label>Documento</label><input type="text" id="pDoc" value="${paciente?paciente.documento:''}"></div>
-      <div><label>Data de Nascimento</label><input type="date" id="pNasc" value="${paciente?paciente.nascimento:''}"></div>
-      <div><label>Telefone</label><input type="text" id="pTel" value="${paciente?paciente.telefone:''}"></div>
-      <div><label>Responsável (se menor)</label><input type="text" id="pResp" value="${paciente?paciente.responsavel:''}"></div>
-      <button class="btn" onclick="salvarPaciente()">Salvar</button>
-    `;
-  } else if (aba === 'prontuario') {
-    const pro = paciente?paciente.prontuarios:[];
-    html = `<h4>Prontuários</h4>
-      <button class="btn btn-sm" onclick="adicionarProntuario(${pacienteEditandoIndex})">+ Novo</button>
-      <div id="prontuarioList">${pro.map((p,i)=>`<div>${p.data} - ${p.texto} <button onclick="editarProntuario(${pacienteEditandoIndex},${i})">Editar</button> <button onclick="excluirProntuario(${pacienteEditandoIndex},${i})">X</button></div>`).join('')}</div>`;
-  } else if (aba === 'evolucao') {
-    // Simulado IA
-    html = `<h4>Evolução</h4>
-      <div class="chart-placeholder">Gráfico de Evolução (IA)</div>
-      <p>IA: Paciente apresenta melhora significativa nas últimas sessões.</p>`;
-  } else if (aba === 'declaracao') {
-    html = `<h4>Declaração</h4><textarea rows="6" style="width:100%">${paciente?paciente.declaracao:'Modelo de declaração psicológica...'}</textarea>
-      <button class="btn btn-sm" onclick="salvarTextoDocumento('declaracao',this)">Salvar</button>`;
-  } else if (aba === 'atestado') {
-    html = `<h4>Atestado</h4><textarea rows="6" style="width:100%">${paciente?paciente.atestado:'Modelo de atestado psicológico...'}</textarea>
-      <button class="btn btn-sm" onclick="salvarTextoDocumento('atestado',this)">Salvar</button>`;
-  } else if (aba === 'relatorio') {
-    html = `<h4>Relatório Psicológico</h4><textarea rows="6" style="width:100%">${paciente?paciente.relatorioPsic:'Modelo...'}</textarea>
-      <h4>Relatório Multiprofissional</h4><textarea rows="6" style="width:100%">${paciente?paciente.relatorioMulti:'Modelo...'}</textarea>
-      <button class="btn btn-sm" onclick="salvarTextoDocumento('relatorioPsic',this)">Salvar Psicológico</button>
-      <button class="btn btn-sm" onclick="salvarTextoDocumento('relatorioMulti',this)">Salvar Multiprofissional</button>`;
-  } else if (aba === 'laudo') {
-    html = `<h4>Laudo</h4><textarea rows="6" style="width:100%">${paciente?paciente.laudo:'Modelo de laudo psicológico...'}</textarea>
-      <button class="btn btn-sm" onclick="salvarTextoDocumento('laudo',this)">Salvar</button>`;
-  } else if (aba === 'parecer') {
-    html = `<h4>Parecer</h4><textarea rows="6" style="width:100%">${paciente?paciente.parecer:'Modelo de parecer...'}</textarea>
-      <button class="btn btn-sm" onclick="salvarTextoDocumento('parecer',this)">Salvar</button>`;
-  } else if (aba === 'outros') {
-    html = `<h4>Outros Documentos</h4><textarea rows="6" style="width:100%">${paciente?paciente.outros:''}</textarea>
-      <button class="btn btn-sm" onclick="salvarTextoDocumento('outros',this)">Salvar</button>`;
-  }
-  body.innerHTML = html;
+// ============ PRONTUÁRIOS ============
+function carregarProntuarios() {
+  const id = document.getElementById('pacienteId').value;
+  if (!id) return;
+  const prontuarios = getData('ativamente_prontuarios_' + id);
+  const container = document.getElementById('prontuariosList');
+  container.innerHTML = '';
+  (prontuarios || []).forEach(p => {
+    const div = document.createElement('div');
+    div.style.cssText = 'border:1px solid #ddd;padding:10px;margin:5px 0;border-radius:6px;';
+    div.innerHTML = `<strong>${p.data}</strong><p>${p.texto}</p>
+      <button class="btn btn-primary btn-sm" onclick="editarProntuario('${p.id}')">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="excluirProntuario('${p.id}')">Excluir</button>`;
+    container.appendChild(div);
+  });
 }
 
-function salvarTextoDocumento(campo, btn) {
-  if (pacienteEditandoIndex === null) { alert('Salve o paciente primeiro.'); return; }
-  const pacientes = getData('pacientes');
-  const p = pacientes[pacienteEditandoIndex];
-  const textarea = btn.parentElement.querySelector('textarea');
-  if (textarea) p[campo] = textarea.value;
-  setData('pacientes', pacientes);
-  alert('Salvo!');
-}
-
-function adicionarProntuario(index) {
-  const texto = prompt('Texto do prontuário:');
+function adicionarProntuario() {
+  const id = document.getElementById('pacienteId').value;
+  if (!id) { alert('Salve o paciente primeiro.'); return; }
+  const texto = prompt('Digite o prontuário:');
   if (!texto) return;
-  const pacientes = getData('pacientes');
-  pacientes[index].prontuarios.push({data: new Date().toISOString().slice(0,10), texto});
-  setData('pacientes', pacientes);
-  mudaAbaPaciente('prontuario');
+  let prontuarios = getData('ativamente_prontuarios_' + id);
+  if (!prontuarios) prontuarios = [];
+  prontuarios.push({ id: Date.now(), data: new Date().toLocaleDateString(), texto });
+  setData('ativamente_prontuarios_' + id, prontuarios);
+  carregarProntuarios();
 }
 
-function editarProntuario(pacIdx, proIdx) {
-  const pacientes = getData('pacientes');
-  const novo = prompt('Novo texto:', pacientes[pacIdx].prontuarios[proIdx].texto);
-  if (novo) { pacientes[pacIdx].prontuarios[proIdx].texto = novo; setData('pacientes', pacientes); mudaAbaPaciente('prontuario'); }
+function editarProntuario(id) {
+  const pacienteId = document.getElementById('pacienteId').value;
+  let prontuarios = getData('ativamente_prontuarios_' + pacienteId);
+  const item = prontuarios.find(p => p.id.toString() === id);
+  if (!item) return;
+  const novoTexto = prompt('Editar prontuário:', item.texto);
+  if (novoTexto) { item.texto = novoTexto; setData('ativamente_prontuarios_' + pacienteId, prontuarios); carregarProntuarios(); }
 }
 
-function excluirProntuario(pacIdx, proIdx) {
-  if (!confirm('Excluir prontuário?')) return;
-  const pacientes = getData('pacientes');
-  pacientes[pacIdx].prontuarios.splice(proIdx,1);
-  setData('pacientes', pacientes);
-  mudaAbaPaciente('prontuario');
+function excluirProntuario(id) {
+  if (!confirm('Excluir?')) return;
+  const pacienteId = document.getElementById('pacienteId').value;
+  let prontuarios = getData('ativamente_prontuarios_' + pacienteId);
+  prontuarios = prontuarios.filter(p => p.id.toString() !== id);
+  setData('ativamente_prontuarios_' + pacienteId, prontuarios);
+  carregarProntuarios();
+}
+
+// ============ EVOLUÇÃO ============
+function desenharEvolucao() {
+  const pacienteId = document.getElementById('pacienteId').value;
+  if (!pacienteId) return;
+  const prontuarios = getData('ativamente_prontuarios_' + pacienteId);
+  const canvas = document.getElementById('evolucaoChart');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!prontuarios || prontuarios.length < 2) {
+    ctx.font = '14px Poppins';
+    ctx.fillText('Adicione pelo menos 2 prontuários para ver evolução.', 10, 30);
+    document.getElementById('evolucaoTexto').innerHTML = '';
+    return;
+  }
+  const labels = prontuarios.map(p => p.data);
+  const values = prontuarios.map((_, i) => i + 1); // Simples contagem
+  // Draw line
+  const max = values.length;
+  const width = canvas.width - 40;
+  const height = canvas.height - 40;
+  const stepX = width / (values.length - 1);
+  ctx.beginPath();
+  ctx.strokeStyle = '#00A896';
+  ctx.lineWidth = 3;
+  values.forEach((v, i) => {
+    const x = 20 + i * stepX;
+    const y = canvas.height - 20 - (v / max) * height;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  // IA analysis
+  const texto = prontuarios.map(p => p.texto).join(' ');
+  let analise = 'Análise da evolução: ';
+  if (texto.toLowerCase().includes('melhora') || texto.toLowerCase().includes('progresso')) {
+    analise += 'Observa-se evolução positiva no quadro do paciente.';
+  } else if (texto.toLowerCase().includes('piora') || texto.toLowerCase().includes('regressão')) {
+    analise += 'Há indícios de regressão no quadro. Sugere-se revisão do plano terapêutico.';
+  } else {
+    analise += 'Paciente apresenta quadro estável, sem mudanças significativas.';
+  }
+  document.getElementById('evolucaoTexto').innerHTML = '<p>' + analise + '</p>';
+}
+
+// ============ DOCUMENTOS (declaração, atestado, etc.) ============
+function carregarDocumentos(tipo) {
+  const pacienteId = document.getElementById('pacienteId').value;
+  if (!pacienteId) return;
+  const docs = getData('ativamente_docs_' + tipo + '_' + pacienteId);
+  const idMap = {
+    'declaracao': 'declaracoesList',
+    'atestado': 'atestadosList',
+    'relatorio': 'relatoriosList',
+    'relatorioMulti': 'relatorioMultiList',
+    'laudo': 'laudosList',
+    'parecer': 'pareceresList'
+  };
+  const container = document.getElementById(idMap[tipo]);
+  container.innerHTML = '';
+  (docs || []).forEach(d => {
+    const div = document.createElement('div');
+    div.style.cssText = 'border:1px solid #ddd;padding:10px;margin:5px 0;border-radius:6px;';
+    div.innerHTML = `<strong>${d.titulo}</strong><button class="btn btn-primary btn-sm" onclick="editarDocumento('${tipo}','${d.id}')">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="excluirDocumento('${tipo}','${d.id}')">Excluir</button>`;
+    container.appendChild(div);
+  });
+}
+
+function adicionarDocumento(tipo) {
+  const pacienteId = document.getElementById('pacienteId').value;
+  if (!pacienteId) { alert('Salve o paciente primeiro.'); return; }
+  document.getElementById('docTipo').value = tipo;
+  document.getElementById('docId').value = '';
+  document.getElementById('docTitulo').value = '';
+  document.getElementById('docConteudo').value = '';
+  document.getElementById('modalDocTitle').textContent = 'Novo ' + tipo.charAt(0).toUpperCase() + tipo.slice(1);
+  document.getElementById('modalDocumento').classList.add('active');
+}
+
+function editarDocumento(tipo, id) {
+  const pacienteId = document.getElementById('pacienteId').value;
+  const docs = getData('ativamente_docs_' + tipo + '_' + pacienteId);
+  const doc = docs.find(d => d.id.toString() === id);
+  if (!doc) return;
+  document.getElementById('docTipo').value = tipo;
+  document.getElementById('docId').value = doc.id;
+  document.getElementById('docTitulo').value = doc.titulo;
+  document.getElementById('docConteudo').value = doc.conteudo;
+  document.getElementById('modalDocTitle').textContent = 'Editar ' + tipo;
+  document.getElementById('modalDocumento').classList.add('active');
+}
+
+document.getElementById('documentoForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const pacienteId = document.getElementById('pacienteId').value;
+  const tipo = document.getElementById('docTipo').value;
+  const id = document.getElementById('docId').value;
+  const titulo = document.getElementById('docTitulo').value.trim();
+  const conteudo = document.getElementById('docConteudo').value.trim();
+  if (!titulo) { alert('Título é obrigatório'); return; }
+  let docs = getData('ativamente_docs_' + tipo + '_' + pacienteId);
+  if (!docs) docs = [];
+  if (id) {
+    const idx = docs.findIndex(d => d.id.toString() === id);
+    if (idx !== -1) docs[idx] = { ...docs[idx], titulo, conteudo };
+  } else {
+    docs.push({ id: Date.now(), titulo, conteudo });
+  }
+  setData('ativamente_docs_' + tipo + '_' + pacienteId, docs);
+  fecharModal('modalDocumento');
+  carregarDocumentos(tipo);
+});
+
+function excluirDocumento(tipo, id) {
+  if (!confirm('Excluir?')) return;
+  const pacienteId = document.getElementById('pacienteId').value;
+  let docs = getData('ativamente_docs_' + tipo + '_' + pacienteId);
+  docs = docs.filter(d => d.id.toString() !== id);
+  setData('ativamente_docs_' + tipo + '_' + pacienteId, docs);
+  carregarDocumentos(tipo);
 }
 
 // ============ PROFISSIONAIS ============
-function renderizarProfissionais() {
-  const profs = getData('profissionais');
-  const lista = document.getElementById('profissionaisList');
-  lista.innerHTML = profs.map((p,i) => `<div style="display:flex;justify-content:space-between;padding:8px;margin:4px 0;background:#f9f9f9;border-radius:5px;">
-    <span><strong>${p.nome}</strong> - ${p.especialidade} - ${p.telefone}</span>
-    <div>
-      <button class="btn btn-sm btn-orange" onclick="editarProfissional(${i})">Editar</button>
-      <button class="btn btn-sm btn-danger" onclick="excluirProfissional(${i})">Excluir</button>
-    </div>
-  </div>`).join('');
-  // Atualizar datalist da agenda
-  const datalist = document.getElementById('profsList');
-  if (datalist) datalist.innerHTML = profs.map(p=>`<option value="${p.nome}">`).join('');
+let profissionalEditando = null;
+
+function renderProfissionais() {
+  const profissionais = getData(STORAGE_KEYS.profissionais);
+  const tbody = document.querySelector('#profissionaisTable tbody');
+  tbody.innerHTML = '';
+  profissionais.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p.nome}</td><td>${p.especialidade}</td><td>${p.telefone || ''}</td><td>${p.email}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="abrirModalProfissional('${p.id}')">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="excluirProfissional('${p.id}')">Excluir</button></td>`;
+    tbody.appendChild(tr);
+  });
 }
 
-function addProfissional() {
-  const nome = document.getElementById('profNome').value.trim();
-  const especialidade = document.getElementById('profEspecialidade').value.trim();
-  const telefone = document.getElementById('profTelefone').value.trim();
-  if (!nome) { alert('Nome é obrigatório!'); return; }
-  const profs = getData('profissionais');
-  profs.push({nome, especialidade, telefone});
-  setData('profissionais', profs);
-  renderizarProfissionais();
-  document.getElementById('profNome').value=''; document.getElementById('profEspecialidade').value=''; document.getElementById('profTelefone').value='';
-}
-
-function excluirProfissional(index) {
-  if (!confirm('Excluir profissional?')) return;
-  const profs = getData('profissionais');
-  profs.splice(index,1);
-  setData('profissionais', profs);
-  renderizarProfissionais();
-}
-
-function editarProfissional(index) {
-  const profs = getData('profissionais');
-  const p = profs[index];
-  const nome = prompt('Nome:', p.nome);
-  const esp = prompt('Especialidade:', p.especialidade);
-  const tel = prompt('Telefone:', p.telefone);
-  if (nome && esp && tel) {
-    profs[index] = {nome, especialidade: esp, telefone: tel};
-    setData('profissionais', profs);
-    renderizarProfissionais();
+function abrirModalProfissional(id = null) {
+  document.getElementById('modalProfissional').classList.add('active');
+  if (id) {
+    const profissional = getData(STORAGE_KEYS.profissionais).find(p => p.id.toString() === id);
+    if (profissional) {
+      document.getElementById('profId').value = profissional.id;
+      document.getElementById('profNome').value = profissional.nome;
+      document.getElementById('profEspecialidade').value = profissional.especialidade;
+      document.getElementById('profTelefone').value = profissional.telefone || '';
+      document.getElementById('profEmail').value = profissional.email;
+      document.getElementById('modalProfTitle').textContent = 'Editar Profissional';
+    }
+  } else {
+    document.getElementById('profissionalForm').reset();
+    document.getElementById('profId').value = '';
+    document.getElementById('modalProfTitle').textContent = 'Novo Profissional';
   }
 }
 
-// ============ FINANCEIRO ============
-function atualizarFinanceiro() {
-  const fin = getData('financeiro');
-  const receitas = fin.filter(f=>f.tipo==='receita');
-  const despesas = fin.filter(f=>f.tipo==='despesa');
-  const totalRec = receitas.reduce((s,r)=>s+parseFloat(r.valor),0);
-  const totalDesp = despesas.reduce((s,d)=>s+parseFloat(d.valor),0);
-  document.getElementById('totalReceitas').textContent = 'R$ '+totalRec.toFixed(2);
-  document.getElementById('totalDespesas').textContent = 'R$ '+totalDesp.toFixed(2);
-  document.getElementById('saldo').textContent = 'R$ '+(totalRec-totalDesp).toFixed(2);
-  const lista = document.getElementById('financeiroList');
-  lista.innerHTML = fin.map((f,i) => `<div style="display:flex;justify-content:space-between;padding:4px;margin:2px 0;background:#f9f9f9;border-radius:3px;">
-    <span>${new Date(f.data).toLocaleDateString('pt-BR')} - ${f.descricao} - ${f.tipo} - R$ ${parseFloat(f.valor).toFixed(2)}</span>
-    <button class="btn btn-sm btn-danger" onclick="excluirFinanceiro(${i})">X</button>
-  </div>`).join('');
-}
-
-function addFinanceiro() {
-  const tipo = document.getElementById('finTipo').value;
-  const descricao = document.getElementById('finDescricao').value.trim();
-  const valor = document.getElementById('finValor').value;
-  const data = document.getElementById('finData').value;
-  if (!descricao || !valor || !data) { alert('Preencha todos!'); return; }
-  const fin = getData('financeiro');
-  fin.push({tipo, descricao, valor: parseFloat(valor), data});
-  setData('financeiro', fin);
-  atualizarFinanceiro();
-  document.getElementById('finDescricao').value=''; document.getElementById('finValor').value=''; document.getElementById('finData').value='';
-}
-
-function excluirFinanceiro(index) {
-  if (!confirm('Excluir?')) return;
-  const fin = getData('financeiro');
-  fin.splice(index,1);
-  setData('financeiro', fin);
-  atualizarFinanceiro();
-}
-
-// Inicializar
-document.addEventListener('DOMContentLoaded', function() {
-  atualizarDashboard();
-  renderizarAgenda();
-  renderizarPacientes();
-  renderizarProfissionais();
-  atualizarFinanceiro();
-  // Fechar drawer ao clicar fora
-  document.getElementById('drawerPaciente').addEventListener('click', function(e) {
-    if (e.target === this) fecharDrawer('drawerPaciente');
-  });
+document.getElementById('profissionalForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('profId').value;
+  const nome = document.getElementById('profNome').value.trim();
+  const especialidade = document.getElementById('profEspecialidade').value.trim();
+  const telefone = document.getElementById('profTelefone').value.trim();
+  const email = document.getElementById('profEmail').value.trim();
+  if (!nome || !especialidade || !email) { alert('Preencha campos obrigatórios'); return; }
+  let profissionais = getData(STORAGE_KEYS.profissionais);
+  const data = { id: id ? parseInt(id) : Date.now(), nome, especialidade, telefone, email };
+  if (id) {
+    const idx = profissionais.findIndex(p => p.id === parseInt(id));
+    if (idx !== -1) profissionais[idx] = data;
+  } else {
+    profissionais.push(data);
+  }
+  setData(STORAGE_KEYS.profissionais, profissionais);
+  renderProfissionais();
+  fecharModal('modalProfissional');
 });
+
+function excluirProfissional(id) {
+  if (!confirm('Tem certeza?')) return;
+  let profissionais = getData(STORAGE_KEYS.profissionais);
+  profissionais = profissionais.filter(p => p.id.toString() !== id);
+  setData(STORAGE_KEYS.profissionais, profissionais);
+  renderProfissionais();
+}
+
+// ============ FINANCEIRO ============
+function renderFinancas() {
+  const financas = getData(STORAGE_KEYS.financas);
+  const tbody = document.querySelector('#financasTable tbody');
+  tbody.innerHTML = '';
+  let receitas = 0, despesas = 0;
+  financas.forEach(f => {
+    const valor = parseFloat(f.valor);
+    if (f.tipo === 'receita') receitas += valor;
+    else despesas += valor;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${f.descricao}</td><td>${f.tipo}</td><td>R$ ${valor.toFixed(2)}</td><td>${f.data}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="abrirModalFinanceiro('${f.id}')">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="excluirFinanca('${f.id}')">Excluir</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('finReceitas').textContent = 'R$ ' + receitas.toFixed(2);
+  document.getElementById('finDespesas').textContent = 'R$ ' + despesas.toFixed(2);
+  document.getElementById('finSaldo').textContent = 'R$ ' + (receitas - despesas).toFixed(2);
+}
+
+function abrirModalFinanceiro(id = null) {
+  document.getElementById('modalFinanceiro').classList.add('active');
+  if (id) {
+    const fin = getData(STORAGE_KEYS.financas).find(f => f.id.toString() === id);
+    if (fin) {
+      document.getElementById('finId').value = fin.id;
+      document.getElementById('finDescricao').value = fin.descricao;
+      document.getElementById('finTipo').value = fin.tipo;
+      document.getElementById('finValor').value = fin.valor;
+      document.getElementById('finData').value = fin.data;
+    }
+  } else {
+    document.getElementById('financeiroForm').reset();
+    document.getElementById('finId').value = '';
+  }
+}
+
+document.getElementById('financeiroForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('finId').value;
+  const descricao = document.getElementById('finDescricao').value.trim();
+  const tipo = document.getElementById('finTipo').value;
+  const valor = parseFloat(document.getElementById('finValor').value);
+  const data = document.getElementById('finData').value;
+  if (!descricao || isNaN(valor) || !data) { alert('Preencha todos os campos'); return; }
+  let financas = getData(STORAGE_KEYS.financas);
+  const obj = { id: id ? parseInt(id) : Date.now(), descricao, tipo, valor, data };
+  if (id) {
+    const idx = financas.findIndex(f => f.id === parseInt(id));
+    if (idx !== -1) financas[idx] = obj;
+  } else {
+    financas.push(obj);
+  }
+  setData(STORAGE_KEYS.financas, financas);
+  renderFinancas();
+  desenharPareto();
+  analisarIA();
+  fecharModal('modalFinanceiro');
+});
+
+function excluirFinanca(id) {
+  if (!confirm('Excluir?')) return;
+  let financas = getData(STORAGE_KEYS.financas);
+  financas = financas.filter(f => f.id.toString() !== id);
+  setData(STORAGE_KEYS.financas, financas);
+  renderFinancas();
+  desenharPareto();
+  analisarIA();
+}
+
+// ============ PARETO CHART ============
+function desenharPareto() {
+  const canvas = document.getElementById('paretoChart');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const financas = getData(STORAGE_KEYS.financas);
+  // Aggregate last 6 months
+  const hoje = new Date();
+  const meses = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    const mes = d.toLocaleString('default', { month: 'short' });
+    const ano = d.getFullYear();
+    const chave = mes + '/' + ano;
+    meses.push({ chave, receita: 0, despesa: 0, start: d });
+  }
+  financas.forEach(f => {
+    const d = new Date(f.data + 'T12:00:00');
+    for (let m of meses) {
+      if (d >= m.start && d < new Date(m.start.getFullYear(), m.start.getMonth() + 1, 1)) {
+        if (f.tipo === 'receita') m.receita += parseFloat(f.valor);
+        else m.despesa += parseFloat(f.valor);
+        break;
+      }
+    }
+  });
+  const max = Math.max(...meses.map(m => Math.max(m.receita, m.despesa)), 1);
+  const width = canvas.width - 60;
+  const height = canvas.height - 40;
+  const barWidth = width / (meses.length * 2 + 1);
+  ctx.font = '10px Poppins';
+  meses.forEach((m, i) => {
+    const x = 30 + i * (barWidth * 2 + 5);
+    const hReceita = (m.receita / max) * height;
+    const hDespesa = (m.despesa / max) * height;
+    ctx.fillStyle = '#00A896';
+    ctx.fillRect(x, canvas.height - 30 - hReceita, barWidth, hReceita);
+    ctx.fillStyle = '#FF6B35';
+    ctx.fillRect(x + barWidth + 2, canvas.height - 30 - hDespesa, barWidth, hDespesa);
+    ctx.fillStyle = '#333';
+    ctx.fillText(m.chave, x, canvas.height - 10);
+  });
+  ctx.fillStyle = '#00A896';
+  ctx.fillRect(10, 10, 10, 10);
+  ctx.fillStyle = '#333';
+  ctx.fillText('Receita', 25, 20);
+  ctx.fillStyle = '#FF6B35';
+  ctx.fillRect(10, 25, 10, 10);
+  ctx.fillStyle = '#333';
+  ctx.fillText('Despesa', 25, 35);
+}
+
+// ============ IA ANALYSIS ============
+function analisarIA() {
+  const financas = getData(STORAGE_KEYS.financas);
+  if (financas.length === 0) {
+    document.getElementById('iaAnalysis').textContent = 'Adicione transações para análise.';
+    return;
+  }
+  const receitas = financas.filter(f => f.tipo === 'receita').reduce((a, b) => a + parseFloat(b.valor), 0);
+  const despesas = financas.filter(f => f.tipo === 'despesa').reduce((a, b) => a + parseFloat(b.valor), 0);
+  const saldo = receitas - despesas;
+  let analise = '';
+  if (receitas < despesas) {
+    analise = 'Alerta: Despesas superam receitas. Sugere-se reduzir despesas e/ou aumentar receitas.';
+  } else if (saldo > 0 && saldo < receitas * 0.2) {
+    analise = 'Fluxo positivo, mas margem baixa. Considere aumentar receitas ou controlar despesas.';
+  } else if (saldo > receitas * 0.5) {
+    analise = 'Ótima saúde financeira! Continue mantendo o fluxo.';
+  } else {
+    analise = 'Fluxo estável. Monitore para manter o equilíbrio.';
+  }
+  document.getElementById('iaAnalysis').textContent = analise;
+}
+
+// ============ TABS UTILITY ============
+function abrirTabPaciente(btn, tab) {
+  document.querySelectorAll('#pacienteTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.drawer .tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'evolucao') desenharEvolucao();
+}
+
+// ============ MODALS ============
+function fecharModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal')) {
+    e.target.classList.remove('active');
+  }
+});
+
+// ============ CHECK LOGIN ON LOAD ============
+const savedUser = localStorage.getItem(STORAGE_KEYS.currentUser);
+if (savedUser) {
+  currentUser = JSON.parse(savedUser);
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initApp();
+}
 </script>
 </body>
 </html>
