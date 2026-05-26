@@ -1,693 +1,383 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATIVAMENTE+ CLINIC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: #f4f7fc; min-height: 100vh; }
-        .hidden { display: none !important; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.3s; }
-        .btn-orange { background: #ff7d00; color: white; }
-        .btn-teal { background: #00a9a9; color: white; }
-        .btn-navy { background: #1a3a5e; color: white; }
-        .btn-outline { background: transparent; border: 2px solid #1a3a5e; color: #1a3a5e; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn:hover { opacity: 0.9; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; margin-bottom: 10px; }
-        label { font-weight: 500; display: block; margin-top: 10px; }
-        h1, h2, h3 { color: #1a3a5e; }
-        .flex { display: flex; align-items: center; gap: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 20px; }
-        #app { display: flex; min-height: 100vh; }
-        #sidebar { width: 250px; background: #1a3a5e; color: white; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
-        #sidebar h2 { color: #ff7d00; margin-bottom: 20px; }
-        #sidebar a { color: white; text-decoration: none; padding: 10px; border-radius: 8px; transition: 0.3s; cursor: pointer; display: block; }
-        #sidebar a:hover, #sidebar a.active { background: #ff7d00; }
-        #main { flex: 1; padding: 20px; overflow-y: auto; }
-        #topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; border-radius: 12px; padding: 30px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .close { font-size: 24px; cursor: pointer; }
-        .drawer { position: fixed; top: 0; right: -500px; width: 500px; height: 100%; background: white; box-shadow: -2px 0 8px rgba(0,0,0,0.2); transition: right 0.3s; z-index: 1001; overflow-y: auto; padding: 20px; }
-        .drawer.open { right: 0; }
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 2px solid #eee; }
-        .tab { padding: 10px 15px; cursor: pointer; border: none; background: none; font-weight: 500; color: #666; border-bottom: 3px solid transparent; }
-        .tab.active { color: #1a3a5e; border-bottom-color: #ff7d00; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        table { width: 100%; border-collapse: collapse; }
-        table th, table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        table th { background: #f8f9fa; font-weight: 600; }
-        table tr:hover { background: #f1f1f1; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; }
-        .calendar-day { border: 1px solid #ddd; padding: 10px; min-height: 80px; cursor: pointer; background: white; border-radius: 4px; }
-        .calendar-day.header { background: #1a3a5e; color: white; font-weight: 600; text-align: center; min-height: auto; }
-        .calendar-day.today { background: #ff7d00; color: white; }
-        .event { font-size: 11px; padding: 2px 4px; margin-top: 2px; border-radius: 4px; color: white; background: #00a9a9; }
-        @media (max-width: 768px) {
-            #sidebar { width: 100%; height: auto; }
-            #app { flex-direction: column; }
-            .drawer { width: 100%; right: -100%; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATIVAMENTE+ CLINIC</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f0f2f5; }
+#app { display: flex; min-height: 100vh; }
+#sidebar { width: 250px; background: #2c3e50; color: #ecf0f1; padding: 20px; }
+#sidebar h2 { margin-bottom: 20px; }
+#sidebar nav a { display: block; color: #ecf0f1; padding: 10px; text-decoration: none; border-radius: 4px; margin-bottom: 5px; }
+#sidebar nav a:hover { background: #34495e; }
+#main { flex: 1; padding: 20px; }
+.screen { display: none; }
+.screen.active { display: block; }
+input, select, button { padding: 8px; margin: 5px 0; border-radius: 4px; border: 1px solid #ccc; width: 100%; }
+button { background: #3498db; color: white; border: none; cursor: pointer; }
+button:hover { background: #2980b9; }
+.error { color: red; }
+.success { color: green; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+.kpi-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+.kpi-card h3 { margin-bottom: 10px; }
+.calendar { background: white; padding: 20px; border-radius: 8px; margin-top: 20px; }
+.tabs { display: flex; flex-wrap: wrap; }
+.tab-btn { background: #eee; border: 1px solid #ccc; padding: 10px 20px; cursor: pointer; margin-right: 2px; }
+.tab-btn.active { background: #3498db; color: white; }
+.tab-content { display: none; padding: 20px; background: white; border-radius: 0 8px 8px 8px; }
+.tab-content.active { display: block; }
+</style>
 </head>
 <body>
-<div id="app"></div>
-
+<div id="app">
+<div id="sidebar">
+<h2>ATIVAMENTE+ CLINIC</h2>
+<nav id="nav">
+<a href="#" onclick="showScreen('dashboard')">Dashboard</a>
+<a href="#" onclick="showScreen('agenda')">Agenda</a>
+<a href="#" onclick="showScreen('pacientes')">Pacientes</a>
+<a href="#" onclick="showScreen('profissionais')">Profissionais (admin)</a>
+<a href="#" onclick="showScreen('financeiro')">Financeiro (admin)</a>
+<a href="#" onclick="showScreen('config')">Configurações (admin)</a>
+<a href="#" onclick="logout()">Sair</a>
+</nav>
+</div>
+<div id="main">
+<div id="loginScreen" class="screen active">
+<h2>Login</h2>
+<input type="email" id="loginEmail" placeholder="Email">
+<input type="password" id="loginPassword" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+<p>Não tem conta? <a href="#" onclick="showRegistro()">Registre-se</a></p>
+<p id="loginError" class="error"></p>
+</div>
+<div id="registroScreen" class="screen">
+<h2>Registro</h2>
+<input type="text" id="regNome" placeholder="Nome completo">
+<input type="email" id="regEmail" placeholder="Email">
+<input type="password" id="regPassword" placeholder="Senha">
+<select id="regTipo">
+<option value="admin">Admin</option>
+<option value="profissional">Profissional</option>
+<option value="paciente">Paciente</option>
+</select>
+<button onclick="registrar()">Registrar</button>
+<p id="regError" class="error"></p>
+</div>
+<div id="dashboardScreen" class="screen">
+<h2>Dashboard</h2>
+<div class="kpi-grid" id="kpiGrid"></div>
+<div class="calendar" id="calendario">
+<h3>Agenda Hoje</h3>
+<div id="agendaHoje"></div>
+</div>
+</div>
+<div id="agendaScreen" class="screen">
+<h2>Agenda</h2>
+<input type="date" id="dataAgenda">
+<button onclick="carregarAgenda()">Carregar</button>
+<div id="listaAgenda"></div>
+</div>
+<div id="pacientesScreen" class="screen">
+<h2>Pacientes</h2>
+<div class="tabs" id="pacientesTabs">
+<button class="tab-btn active" onclick="openTab(event, 'abaDadosGerais')">Dados Gerais</button>
+<button class="tab-btn" onclick="openTab(event, 'abaHistorico')">Histórico</button>
+<button class="tab-btn" onclick="openTab(event, 'abaExames')">Exames</button>
+<button class="tab-btn" onclick="openTab(event, 'abaReceitas')">Receitas</button>
+<button class="tab-btn" onclick="openTab(event, 'abaAtestados')">Atestados</button>
+<button class="tab-btn" onclick="openTab(event, 'abaGuias')">Guias</button>
+<button class="tab-btn" onclick="openTab(event, 'abaContrato')">Contrato</button>
+<button class="tab-btn" onclick="openTab(event, 'abaFinanceiro')">Financeiro</button>
+<button class="tab-btn" onclick="openTab(event, 'abaDocumentos')">Documentos</button>
+</div>
+<div id="abaDadosGerais" class="tab-content active">Dados Gerais</div>
+<div id="abaHistorico" class="tab-content">Histórico</div>
+<div id="abaExames" class="tab-content">Exames</div>
+<div id="abaReceitas" class="tab-content">Receitas</div>
+<div id="abaAtestados" class="tab-content">Atestados</div>
+<div id="abaGuias" class="tab-content">Guias</div>
+<div id="abaContrato" class="tab-content">Contrato</div>
+<div id="abaFinanceiro" class="tab-content">Financeiro</div>
+<div id="abaDocumentos" class="tab-content">Documentos</div>
+</div>
+<div id="profissionaisScreen" class="screen">
+<h2>Profissionais (Admin)</h2>
+<div id="listaProfissionais"></div>
+</div>
+<div id="financeiroScreen" class="screen">
+<h2>Financeiro (Admin)</h2>
+<div id="listaFinanceiro"></div>
+</div>
+<div id="configScreen" class="screen">
+<h2>Configurações (Admin)</h2>
+<div id="configContent"></div>
+</div>
+</div>
+</div>
 <script>
-const APP = {
-    db: {
-        users: [],
-        patients: [],
-        professionals: [],
-        appointments: [],
-        transactions: [],
-        clinic: { name: 'ATIVAMENTE+ CLINIC', cnpj: '', address: '', phone: '' },
-        schedule: ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00']
-    },
-    currentUser: null,
-    currentView: 'dashboard',
-    currentPatient: null,
-    calendarMonth: new Date().getMonth(),
-    calendarYear: new Date().getFullYear(),
+// Sistema de Dados
+const DB_KEY = 'ativamenteClinicDB';
 
-    init() {
-        this.loadData();
-        const storedUser = localStorage.getItem('loggedUser');
-        if (storedUser) {
-            try {
-                this.currentUser = JSON.parse(storedUser);
-                this.renderApp();
-            } catch (e) {
-                this.renderLogin();
-            }
-        } else {
-            this.renderLogin();
-        }
-    },
-
-    loadData() {
-        const stored = localStorage.getItem('ativamenteDB');
-        if (stored) {
-            try {
-                this.db = JSON.parse(stored);
-            } catch (e) {
-                this.initDefaults();
-            }
-        } else {
-            this.initDefaults();
-        }
-    },
-
-    initDefaults() {
-        this.db = {
-            users: [
-                { id: 1, name: 'Admin', email: 'admin@clinica.com', password: '123', role: 'Admin' },
-                { id: 2, name: 'João Silva', email: 'joao@clinica.com', password: '123', role: 'Psicologo' }
-            ],
-            patients: [],
-            professionals: [
-                { id: 1, name: 'Dr. João', cpf: '000.000.000-01', birth: '1980-01-01', register: 'CRP 01/12345', specialty: 'Psicologia', phone: '(11) 99999-0001', email: 'joao@clinica.com' }
-            ],
-            appointments: [],
-            transactions: [],
-            clinic: { name: 'ATIVAMENTE+ CLINIC', cnpj: '', address: '', phone: '' },
-            schedule: ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00']
-        };
-        this.saveData();
-    },
-
-    saveData() {
-        try {
-            localStorage.setItem('ativamenteDB', JSON.stringify(this.db));
-        } catch (e) {
-            console.error('Erro ao salvar:', e);
-        }
-    },
-
-    renderLogin() {
-        document.getElementById('app').innerHTML = `
-            <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#1a3a5e,#ff7d00);">
-                <div class="card" style="width:400px;">
-                    <h2 style="text-align:center;color:#1a3a5e;margin-bottom:30px;">ATIVAMENTE+ CLINIC</h2>
-                    <form id="loginForm">
-                        <label>Email</label>
-                        <input type="email" id="loginEmail" required>
-                        <label>Senha</label>
-                        <input type="password" id="loginPassword" required>
-                        <button type="submit" class="btn btn-orange" style="width:100%;margin-top:20px;">Entrar</button>
-                    </form>
-                    <p style="text-align:center;margin-top:15px;color:#666;">Não tem conta? <a href="#" onclick="APP.showRegister()" style="color:#ff7d00;text-decoration:none;">Registre-se</a></p>
-                </div>
-            </div>
-        `;
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const user = this.db.users.find(u => u.email === email && u.password === password);
-            if (user) {
-                this.currentUser = user;
-                localStorage.setItem('loggedUser', JSON.stringify(user));
-                this.renderApp();
-            } else {
-                alert('Email ou senha incorretos');
-            }
-        });
-    },
-
-    showRegister() {
-        document.getElementById('app').innerHTML = `
-            <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#1a3a5e,#ff7d00);">
-                <div class="card" style="width:400px;">
-                    <h2 style="text-align:center;color:#1a3a5e;margin-bottom:30px;">Registro</h2>
-                    <form id="registerForm">
-                        <label>Nome</label>
-                        <input type="text" id="regName" required>
-                        <label>Email</label>
-                        <input type="email" id="regEmail" required>
-                        <label>Senha</label>
-                        <input type="password" id="regPassword" required>
-                        <label>Função</label>
-                        <select id="regRole">
-                            <option>Admin</option>
-                            <option>Psicologo</option>
-                            <option>Fonoaudiologo</option>
-                            <option>Fisioterapeuta</option>
-                            <option>Medico</option>
-                        </select>
-                        <button type="submit" class="btn btn-teal" style="width:100%;margin-top:20px;">Registrar</button>
-                    </form>
-                    <p style="text-align:center;margin-top:15px;color:#666;">Já tem conta? <a href="#" onclick="APP.renderLogin()" style="color:#ff7d00;text-decoration:none;">Login</a></p>
-                </div>
-            </div>
-        `;
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const role = document.getElementById('regRole').value;
-            if (this.db.users.find(u => u.email === email)) {
-                alert('Email já cadastrado');
-                return;
-            }
-            this.db.users.push({ id: Date.now(), name, email, password, role });
-            this.saveData();
-            alert('Registrado com sucesso! Faça login.');
-            this.renderLogin();
-        });
-    },
-
-    renderApp() {
-        const isAdmin = this.currentUser.role === 'Admin';
-        document.getElementById('app').innerHTML = `
-            <div id="sidebar">
-                <h2>ATIVAMENTE+</h2>
-                <span style="color:#ff7d00;margin-bottom:20px;">Olá, ${this.currentUser.name}</span>
-                <a class="menu-item active" data-view="dashboard">📊 Dashboard</a>
-                <a class="menu-item" data-view="agenda">📅 Agenda</a>
-                <a class="menu-item" data-view="pacientes">👥 Pacientes</a>
-                ${isAdmin ? '<a class="menu-item" data-view="profissionais">👨‍⚕️ Profissionais</a>' : ''}
-                ${isAdmin ? '<a class="menu-item" data-view="financeiro">💰 Financeiro</a>' : ''}
-                ${isAdmin ? '<a class="menu-item" data-view="configuracoes">⚙️ Configurações</a>' : ''}
-                <a href="#" id="logoutBtn" style="margin-top:auto;color:#ff7d00;">🚪 Sair</a>
-            </div>
-            <div id="main">
-                <div id="topbar">
-                    <h1 id="viewTitle">Dashboard</h1>
-                </div>
-                <div id="content"></div>
-            </div>
-        `;
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                this.currentView = item.dataset.view;
-                this.renderView();
-            });
-        });
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('loggedUser');
-            this.currentUser = null;
-            this.renderLogin();
-        });
-        this.renderView();
-    },
-
-    renderView() {
-        const viewTitle = document.getElementById('viewTitle');
-        const content = document.getElementById('content');
-        switch(this.currentView) {
-            case 'dashboard': viewTitle.textContent = 'Dashboard'; this.renderDashboard(content); break;
-            case 'agenda': viewTitle.textContent = 'Agenda'; this.renderAgenda(content); break;
-            case 'pacientes': viewTitle.textContent = 'Pacientes'; this.renderPacientes(content); break;
-            case 'profissionais': viewTitle.textContent = 'Profissionais'; this.renderProfissionais(content); break;
-            case 'financeiro': viewTitle.textContent = 'Financeiro'; this.renderFinanceiro(content); break;
-            case 'configuracoes': viewTitle.textContent = 'Configurações'; this.renderConfiguracoes(content); break;
-        }
-    },
-
-    renderDashboard(container) {
-        const patients = this.db.patients.length;
-        const appointments = this.db.appointments.length;
-        const professionals = this.db.professionals.length;
-        const receitas = this.db.transactions.filter(t => t.type === 'receita').reduce((s,t) => s + t.value, 0);
-        const despesas = this.db.transactions.filter(t => t.type === 'despesa').reduce((s,t) => s + t.value, 0);
-        container.innerHTML = `
-            <div class="grid">
-                <div class="card"><h3>Pacientes</h3><p style="font-size:2em;color:#ff7d00;">${patients}</p></div>
-                <div class="card"><h3>Consultas</h3><p style="font-size:2em;color:#00a9a9;">${appointments}</p></div>
-                <div class="card"><h3>Profissionais</h3><p style="font-size:2em;color:#1a3a5e;">${professionals}</p></div>
-                <div class="card"><h3>Receitas</h3><p style="font-size:2em;color:#28a745;">R$ ${receitas.toFixed(2)}</p></div>
-                <div class="card"><h3>Despesas</h3><p style="font-size:2em;color:#dc3545;">R$ ${despesas.toFixed(2)}</p></div>
-            </div>
-        `;
-    },
-
-    renderAgenda(container) {
-        const month = this.calendarMonth;
-        const year = this.calendarYear;
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-        let html = `
-            <div class="flex" style="justify-content:space-between;margin-bottom:20px;">
-                <button class="btn btn-outline" onclick="APP.prevMonth()">◀ Anterior</button>
-                <h2>${monthNames[month]} ${year}</h2>
-                <button class="btn btn-outline" onclick="APP.nextMonth()">Próximo ▶</button>
-            </div>
-            <button class="btn btn-orange" onclick="APP.openAppointmentModal()">+ Nova Consulta</button>
-            <div class="calendar-grid" style="margin-top:20px;">
-                <div class="calendar-day header">Dom</div>
-                <div class="calendar-day header">Seg</div>
-                <div class="calendar-day header">Ter</div>
-                <div class="calendar-day header">Qua</div>
-                <div class="calendar-day header">Qui</div>
-                <div class="calendar-day header">Sex</div>
-                <div class="calendar-day header">Sáb</div>
-        `;
-        for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day"></div>';
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-            const events = this.db.appointments.filter(a => a.date === dateStr);
-            let eventsHtml = events.map(e => `<div class="event">${e.time}</div>`).join('');
-            html += `<div class="calendar-day">${day}${eventsHtml}</div>`;
-        }
-        html += '</div>';
-        container.innerHTML = html;
-    },
-
-    prevMonth() { this.calendarMonth--; if (this.calendarMonth < 0) { this.calendarMonth = 11; this.calendarYear--; } this.renderView(); },
-    nextMonth() { this.calendarMonth++; if (this.calendarMonth > 11) { this.calendarMonth = 0; this.calendarYear++; } this.renderView(); },
-
-    openAppointmentModal() {
-        const patients = this.db.patients.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-        const professionals = this.db.professionals.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-        const times = this.db.schedule.map(t => `<option value="${t}">${t}</option>`).join('');
-        const html = `
-            <div class="modal" id="appointmentModal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Nova Consulta</h3>
-                        <span class="close" onclick="document.getElementById('appointmentModal').remove()">&times;</span>
-                    </div>
-                    <form id="appointmentForm">
-                        <label>Paciente</label>
-                        <select id="appPatient">${patients}</select>
-                        <label>Profissional</label>
-                        <select id="appProfessional">${professionals}</select>
-                        <label>Data</label>
-                        <input type="date" id="appDate" required>
-                        <label>Hora</label>
-                        <select id="appTime">${times}</select>
-                        <label>Valor</label>
-                        <input type="number" id="appValue" step="0.01">
-                        <label>Forma de Pagamento</label>
-                        <select id="appPayment"><option>Pix</option><option>Dinheiro</option><option>Cartão</option></select>
-                        <button type="submit" class="btn btn-teal">Salvar</button>
-                    </form>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', html);
-        document.getElementById('appointmentForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.db.appointments.push({
-                id: Date.now(),
-                patientId: parseInt(document.getElementById('appPatient').value),
-                professionalId: parseInt(document.getElementById('appProfessional').value),
-                date: document.getElementById('appDate').value,
-                time: document.getElementById('appTime').value,
-                value: parseFloat(document.getElementById('appValue').value) || 0,
-                payment: document.getElementById('appPayment').value
-            });
-            this.saveData();
-            document.getElementById('appointmentModal').remove();
-            this.renderView();
-        });
-    },
-
-    renderPacientes(container) {
-        const isAdmin = this.currentUser.role === 'Admin';
-        let patients = this.db.patients;
-        if (!isAdmin) patients = patients.filter(p => p.professionalId === this.currentUser.id);
-        let html = `
-            <button class="btn btn-orange" onclick="APP.openPatientForm()">+ Novo Paciente</button>
-            <table style="margin-top:20px;">
-                <thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Ações</th></tr></thead>
-                <tbody>
-        `;
-        patients.forEach(p => {
-            html += `<tr><td>${p.name}</td><td>${p.cpf}</td><td>${p.phone}</td><td><button class="btn btn-teal btn-sm" onclick="APP.openPatientDrawer(${p.id})">Detalhes</button></td></tr>`;
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-    },
-
-    openPatientForm() {
-        const html = `
-            <div class="modal" id="patientModal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Novo Paciente</h3>
-                        <span class="close" onclick="document.getElementById('patientModal').remove()">&times;</span>
-                    </div>
-                    <form id="patientForm">
-                        <label>Nome</label>
-                        <input type="text" id="pName" required>
-                        <label>CPF</label>
-                        <input type="text" id="pCpf" required>
-                        <label>Data Nascimento</label>
-                        <input type="date" id="pBirth" required>
-                        <label>Telefone</label>
-                        <input type="text" id="pPhone" required>
-                        <label>Email</label>
-                        <input type="email" id="pEmail">
-                        <label>Endereço</label>
-                        <input type="text" id="pAddress">
-                        <button type="submit" class="btn btn-teal">Salvar</button>
-                    </form>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', html);
-        document.getElementById('patientForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.db.patients.push({
-                id: Date.now(),
-                name: document.getElementById('pName').value,
-                cpf: document.getElementById('pCpf').value,
-                birth: document.getElementById('pBirth').value,
-                phone: document.getElementById('pPhone').value,
-                email: document.getElementById('pEmail').value,
-                address: document.getElementById('pAddress').value,
-                professionalId: this.currentUser.id,
-                history: '', records: '', evolutions: [], documents: [], payments: [], attachments: [], observations: ''
-            });
-            this.saveData();
-            document.getElementById('patientModal').remove();
-            this.renderView();
-        });
-    },
-
-    openPatientDrawer(patientId) {
-        const patient = this.db.patients.find(p => p.id === patientId);
-        if (!patient) return;
-        this.currentPatient = patient;
-        const isPsychologist = this.currentUser.role === 'Psicologo';
-        const html = `
-            <div class="drawer open" id="patientDrawer">
-                <div class="modal-header">
-                    <h3>${patient.name}</h3>
-                    <span class="close" onclick="APP.closeDrawer()">&times;</span>
-                </div>
-                <div class="tabs">
-                    <button class="tab active" onclick="APP.showPatientTab('dados')">Dados</button>
-                    <button class="tab" onclick="APP.showPatientTab('historico')">Histórico</button>
-                    <button class="tab" onclick="APP.showPatientTab('prontuarios')">Prontuários</button>
-                    <button class="tab" onclick="APP.showPatientTab('evolucao')">Evolução</button>
-                    ${isPsychologist ? '<button class="tab" onclick="APP.showPatientTab(\'documentos\')">Documentos</button>' : ''}
-                    <button class="tab" onclick="APP.showPatientTab('pagamentos')">Pagamentos</button>
-                    <button class="tab" onclick="APP.showPatientTab('anexos')">Anexos</button>
-                    <button class="tab" onclick="APP.showPatientTab('observacoes')">Observações</button>
-                </div>
-                <div id="patientTabContent"></div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', html);
-        this.showPatientTab('dados');
-    },
-
-    showPatientTab(tab) {
-        const p = this.currentPatient;
-        const content = document.getElementById('patientTabContent');
-        let html = '';
-        switch(tab) {
-            case 'dados':
-                html = `<p><strong>CPF:</strong> ${p.cpf}</p><p><strong>Data Nascimento:</strong> ${p.birth}</p><p><strong>Telefone:</strong> ${p.phone}</p><p><strong>Email:</strong> ${p.email}</p><p><strong>Endereço:</strong> ${p.address}</p>`;
-                break;
-            case 'historico':
-                html = `<textarea id="historyField" rows="5" onchange="APP.updatePatientField('history', this.value)">${p.history || ''}</textarea>`;
-                break;
-            case 'prontuarios':
-                html = `<textarea id="recordsField" rows="5" onchange="APP.updatePatientField('records', this.value)">${p.records || ''}</textarea>`;
-                break;
-            case 'evolucao':
-                html = `<textarea id="evoField" rows="5" onchange="APP.updatePatientField('evolutions', this.value)">${p.evolutions || ''}</textarea>`;
-                break;
-            case 'documentos':
-                html = `<textarea id="docsField" rows="5" onchange="APP.updatePatientField('documents', this.value)">${p.documents || ''}</textarea>`;
-                break;
-            case 'pagamentos':
-                html = `<textarea id="payField" rows="5" onchange="APP.updatePatientField('payments', this.value)">${p.payments || ''}</textarea>`;
-                break;
-            case 'anexos':
-                html = `<input type="file" id="fileInput" onchange="APP.handleFileUpload(event)"><p>Anexos: ${(p.attachments || []).length}</p>`;
-                break;
-            case 'observacoes':
-                html = `<textarea id="obsField" rows="5" onchange="APP.updatePatientField('observations', this.value)">${p.observations || ''}</textarea>`;
-                break;
-        }
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        event.target.classList.add('active');
-        content.innerHTML = html;
-    },
-
-    updatePatientField(field, value) {
-        const idx = this.db.patients.findIndex(p => p.id === this.currentPatient.id);
-        if (idx !== -1) {
-            this.db.patients[idx][field] = value;
-            this.saveData();
-        }
-    },
-
-    handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const idx = this.db.patients.findIndex(p => p.id === this.currentPatient.id);
-            if (idx !== -1) {
-                if (!this.db.patients[idx].attachments) this.db.patients[idx].attachments = [];
-                this.db.patients[idx].attachments.push(file.name);
-                this.saveData();
-            }
-        }
-    },
-
-    closeDrawer() {
-        const drawer = document.getElementById('patientDrawer');
-        if (drawer) drawer.remove();
-        this.currentPatient = null;
-    },
-
-    renderProfissionais(container) {
-        if (this.currentUser.role !== 'Admin') {
-            container.innerHTML = '<p>Acesso restrito.</p>';
-            return;
-        }
-        let html = `
-            <button class="btn btn-orange" onclick="APP.openProfessionalForm()">+ Novo Profissional</button>
-            <table style="margin-top:20px;">
-                <thead><tr><th>Nome</th><th>Registro</th><th>Especialidade</th><th>Ações</th></tr></thead>
-                <tbody>
-        `;
-        this.db.professionals.forEach(p => {
-            html += `<tr><td>${p.name}</td><td>${p.register}</td><td>${p.specialty}</td><td><button class="btn btn-danger btn-sm" onclick="APP.deleteProfessional(${p.id})">Excluir</button></td></tr>`;
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-    },
-
-    openProfessionalForm() {
-        const html = `
-            <div class="modal" id="profModal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Novo Profissional</h3>
-                        <span class="close" onclick="document.getElementById('profModal').remove()">&times;</span>
-                    </div>
-                    <form id="profForm">
-                        <label>Nome</label>
-                        <input type="text" id="profName" required>
-                        <label>CPF</label>
-                        <input type="text" id="profCpf">
-                        <label>Data Nascimento</label>
-                        <input type="date" id="profBirth">
-                        <label>Registro Profissional</label>
-                        <input type="text" id="profRegister">
-                        <label>Especialidade</label>
-                        <input type="text" id="profSpecialty">
-                        <label>Telefone</label>
-                        <input type="text" id="profPhone">
-                        <label>Email</label>
-                        <input type="email" id="profEmail">
-                        <button type="submit" class="btn btn-teal">Salvar</button>
-                    </form>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', html);
-        document.getElementById('profForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.db.professionals.push({
-                id: Date.now(),
-                name: document.getElementById('profName').value,
-                cpf: document.getElementById('profCpf').value,
-                birth: document.getElementById('profBirth').value,
-                register: document.getElementById('profRegister').value,
-                specialty: document.getElementById('profSpecialty').value,
-                phone: document.getElementById('profPhone').value,
-                email: document.getElementById('profEmail').value
-            });
-            this.saveData();
-            document.getElementById('profModal').remove();
-            this.renderView();
-        });
-    },
-
-    deleteProfessional(id) {
-        if (confirm('Excluir profissional?')) {
-            this.db.professionals = this.db.professionals.filter(p => p.id !== id);
-            this.saveData();
-            this.renderView();
-        }
-    },
-
-    renderFinanceiro(container) {
-        if (this.currentUser.role !== 'Admin') {
-            container.innerHTML = '<p>Acesso restrito.</p>';
-            return;
-        }
-        const receitas = this.db.transactions.filter(t => t.type === 'receita').reduce((s,t) => s + t.value, 0);
-        const despesas = this.db.transactions.filter(t => t.type === 'despesa').reduce((s,t) => s + t.value, 0);
-        let html = `
-            <div class="grid">
-                <div class="card"><h3>Receitas</h3><p style="font-size:2em;color:#28a745;">R$ ${receitas.toFixed(2)}</p></div>
-                <div class="card"><h3>Despesas</h3><p style="font-size:2em;color:#dc3545;">R$ ${despesas.toFixed(2)}</p></div>
-            </div>
-            <button class="btn btn-orange" onclick="APP.openTransactionForm()">+ Nova Transação</button>
-            <table style="margin-top:20px;">
-                <thead><tr><th>Descrição</th><th>Valor</th><th>Data</th><th>Tipo</th><th>Ações</th></tr></thead>
-                <tbody>
-        `;
-        this.db.transactions.forEach(t => {
-            html += `<tr><td>${t.description}</td><td>R$ ${t.value.toFixed(2)}</td><td>${t.date}</td><td>${t.type}</td><td><button class="btn btn-danger btn-sm" onclick="APP.deleteTransaction(${t.id})">Excluir</button></td></tr>`;
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-    },
-
-    openTransactionForm() {
-        const html = `
-            <div class="modal" id="transModal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Nova Transação</h3>
-                        <span class="close" onclick="document.getElementById('transModal').remove()">&times;</span>
-                    </div>
-                    <form id="transForm">
-                        <label>Tipo</label>
-                        <select id="transType"><option>receita</option><option>despesa</option></select>
-                        <label>Descrição</label>
-                        <input type="text" id="transDesc" required>
-                        <label>Valor</label>
-                        <input type="number" id="transValue" step="0.01" required>
-                        <label>Data</label>
-                        <input type="date" id="transDate" required>
-                        <button type="submit" class="btn btn-teal">Salvar</button>
-                    </form>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', html);
-        document.getElementById('transForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.db.transactions.push({
-                id: Date.now(),
-                type: document.getElementById('transType').value,
-                description: document.getElementById('transDesc').value,
-                value: parseFloat(document.getElementById('transValue').value),
-                date: document.getElementById('transDate').value
-            });
-            this.saveData();
-            document.getElementById('transModal').remove();
-            this.renderView();
-        });
-    },
-
-    deleteTransaction(id) {
-        if (confirm('Excluir transação?')) {
-            this.db.transactions = this.db.transactions.filter(t => t.id !== id);
-            this.saveData();
-            this.renderView();
-        }
-    },
-
-    renderConfiguracoes(container) {
-        if (this.currentUser.role !== 'Admin') {
-            container.innerHTML = '<p>Acesso restrito.</p>';
-            return;
-        }
-        const clinic = this.db.clinic;
-        let html = `
-            <div class="card">
-                <h3>Dados da Clínica</h3>
-                <form id="clinicForm">
-                    <label>Nome</label>
-                    <input type="text" id="clinicName" value="${clinic.name}">
-                    <label>CNPJ</label>
-                    <input type="text" id="clinicCnpj" value="${clinic.cnpj}">
-                    <label>Endereço</label>
-                    <input type="text" id="clinicAddress" value="${clinic.address}">
-                    <label>Telefone</label>
-                    <input type="text" id="clinicPhone" value="${clinic.phone}">
-                    <button type="submit" class="btn btn-teal">Salvar</button>
-                </form>
-            </div>
-        `;
-        container.innerHTML = html;
-        document.getElementById('clinicForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.db.clinic = {
-                name: document.getElementById('clinicName').value,
-                cnpj: document.getElementById('clinicCnpj').value,
-                address: document.getElementById('clinicAddress').value,
-                phone: document.getElementById('clinicPhone').value
-            };
-            this.saveData();
-            alert('Configurações salvas!');
-        });
-    }
+let db = {
+users: [],
+patients: [],
+professionals: [],
+appointments: [],
+transactions: []
 };
 
-document.addEventListener('DOMContentLoaded', () => APP.init());
+function loadData() {
+try {
+const stored = localStorage.getItem(DB_KEY);
+if (stored) {
+const parsed = JSON.parse(stored);
+db.users = Array.isArray(parsed.users) ? parsed.users : [];
+db.patients = Array.isArray(parsed.patients) ? parsed.patients : [];
+db.professionals = Array.isArray(parsed.professionals) ? parsed.professionals : [];
+db.appointments = Array.isArray(parsed.appointments) ? parsed.appointments : [];
+db.transactions = Array.isArray(parsed.transactions) ? parsed.transactions : [];
+}
+} catch (e) {
+console.error('Erro ao carregar dados:', e);
+db = { users: [], patients: [], professionals: [], appointments: [], transactions: [] };
+}
+}
+
+function saveData() {
+try {
+localStorage.setItem(DB_KEY, JSON.stringify(db));
+} catch (e) {
+console.error('Erro ao salvar dados:', e);
+}
+}
+
+// Inicializar dados padrão se vazio
+function initDefaultData() {
+if (db.users.length === 0) {
+db.users.push({ id: 1, nome: 'Admin', email: 'admin@admin.com', senha: '123', tipo: 'admin' });
+}
+if (db.professionals.length === 0) {
+db.professionals.push({ id: 1, nome: 'Dr. Exemplo', especialidade: 'Cardiologista' });
+}
+if (db.patients.length === 0) {
+db.patients.push({ id: 1, nome: 'Paciente Exemplo', email: 'paciente@email.com', dadosGerais: {}, historico: '', exames: [], receitas: [], atestados: [], guias: [], contrato: '', financeiro: [], documentos: [] });
+}
+if (db.appointments.length === 0) {
+db.appointments.push({ id: 1, pacienteId: 1, profissionalId: 1, data: new Date().toISOString().split('T')[0], hora: '09:00', status: 'agendado' });
+}
+if (db.transactions.length === 0) {
+db.transactions.push({ id: 1, pacienteId: 1, valor: 150, descricao: 'Consulta', data: new Date().toISOString().split('T')[0], tipo: 'receita' });
+}
+saveData();
+}
+
+// Tela atual
+let currentUser = null;
+
+function showScreen(screenId) {
+document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+document.getElementById(screenId + 'Screen').classList.add('active');
+if (screenId === 'dashboard') updateDashboard();
+if (screenId === 'agenda') carregarAgenda();
+if (screenId === 'pacientes') renderPacientes();
+if (screenId === 'profissionais') renderProfissionais();
+if (screenId === 'financeiro') renderFinanceiro();
+if (screenId === 'config') renderConfig();
+}
+
+function showRegistro() {
+document.getElementById('loginScreen').classList.remove('active');
+document.getElementById('registroScreen').classList.add('active');
+}
+
+function login() {
+try {
+const email = document.getElementById('loginEmail').value.trim();
+const senha = document.getElementById('loginPassword').value.trim();
+const user = db.users.find(u => u.email === email && u.senha === senha);
+if (user) {
+currentUser = user;
+document.getElementById('loginError').textContent = '';
+showScreen('dashboard');
+} else {
+document.getElementById('loginError').textContent = 'Email ou senha inválidos.';
+}
+} catch (e) {
+document.getElementById('loginError').textContent = 'Erro ao fazer login.';
+console.error(e);
+}
+}
+
+function registrar() {
+try {
+const nome = document.getElementById('regNome').value.trim();
+const email = document.getElementById('regEmail').value.trim();
+const senha = document.getElementById('regPassword').value.trim();
+const tipo = document.getElementById('regTipo').value;
+if (!nome || !email || !senha) {
+document.getElementById('regError').textContent = 'Preencha todos os campos.';
+return;
+}
+if (db.users.find(u => u.email === email)) {
+document.getElementById('regError').textContent = 'Email já cadastrado.';
+return;
+}
+const newId = db.users.length > 0 ? Math.max(...db.users.map(u => u.id)) + 1 : 1;
+db.users.push({ id: newId, nome, email, senha, tipo });
+saveData();
+document.getElementById('regError').textContent = '';
+alert('Registrado com sucesso! Faça login.');
+document.getElementById('registroScreen').classList.remove('active');
+document.getElementById('loginScreen').classList.add('active');
+} catch (e) {
+document.getElementById('regError').textContent = 'Erro ao registrar.';
+console.error(e);
+}
+}
+
+function logout() {
+currentUser = null;
+document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+document.getElementById('loginScreen').classList.add('active');
+}
+
+// Dashboard
+function updateDashboard() {
+try {
+const kpis = [];
+// KPI 1: Total de pacientes
+kpis.push({ label: 'Total Pacientes', value: db.patients.length });
+// KPI 2: Consultas hoje
+const hoje = new Date().toISOString().split('T')[0];
+const consultasHoje = db.appointments.filter(a => a.data === hoje).length;
+kpis.push({ label: 'Consultas Hoje', value: consultasHoje });
+// KPI 3: Receita total
+const receitaTotal = db.transactions.filter(t => t.tipo === 'receita').reduce((acc, t) => acc + t.valor, 0);
+kpis.push({ label: 'Receita Total', value: 'R$ ' + receitaTotal.toFixed(2) });
+// KPI 4: Despesas
+const despesasTotal = db.transactions.filter(t => t.tipo === 'despesa').reduce((acc, t) => acc + t.valor, 0);
+kpis.push({ label: 'Despesas', value: 'R$ ' + despesasTotal.toFixed(2) });
+// KPI 5: Saldo
+kpis.push({ label: 'Saldo', value: 'R$ ' + (receitaTotal - despesasTotal).toFixed(2) });
+const grid = document.getElementById('kpiGrid');
+grid.innerHTML = kpis.map(k => `<div class="kpi-card"><h3>${k.label}</h3><p>${k.value}</p></div>`).join('');
+// Agenda de hoje
+const agendaEl = document.getElementById('agendaHoje');
+const appointmentsHoje = db.appointments.filter(a => a.data === hoje);
+agendaEl.innerHTML = appointmentsHoje.length > 0 ? appointmentsHoje.map(a => {
+const paciente = db.patients.find(p => p.id === a.pacienteId);
+const profissional = db.professionals.find(p => p.id === a.profissionalId);
+return `<p>${a.hora} - ${paciente ? paciente.nome : 'Desconhecido'} (${profissional ? profissional.nome : 'N/A'})</p>`;
+}).join('') : '<p>Nenhuma consulta hoje.</p>';
+} catch (e) {
+console.error('Erro no dashboard:', e);
+}
+}
+
+// Agenda
+function carregarAgenda() {
+try {
+const data = document.getElementById('dataAgenda').value || new Date().toISOString().split('T')[0];
+const lista = document.getElementById('listaAgenda');
+const appointmentsDia = db.appointments.filter(a => a.data === data);
+lista.innerHTML = appointmentsDia.length > 0 ? appointmentsDia.map(a => {
+const paciente = db.patients.find(p => p.id === a.pacienteId);
+const profissional = db.professionals.find(p => p.id === a.profissionalId);
+return `<div>${a.hora} - ${paciente ? paciente.nome : 'Desconhecido'} (${profissional ? profissional.nome : 'N/A'}) - ${a.status}</div>`;
+}).join('') : '<p>Nenhum agendamento nesta data.</p>';
+} catch (e) {
+console.error('Erro ao carregar agenda:', e);
+}
+}
+
+// Pacientes (9 abas - todas abertas, mas mostramos apenas conteúdo básico)
+function renderPacientes() {
+// Exemplo: listar pacientes e permitir selecionar
+const area = document.getElementById('abaDadosGerais');
+area.innerHTML = `<h3>Selecione um paciente</h3><select id="selectPaciente" onchange="mostrarAbasPaciente()"><option value="">Escolher...</option>${db.patients.map(p => `<option value="${p.id}">${p.nome}</option>`).join('')}</select>`;
+// As outras abas serão preenchidas quando selecionar
+}
+
+function mostrarAbasPaciente() {
+try {
+const id = parseInt(document.getElementById('selectPaciente').value);
+if (!id) return;
+const paciente = db.patients.find(p => p.id === id);
+if (!paciente) return;
+document.getElementById('abaDadosGerais').innerHTML = `Nome: ${paciente.nome}, Email: ${paciente.email || ''}`;
+document.getElementById('abaHistorico').innerHTML = paciente.historico || 'Nenhum histórico';
+document.getElementById('abaExames').innerHTML = Array.isArray(paciente.exames) && paciente.exames.length > 0 ? paciente.exames.map(e => `<p>${e}</p>`).join('') : 'Nenhum exame';
+document.getElementById('abaReceitas').innerHTML = Array.isArray(paciente.receitas) && paciente.receitas.length > 0 ? paciente.receitas.map(r => `<p>${r}</p>`).join('') : 'Nenhuma receita';
+document.getElementById('abaAtestados').innerHTML = Array.isArray(paciente.atestados) && paciente.atestados.length > 0 ? paciente.atestados.map(a => `<p>${a}</p>`).join('') : 'Nenhum atestado';
+document.getElementById('abaGuias').innerHTML = Array.isArray(paciente.guias) && paciente.guias.length > 0 ? paciente.guias.map(g => `<p>${g}</p>`).join('') : 'Nenhuma guia';
+document.getElementById('abaContrato').innerHTML = paciente.contrato || 'Nenhum contrato';
+document.getElementById('abaFinanceiro').innerHTML = Array.isArray(paciente.financeiro) && paciente.financeiro.length > 0 ? paciente.financeiro.map(f => `<p>${f}</p>`).join('') : 'Nenhum financeiro';
+document.getElementById('abaDocumentos').innerHTML = Array.isArray(paciente.documentos) && paciente.documentos.length > 0 ? paciente.documentos.map(d => `<p>${d}</p>`).join('') : 'Nenhum documento';
+} catch (e) {
+console.error('Erro ao mostrar abas:', e);
+}
+}
+
+function openTab(event, tabId) {
+try {
+document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+event.target.classList.add('active');
+document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+document.getElementById(tabId).classList.add('active');
+} catch (e) {
+console.error('Erro ao abrir aba:', e);
+}
+}
+
+// Profissionais (admin)
+function renderProfissionais() {
+try {
+const container = document.getElementById('listaProfissionais');
+container.innerHTML = db.professionals.length > 0 ? db.professionals.map(p => `<div>${p.nome} - ${p.especialidade}</div>`).join('') : '<p>Nenhum profissional cadastrado.</p>';
+} catch (e) {
+console.error('Erro ao renderizar profissionais:', e);
+}
+}
+
+// Financeiro (admin)
+function renderFinanceiro() {
+try {
+const container = document.getElementById('listaFinanceiro');
+container.innerHTML = db.transactions.length > 0 ? db.transactions.map(t => `<div>${t.data} - ${t.descricao}: R$${t.valor.toFixed(2)} (${t.tipo})</div>`).join('') : '<p>Nenhuma transação.</p>';
+} catch (e) {
+console.error('Erro ao renderizar financeiro:', e);
+}
+}
+
+// Configurações (admin)
+function renderConfig() {
+try {
+const container = document.getElementById('configContent');
+container.innerHTML = '<h3>Configurações do Sistema</h3><p>Versão 1.0.0</p><button onclick="resetDados()">Resetar Dados (cuidado!)</button>';
+} catch (e) {
+console.error('Erro ao renderizar config:', e);
+}
+}
+
+function resetDados() {
+if (confirm('Tem certeza que deseja resetar todos os dados?')) {
+localStorage.removeItem(DB_KEY);
+loadData();
+initDefaultData();
+alert('Dados resetados.');
+showScreen('dashboard');
+}
+}
+
+// Inicialização
+loadData();
+initDefaultData();
+
+// Mostrar tela de login padrão
 </script>
 </body>
 </html>
