@@ -1,1038 +1,1034 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ativamente+ Clinic</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0f2f5;
-        }
-        /* Login */
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #002D5B 0%, #004080 100%);
-        }
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            width: 400px;
-            max-width: 90%;
-        }
-        .login-card h2 {
-            color: #002D5B;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 12px 16px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 14px;
-        }
-        .login-card button {
-            width: 100%;
-            padding: 12px;
-            background: #20B2AA;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 12px;
-            transition: 0.2s;
-        }
-        .login-card button:hover {
-            background: #1a9a92;
-        }
-        .login-card .link {
-            color: #20B2AA;
-            cursor: pointer;
-            margin-top: 12px;
-            display: block;
-            text-align: center;
-        }
-        .login-card .link:hover {
-            text-decoration: underline;
-        }
-        .login-card .error-msg {
-            color: #dc3545;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-        /* Dashboard */
-        .dashboard {
-            display: none;
-            min-height: 100vh;
-        }
-        .sidebar {
-            width: 240px;
-            background: #002D5B;
-            color: white;
-            padding: 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 1000;
-        }
-        .sidebar h3 {
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
-        .sidebar .menu-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-radius: 8px;
-            margin: 4px 0;
-            transition: 0.2s;
-        }
-        .sidebar .menu-item:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .sidebar .menu-item.active {
-            background: #20B2AA;
-            color: white;
-        }
-        .main-content {
-            margin-left: 240px;
-            padding: 30px;
-        }
-        .header {
-            background: white;
-            padding: 20px 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            font-size: 24px;
-            color: #002D5B;
-        }
-        .header .user-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .header .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 500;
-        }
-        .header .logout-btn:hover {
-            background: #b02a37;
-        }
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .card {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .card h4 {
-            color: #002D5B;
-            margin-bottom: 12px;
-        }
-        .btn {
-            background: #20B2AA;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-        .btn:hover {
-            background: #1a9a92;
-        }
-        .btn-orange {
-            background: #FF8C00;
-        }
-        .btn-orange:hover {
-            background: #e67e00;
-        }
-        .btn-red {
-            background: #dc3545;
-        }
-        .btn-red:hover {
-            background: #b02a37;
-        }
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 13px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        th, td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        th {
-            background: #f8f9fa;
-            color: #002D5B;
-        }
-        .drawer-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-        }
-        .drawer {
-            display: none;
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 600px;
-            max-width: 100%;
-            height: 100vh;
-            background: white;
-            box-shadow: -4px 0 20px rgba(0,0,0,0.1);
-            z-index: 2001;
-            overflow-y: auto;
-            padding: 24px;
-        }
-        .drawer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .drawer-header h3 {
-            color: #002D5B;
-        }
-        .drawer-close {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 20px;
-        }
-        .tab {
-            padding: 10px 20px;
-            background: #f0f2f5;
-            border-radius: 8px 8px 0 0;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .tab.active {
-            background: white;
-            border-bottom: 3px solid #20B2AA;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .form-group {
-            margin-bottom: 16px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 4px;
-            color: #002D5B;
-        }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 14px;
-        }
-        .form-group textarea {
-            resize: vertical;
-        }
-        .chart-container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-top: 20px;
-        }
-        .bar-chart {
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            height: 200px;
-            padding-top: 20px;
-        }
-        .bar {
-            flex: 1;
-            background: #20B2AA;
-            border-radius: 4px 4px 0 0;
-            position: relative;
-            transition: 0.3s;
-            min-height: 2px;
-        }
-        .bar-label {
-            text-align: center;
-            font-size: 12px;
-            margin-top: 4px;
-        }
-        .bar-value {
-            text-align: center;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-        .inline-flex {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 60px;
-                padding: 10px;
-            }
-            .sidebar h3, .sidebar .menu-item span {
-                display: none;
-            }
-            .main-content {
-                margin-left: 60px;
-                padding: 20px;
-            }
-            .drawer {
-                width: 100%;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ativamente+ Clinic</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ========================================= */
+/* RESET */
+/* ========================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#F4F7FB;
+    color:#1F2937;
+    display:flex;
+    min-height:100vh;
+}
+
+/* ========================================= */
+/* VARIÁVEIS */
+/* ========================================= */
+
+:root{
+
+    --primary:#032D6B;
+    --primary-light:#0B4AA2;
+
+    --accent:#FF6B57;
+
+    --teal:#00C7C7;
+
+    --light:#F4F7FB;
+
+    --white:#FFFFFF;
+
+    --dark:#1F2937;
+
+    --success:#17B26A;
+
+    --danger:#E53935;
+
+    --gray:#9CA3AF;
+
+    --shadow:0 8px 25px rgba(3,45,107,0.08);
+
+    --radius:20px;
+}
+
+/* ========================================= */
+/* SIDEBAR */
+/* ========================================= */
+
+.sidebar{
+    width:290px;
+    background:linear-gradient(
+        180deg,
+        #032D6B 0%,
+        #063B88 45%,
+        #00C7C7 100%
+    );
+
+    color:white;
+    padding:25px;
+    position:fixed;
+    top:0;
+    bottom:0;
+    overflow-y:auto;
+    box-shadow:4px 0 25px rgba(0,0,0,0.15);
+}
+
+.logo-container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.logo-container img{
+    width:210px;
+    max-width:100%;
+    object-fit:contain;
+}
+
+.sidebar nav{
+    margin-top:25px;
+}
+
+.sidebar nav a{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    text-decoration:none;
+    color:white;
+    padding:16px;
+    border-radius:16px;
+    margin-bottom:12px;
+    transition:0.3s;
+    font-size:15px;
+    font-weight:500;
+}
+
+.sidebar nav a:hover{
+    background:rgba(255,255,255,0.16);
+    transform:translateX(5px);
+}
+
+/* ========================================= */
+/* MAIN */
+/* ========================================= */
+
+.main{
+    margin-left:290px;
+    width:100%;
+    padding:30px;
+}
+
+/* ========================================= */
+/* HEADER */
+/* ========================================= */
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+    gap:20px;
+}
+
+.header-left h1{
+    font-size:32px;
+    color:var(--primary);
+    margin-bottom:6px;
+}
+
+.header-left p{
+    color:#667085;
+}
+
+.search-box{
+    background:white;
+    padding:14px 18px;
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    width:350px;
+}
+
+.search-box input{
+    width:100%;
+    border:none;
+    outline:none;
+    font-size:14px;
+}
+
+/* ========================================= */
+/* KPI */
+/* ========================================= */
+
+.kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.kpi-card{
+    background:white;
+    border-radius:20px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    border-top:5px solid var(--teal);
+    transition:0.3s;
+}
+
+.kpi-card:hover{
+    transform:translateY(-5px);
+    border-top:5px solid var(--accent);
+}
+
+.kpi-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.kpi-icon{
+    width:58px;
+    height:58px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    color:white;
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--teal)
+    );
+}
+
+.kpi-value{
+    font-size:34px;
+    font-weight:700;
+    margin-top:10px;
+}
+
+.kpi-label{
+    color:#667085;
+    margin-top:4px;
+}
+
+/* ========================================= */
+/* MODULE */
+/* ========================================= */
+
+.module{
+    background:white;
+    border-radius:20px;
+    padding:28px;
+    box-shadow:var(--shadow);
+    margin-bottom:30px;
+    border-top:4px solid var(--primary);
+}
+
+.module-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+    gap:15px;
+}
+
+.module-header h2{
+    color:var(--primary);
+    font-size:24px;
+}
+
+/* ========================================= */
+/* BUTTONS */
+/* ========================================= */
+
+.btn-group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+button{
+    border:none;
+    padding:12px 18px;
+    border-radius:14px;
+    cursor:pointer;
+    font-weight:600;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.btn-primary{
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--teal)
+    );
+    color:white;
+}
+
+.btn-warning{
+    background:linear-gradient(
+        135deg,
+        var(--accent),
+        #ff9f80
+    );
+    color:white;
+}
+
+.btn-danger{
+    background:var(--danger);
+    color:white;
+}
+
+.btn-secondary{
+    background:#EEF2F7;
+}
+
+/* ========================================= */
+/* TABLE */
+/* ========================================= */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th{
+    background:#EAF3FF;
+    color:var(--primary);
+    padding:16px;
+    text-align:left;
+}
+
+table td{
+    padding:16px;
+    border-bottom:1px solid #EEF2F7;
+}
+
+/* ========================================= */
+/* STATUS */
+/* ========================================= */
+
+.status{
+    padding:8px 12px;
+    border-radius:999px;
+    color:white;
+    font-size:12px;
+    font-weight:600;
+}
+
+.confirmado{
+    background:var(--success);
+}
+
+.agendado{
+    background:var(--gray);
+}
+
+.cancelado{
+    background:var(--danger);
+}
+
+/* ========================================= */
+/* FORMS */
+/* ========================================= */
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.input-group{
+    display:flex;
+    flex-direction:column;
+}
+
+.input-group label{
+    margin-bottom:8px;
+    font-weight:600;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea{
+    padding:14px;
+    border-radius:14px;
+    border:1px solid #D0D5DD;
+    outline:none;
+    transition:0.3s;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus{
+    border:2px solid var(--teal);
+}
+
+textarea{
+    resize:vertical;
+    min-height:120px;
+}
+
+/* ========================================= */
+/* AI CARDS */
+/* ========================================= */
+
+.ai-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:20px;
+}
+
+.ai-card{
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--teal)
+    );
+
+    color:white;
+    padding:24px;
+    border-radius:20px;
+}
+
+.ai-card h3{
+    margin-bottom:15px;
+}
+
+.ai-card ul{
+    margin-left:20px;
+    line-height:1.9;
+}
+
+/* ========================================= */
+/* GRAPH */
+/* ========================================= */
+
+.graph{
+    margin-top:30px;
+    display:flex;
+    align-items:flex-end;
+    gap:18px;
+    height:220px;
+}
+
+.bar{
+    flex:1;
+    background:linear-gradient(
+        180deg,
+        var(--accent),
+        var(--teal)
+    );
+    border-radius:16px 16px 0 0;
+    position:relative;
+}
+
+.bar span{
+    position:absolute;
+    bottom:-30px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:13px;
+}
+
+/* ========================================= */
+/* RBAC */
+/* ========================================= */
+
+.rbac{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:20px;
+}
+
+.role-card{
+    background:#F8FAFC;
+    padding:24px;
+    border-radius:18px;
+    border-left:6px solid var(--teal);
+}
+
+.role-card h3{
+    color:var(--primary);
+    margin-bottom:10px;
+}
+
+/* ========================================= */
+/* FOOTER */
+/* ========================================= */
+
+.footer{
+    text-align:center;
+    color:#667085;
+    margin-top:40px;
+}
+
+/* ========================================= */
+/* RESPONSIVO */
+/* ========================================= */
+
+@media(max-width:1000px){
+
+    body{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+        position:relative;
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .search-box{
+        width:100%;
+    }
+
+}
+
+/* ========================================= */
+/* SCROLL */
+/* ========================================= */
+
+::-webkit-scrollbar{
+    width:10px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:linear-gradient(
+        var(--primary),
+        var(--teal)
+    );
+    border-radius:999px;
+}
+
+</style>
 </head>
+
 <body>
-    <!-- Login Screen -->
-    <div class="login-container" id="loginScreen">
-        <div class="login-card">
-            <h2>Ativamente+ Clinic</h2>
-            <input type="text" id="loginUser" placeholder="Usuário" value="admin">
-            <input type="password" id="loginPass" placeholder="Senha" value="admin">
-            <button onclick="login()">Entrar</button>
-            <div class="link" onclick="toggleRegister()">Criar Conta</div>
-            <div id="loginError" class="error-msg"></div>
-        </div>
-        <div class="login-card" id="registerCard" style="display:none;">
-            <h2>Criar Conta</h2>
-            <input type="text" id="regUser" placeholder="Novo usuário">
-            <input type="password" id="regPass" placeholder="Senha">
-            <input type="password" id="regPass2" placeholder="Confirmar senha">
-            <button onclick="register()">Cadastrar</button>
-            <div class="link" onclick="toggleRegister()">Voltar ao login</div>
-            <div id="registerError" class="error-msg"></div>
-        </div>
+
+<!-- ========================================= -->
+<!-- SIDEBAR -->
+<!-- ========================================= -->
+
+<aside class="sidebar">
+
+    <div class="logo-container">
+
+        <!-- COLOQUE A IMAGEM NA MESMA PASTA -->
+        <img src="Ativamente+ Clinic.png" alt="Ativamente+ Clinic">
+
     </div>
 
-    <!-- Dashboard -->
-    <div class="dashboard" id="dashboard">
-        <div class="sidebar">
-            <h3>Ativamente+</h3>
-            <div class="menu-item active" onclick="showSection('pacientes', this)"><span>Pacientes</span></div>
-            <div class="menu-item" onclick="showSection('agenda', this)"><span>Agenda</span></div>
-            <div class="menu-item" onclick="showSection('financeiro', this)"><span>Financeiro</span></div>
-            <div class="menu-item" onclick="showSection('relatorios', this)"><span>Relatórios</span></div>
+    <nav>
+
+        <a href="#dashboard">📊 Dashboard</a>
+        <a href="#agenda">📅 Agenda</a>
+        <a href="#pacientes">👥 Pacientes</a>
+        <a href="#profissionais">🩺 Profissionais</a>
+        <a href="#financeiro">💰 Financeiro</a>
+        <a href="#gestao">📈 Gestão</a>
+        <a href="#ia">🤖 IA Clínica</a>
+        <a href="#rbac">🔐 Permissões</a>
+        <a href="#configuracoes">⚙️ Configurações</a>
+
+    </nav>
+
+</aside>
+
+<!-- ========================================= -->
+<!-- MAIN -->
+<!-- ========================================= -->
+
+<main class="main">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="header-left">
+            <h1>Bem-vindo(a), Administrador 👋</h1>
+            <p>Painel inteligente da Ativamente+ Clinic</p>
         </div>
-        <div class="main-content">
-            <div class="header">
-                <h1 id="sectionTitle">Pacientes</h1>
-                <div class="user-info">
-                    <span id="userDisplay">admin</span>
-                    <button class="logout-btn" onclick="logout()">Sair</button>
-                </div>
-            </div>
-            <!-- Patients Section -->
-            <div id="sectionPacientes">
-                <div class="inline-flex" style="margin-bottom:16px;">
-                    <button class="btn" onclick="openDrawer('novoPaciente')">+ Novo Paciente</button>
-                    <input type="text" id="searchPatient" placeholder="Buscar paciente..." oninput="renderPatients()" style="padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;flex:1;">
-                </div>
-                <div id="patientList"></div>
-            </div>
-            <!-- Appointments Section -->
-            <div id="sectionAgenda" style="display:none;">
-                <div class="inline-flex" style="margin-bottom:16px;">
-                    <button class="btn" onclick="openDrawer('novoAgendamento')">+ Novo Agendamento</button>
-                </div>
-                <div id="appointmentList"></div>
-            </div>
-            <!-- Financial Section -->
-            <div id="sectionFinanceiro" style="display:none;">
-                <div class="inline-flex" style="margin-bottom:16px;">
-                    <button class="btn" onclick="openDrawer('novaTransacao')">+ Nova Transação</button>
-                    <button class="btn btn-orange" onclick="generateFinancialChart()">Ver Gráfico</button>
-                </div>
-                <div id="financialList"></div>
-                <div id="financialChartContainer" class="chart-container" style="display:none;"></div>
-            </div>
-            <!-- Reports Section -->
-            <div id="sectionRelatorios" style="display:none;">
-                <div class="cards">
-                    <div class="card" id="reportDistribuicao"><h4>Distribuição de Pacientes</h4><div id="chartDistribuicao"></div></div>
-                    <div class="card" id="reportPagamento"><h4>Formas de Pagamento</h4><div id="chartPagamento"></div></div>
-                    <div class="card" id="reportProfissional"><h4>Ranking de Profissionais</h4><div id="chartProfissional"></div></div>
-                </div>
-            </div>
+
+        <div class="search-box">
+            <input type="text" placeholder="Buscar pacientes, agenda, profissionais...">
         </div>
+
     </div>
 
-    <!-- Drawer Overlay -->
-    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
-    <!-- Drawer -->
-    <div class="drawer" id="drawer">
-        <div class="drawer-header">
-            <h3 id="drawerTitle">Título</h3>
-            <button class="drawer-close" onclick="closeDrawer()">Fechar</button>
+    <!-- KPI -->
+
+    <section id="dashboard" class="kpi-grid">
+
+        <div class="kpi-card">
+            <div class="kpi-top">
+                <div>
+                    <div class="kpi-label">Agenda Hoje</div>
+                    <div class="kpi-value">28</div>
+                </div>
+                <div class="kpi-icon">📅</div>
+            </div>
         </div>
-        <div id="drawerContent"></div>
+
+        <div class="kpi-card">
+            <div class="kpi-top">
+                <div>
+                    <div class="kpi-label">Confirmações</div>
+                    <div class="kpi-value">91%</div>
+                </div>
+                <div class="kpi-icon">💬</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-top">
+                <div>
+                    <div class="kpi-label">Pacientes Ativos</div>
+                    <div class="kpi-value">154</div>
+                </div>
+                <div class="kpi-icon">👥</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-top">
+                <div>
+                    <div class="kpi-label">Profissionais</div>
+                    <div class="kpi-value">12</div>
+                </div>
+                <div class="kpi-icon">🩺</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-top">
+                <div>
+                    <div class="kpi-label">Financeiro</div>
+                    <div class="kpi-value">R$48K</div>
+                </div>
+                <div class="kpi-icon">💰</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- AGENDA -->
+
+    <section id="agenda" class="module">
+
+        <div class="module-header">
+
+            <h2>Agenda Inteligente</h2>
+
+            <div class="btn-group">
+
+                <button class="btn-primary">Incluir</button>
+                <button class="btn-warning">Editar</button>
+                <button class="btn-danger">Apagar</button>
+                <button class="btn-secondary">Imprimir</button>
+
+            </div>
+
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Paciente</th>
+                    <th>Profissional</th>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Sala</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>Maria Souza</td>
+                    <td>Dra. Ana Paula</td>
+                    <td>27/05/2026</td>
+                    <td>09:00</td>
+                    <td>Sala 1</td>
+                    <td>
+                        <span class="status confirmado">
+                            Confirmado
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>João Pedro</td>
+                    <td>Dr. Lucas</td>
+                    <td>27/05/2026</td>
+                    <td>10:30</td>
+                    <td>Sala 2</td>
+                    <td>
+                        <span class="status agendado">
+                            Agendado
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Fernanda Lima</td>
+                    <td>Dra. Carla</td>
+                    <td>27/05/2026</td>
+                    <td>14:00</td>
+                    <td>Sala 1</td>
+                    <td>
+                        <span class="status cancelado">
+                            Cancelado
+                        </span>
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <!-- PACIENTES -->
+
+    <section id="pacientes" class="module">
+
+        <div class="module-header">
+
+            <h2>Pacientes</h2>
+
+            <div class="btn-group">
+
+                <button class="btn-primary">Incluir</button>
+                <button class="btn-warning">Editar</button>
+                <button class="btn-danger">Apagar</button>
+                <button class="btn-secondary">Imprimir</button>
+
+            </div>
+
+        </div>
+
+        <div class="form-grid">
+
+            <div class="input-group">
+                <label>Nome</label>
+                <input type="text">
+            </div>
+
+            <div class="input-group">
+                <label>Nascimento</label>
+                <input type="date">
+            </div>
+
+            <div class="input-group">
+                <label>Telefone</label>
+                <input type="text">
+            </div>
+
+            <div class="input-group">
+                <label>Profissional</label>
+                <select>
+                    <option>Dra. Ana Paula</option>
+                    <option>Dr. Lucas</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Valor da Sessão</label>
+                <input type="number">
+            </div>
+
+            <div class="input-group">
+                <label>Responsável</label>
+                <input type="text">
+            </div>
+
+        </div>
+
+        <br><br>
+
+        <div class="btn-group">
+
+            <button class="btn-primary">Prontuário</button>
+            <button class="btn-primary">Evolução IA</button>
+            <button class="btn-primary">Declaração</button>
+            <button class="btn-primary">Atestado</button>
+            <button class="btn-primary">Laudo</button>
+
+        </div>
+
+    </section>
+
+    <!-- IA -->
+
+    <section id="ia" class="module">
+
+        <div class="module-header">
+            <h2>Inteligência Artificial</h2>
+        </div>
+
+        <div class="ai-grid">
+
+            <div class="ai-card">
+
+                <h3>Evolução Terapêutica</h3>
+
+                <ul>
+                    <li>Resumo automático das sessões</li>
+                    <li>Sugestão terapêutica</li>
+                    <li>Insights clínicos</li>
+                    <li>Gráfico evolutivo do paciente</li>
+                </ul>
+
+            </div>
+
+            <div class="ai-card">
+
+                <h3>WhatsApp Inteligente</h3>
+
+                <ul>
+                    <li>Confirmação automática</li>
+                    <li>Lembretes automáticos</li>
+                    <li>Atualização em tempo real</li>
+                    <li>Redução de faltas</li>
+                </ul>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FINANCEIRO -->
+
+    <section id="financeiro" class="module">
+
+        <div class="module-header">
+            <h2>Financeiro</h2>
+        </div>
+
+        <div class="ai-grid">
+
+            <div class="ai-card">
+
+                <h3>Resumo Financeiro</h3>
+
+                <ul>
+                    <li>Receita: R$48.250</li>
+                    <li>Despesa: R$16.180</li>
+                    <li>Lucro: R$32.070</li>
+                </ul>
+
+            </div>
+
+            <div class="ai-card">
+
+                <h3>IA Financeira</h3>
+
+                <ul>
+                    <li>Gráfico Pareto 80/20</li>
+                    <li>Identificação de desperdícios</li>
+                    <li>Sugestão de melhorias</li>
+                </ul>
+
+            </div>
+
+        </div>
+
+        <div class="graph">
+
+            <div class="bar" style="height:90%;">
+                <span>Receita</span>
+            </div>
+
+            <div class="bar" style="height:55%;">
+                <span>Despesas</span>
+            </div>
+
+            <div class="bar" style="height:75%;">
+                <span>Consultas</span>
+            </div>
+
+            <div class="bar" style="height:40%;">
+                <span>Custos</span>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- RBAC -->
+
+    <section id="rbac" class="module">
+
+        <div class="module-header">
+            <h2>Controle de Acesso</h2>
+        </div>
+
+        <div class="rbac">
+
+            <div class="role-card">
+
+                <h3>Administrador</h3>
+
+                <p>
+                    Controle total do sistema.
+                </p>
+
+            </div>
+
+            <div class="role-card">
+
+                <h3>Profissional</h3>
+
+                <p>
+                    Acesso somente aos próprios pacientes.
+                </p>
+
+            </div>
+
+            <div class="role-card">
+
+                <h3>Secretária</h3>
+
+                <p>
+                    Agenda, recebimentos e impressão.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- CONFIG -->
+
+    <section id="configuracoes" class="module">
+
+        <div class="module-header">
+
+            <h2>Configurações</h2>
+
+            <button class="btn-primary">
+                Salvar
+            </button>
+
+        </div>
+
+        <div class="form-grid">
+
+            <div class="input-group">
+                <label>Nome Clínica</label>
+                <input type="text">
+            </div>
+
+            <div class="input-group">
+                <label>CNPJ</label>
+                <input type="text">
+            </div>
+
+            <div class="input-group">
+                <label>Telefone</label>
+                <input type="text">
+            </div>
+
+            <div class="input-group">
+                <label>Endereço</label>
+                <input type="text">
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+        © 2026 Ativamente+ Clinic • Sistema Inteligente para Psicologia
     </div>
 
-    <script>
-        // Utility
-        function getData(key) {
-            return JSON.parse(localStorage.getItem('av_' + key) || '[]');
-        }
-        function setData(key, data) {
-            localStorage.setItem('av_' + key, JSON.stringify(data));
-        }
-        function generateId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2,5);
-        }
-        function formatDate(dateStr) {
-            if(!dateStr) return '';
-            let parts = dateStr.split('-');
-            if(parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
-            return dateStr;
-        }
+</main>
 
-        // Login & Register
-        let currentUser = null;
+<!-- ========================================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================================= -->
 
-        function login() {
-            let user = document.getElementById('loginUser').value.trim();
-            let pass = document.getElementById('loginPass').value.trim();
-            let users = getData('users');
-            // default admin
-            if(users.length === 0) {
-                users = [{id:'admin',user:'admin',pass:'admin'}];
-                setData('users', users);
-            }
-            let found = users.find(u => u.user === user && u.pass === pass);
-            if(found) {
-                currentUser = found;
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                document.getElementById('userDisplay').textContent = currentUser.user;
-                renderPatients();
-                renderAppointments();
-                renderFinancial();
-                generateReports();
-            } else {
-                document.getElementById('loginError').textContent = 'Usuário ou senha inválidos.';
-            }
-        }
+<script>
 
-        function toggleRegister() {
-            let loginCard = document.querySelector('.login-card');
-            let regCard = document.getElementById('registerCard');
-            if(regCard.style.display === 'none') {
-                loginCard.style.display = 'none';
-                regCard.style.display = 'block';
-            } else {
-                loginCard.style.display = 'block';
-                regCard.style.display = 'none';
-            }
-            document.getElementById('loginError').textContent = '';
-            document.getElementById('registerError').textContent = '';
-        }
+// =========================================
+// ALERTAS
+// =========================================
 
-        function register() {
-            let user = document.getElementById('regUser').value.trim();
-            let pass = document.getElementById('regPass').value.trim();
-            let pass2 = document.getElementById('regPass2').value.trim();
-            if(!user || !pass) {
-                document.getElementById('registerError').textContent = 'Preencha todos os campos.';
-                return;
-            }
-            if(pass !== pass2) {
-                document.getElementById('registerError').textContent = 'Senhas não conferem.';
-                return;
-            }
-            let users = getData('users');
-            if(users.find(u => u.user === user)) {
-                document.getElementById('registerError').textContent = 'Usuário já existe.';
-                return;
-            }
-            users.push({id:generateId(),user:user,pass:pass});
-            setData('users', users);
-            document.getElementById('registerError').textContent = 'Conta criada! Faça login.';
-            toggleRegister();
-        }
+function mostrarMensagem(msg){
 
-        function logout() {
-            currentUser = null;
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('loginError').textContent = '';
-        }
+    alert(msg);
 
-        // Navigation
-        function showSection(section, el) {
-            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            if(el) el.classList.add('active');
-            document.getElementById('sectionPacientes').style.display = 'none';
-            document.getElementById('sectionAgenda').style.display = 'none';
-            document.getElementById('sectionFinanceiro').style.display = 'none';
-            document.getElementById('sectionRelatorios').style.display = 'none';
-            if(section === 'pacientes') {
-                document.getElementById('sectionPacientes').style.display = 'block';
-                document.getElementById('sectionTitle').textContent = 'Pacientes';
-                renderPatients();
-            } else if(section === 'agenda') {
-                document.getElementById('sectionAgenda').style.display = 'block';
-                document.getElementById('sectionTitle').textContent = 'Agenda';
-                renderAppointments();
-            } else if(section === 'financeiro') {
-                document.getElementById('sectionFinanceiro').style.display = 'block';
-                document.getElementById('sectionTitle').textContent = 'Financeiro';
-                renderFinancial();
-            } else if(section === 'relatorios') {
-                document.getElementById('sectionRelatorios').style.display = 'block';
-                document.getElementById('sectionTitle').textContent = 'Relatórios';
-                generateReports();
-            }
-        }
+}
 
-        // Drawer
-        function openDrawer(type, data) {
-            document.getElementById('drawerOverlay').style.display = 'block';
-            document.getElementById('drawer').style.display = 'block';
-            document.getElementById('drawerContent').innerHTML = '';
-            if(type === 'novoPaciente') {
-                document.getElementById('drawerTitle').textContent = 'Novo Paciente';
-                document.getElementById('drawerContent').innerHTML = `
-                    <div class="form-group"><label>Nome</label><input type="text" id="pNome"></div>
-                    <div class="form-group"><label>Data de Nascimento (dd/mm/aaaa)</label><input type="text" id="pNasc" placeholder="DD/MM/AAAA"></div>
-                    <div class="form-group"><label>Telefone</label><input type="text" id="pTel"></div>
-                    <div class="form-group"><label>Email</label><input type="email" id="pEmail"></div>
-                    <div class="form-group"><label>Profissional Responsável</label><input type="text" id="pProf"></div>
-                    <button class="btn" onclick="savePatient()">Salvar</button>
-                `;
-            } else if(type === 'editarPaciente') {
-                let p = data;
-                document.getElementById('drawerTitle').textContent = 'Editar Paciente';
-                document.getElementById('drawerContent').innerHTML = `
-                    <div class="form-group"><label>Nome</label><input type="text" id="pNome" value="${p.nome}"></div>
-                    <div class="form-group"><label>Data de Nascimento (dd/mm/aaaa)</label><input type="text" id="pNasc" value="${p.nascimento}"></div>
-                    <div class="form-group"><label>Telefone</label><input type="text" id="pTel" value="${p.telefone}"></div>
-                    <div class="form-group"><label>Email</label><input type="email" id="pEmail" value="${p.email}"></div>
-                    <div class="form-group"><label>Profissional Responsável</label><input type="text" id="pProf" value="${p.profissional}"></div>
-                    <button class="btn" onclick="savePatient('${p.id}')">Salvar</button>
-                `;
-            } else if(type === 'verPaciente') {
-                let p = data;
-                document.getElementById('drawerTitle').textContent = p.nome;
-                document.getElementById('drawerContent').innerHTML = `
-                    <div class="tabs">
-                        <div class="tab active" onclick="switchTab(this,'dados')">Dados</div>
-                        <div class="tab" onclick="switchTab(this,'prontuarios')">Prontuários</div>
-                        <div class="tab" onclick="switchTab(this,'evolucao')">Evolução</div>
-                    </div>
-                    <div class="tab-content active" id="tabDados">
-                        <p><strong>Nome:</strong> ${p.nome}</p>
-                        <p><strong>Nascimento:</strong> ${p.nascimento}</p>
-                        <p><strong>Telefone:</strong> ${p.telefone}</p>
-                        <p><strong>Email:</strong> ${p.email}</p>
-                        <p><strong>Profissional:</strong> ${p.profissional}</p>
-                    </div>
-                    <div class="tab-content" id="tabProntuarios">
-                        <button class="btn btn-sm" onclick="addRecord('${p.id}')">+ Adicionar Prontuário</button>
-                        <div id="prontuarioList"></div>
-                    </div>
-                    <div class="tab-content" id="tabEvolucao">
-                        <div id="evolutionChartContainer"></div>
-                    </div>
-                `;
-                renderProntuarios(p.id);
-                renderEvolutionChart(p.id);
-            } else if(type === 'novoAgendamento') {
-                let patients = getData('patients');
-                let options = patients.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-                document.getElementById('drawerTitle').textContent = 'Novo Agendamento';
-                document.getElementById('drawerContent').innerHTML = `
-                    <div class="form-group"><label>Paciente</label><select id="aPaciente">${options}</select></div>
-                    <div class="form-group"><label>Data</label><input type="date" id="aData"></div>
-                    <div class="form-group"><label>Hora</label><input type="time" id="aHora"></div>
-                    <div class="form-group"><label>Profissional</label><input type="text" id="aProf"></div>
-                    <div class="form-group"><label>Forma de Pagamento</label><select id="aPagamento"><option>Dinheiro</option><option>Cartão</option><option>Pix</option><option>Convênio</option></select></div>
-                    <div class="form-group"><label>Valor</label><input type="number" id="aValor" step="0.01"></div>
-                    <button class="btn" onclick="saveAppointment()">Salvar</button>
-                `;
-            } else if(type === 'editarAgendamento') {
-                let a = data;
-                let patients = getData('patients');
-                let options = patients.map(p => `<option value="${p.id}" ${p.id===a.pacienteId?'selected':''}>${p.nome}</option>`).join('');
-                document.getElementById('drawerTitle').textContent = 'Editar Agendamento';
-                document.getElementById('drawerContent').innerHTML = `
-                    <div class="form-group"><label>Paciente</label><select id="aPaciente">${options}</select></div>
-                    <div class="form-group"><label>Data</label><input type="date" id="aData" value="${a.data}"></div>
-                    <div class="form-group"><label>Hora</label><input type="time" id="aHora" value="${a.hora}"></div>
-                    <div class="form-group"><label>Profissional</label><input type="text" id="aProf" value="${a.profissional}"></div>
-                    <div class="form-group"><label>Forma de Pagamento</label><select id="aPagamento"><option>Dinheiro</option><option>Cartão</option><option>Pix</option><option>Convênio</option></select></div>
-                    <div class="form-group"><label>Valor</label><input type="number" id="aValor" step="0.01" value="${a.valor}"></div>
-                    <button class="btn" onclick="saveAppointment('${a.id}')">Salvar</button>
-                `;
-                document.getElementById('aPagamento').value = a.pagamento;
-            } else if(type === 'novaTransacao') {
-                document.getElementById('drawerTitle').textContent = 'Nova Transação';
-                document.getElementById('drawerContent').innerHTML = `
-                    <div class="form-group"><label>Tipo</label><select id="tTipo"><option>Receita</option><option>Despesa</option></select></div>
-                    <div class="form-group"><label>Descrição</label><input type="text" id="tDesc"></div>
-                    <div class="form-group"><label>Valor</label><input type="number" id="tValor" step="0.01"></div>
-                    <div class="form-group"><label>Data</label><input type="date" id="tData"></div>
-                    <div class="form-group"><label>Categoria</label><input type="text" id="tCat"></div>
-                    <button class="btn" onclick="saveTransaction()">Salvar</button>
-                `;
-            }
-        }
+// =========================================
+// IA FINANCEIRA
+// =========================================
 
-        function closeDrawer() {
-            document.getElementById('drawerOverlay').style.display = 'none';
-            document.getElementById('drawer').style.display = 'none';
-        }
+function gerarAnaliseFinanceira(){
 
-        // Tabs inside drawer
-        function switchTab(el, tabId) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
-        }
+    return {
 
-        // Patients CRUD
-        function savePatient(id) {
-            let nome = document.getElementById('pNome').value.trim();
-            let nascimento = document.getElementById('pNasc').value.trim();
-            let telefone = document.getElementById('pTel').value.trim();
-            let email = document.getElementById('pEmail').value.trim();
-            let profissional = document.getElementById('pProf').value.trim();
-            if(!nome || !nascimento) {
-                alert('Nome e data de nascimento são obrigatórios.');
-                return;
-            }
-            // Validate date format dd/mm/aaaa
-            if(!/^\d{2}\/\d{2}\/\d{4}$/.test(nascimento)) {
-                alert('Data deve estar no formato DD/MM/AAAA.');
-                return;
-            }
-            let patients = getData('patients');
-            if(id) {
-                let idx = patients.findIndex(p => p.id === id);
-                if(idx !== -1) {
-                    patients[idx] = { ...patients[idx], nome, nascimento, telefone, email, profissional };
-                }
-            } else {
-                patients.push({id:generateId(), nome, nascimento, telefone, email, profissional});
-            }
-            setData('patients', patients);
-            closeDrawer();
-            renderPatients();
-        }
+        receita:"R$48.250",
+        despesa:"R$16.180",
+        lucro:"R$32.070",
+        insight:"80% da receita vem de 20% dos pacientes."
 
-        function renderPatients() {
-            let search = document.getElementById('searchPatient').value.toLowerCase();
-            let patients = getData('patients').filter(p => p.nome.toLowerCase().includes(search));
-            let html = '';
-            if(patients.length === 0) {
-                html = '<p style="color:#888;">Nenhum paciente encontrado.</p>';
-            } else {
-                html = `<table>
-                    <tr><th>Nome</th><th>Nascimento</th><th>Telefone</th><th>Ações</th></tr>`;
-                patients.forEach(p => {
-                    html += `<tr>
-                        <td>${p.nome}</td>
-                        <td>${p.nascimento}</td>
-                        <td>${p.telefone || '-'}</td>
-                        <td>
-                            <button class="btn btn-sm" onclick="openDrawer('verPaciente', getPatient('${p.id}'))">Ver</button>
-                            <button class="btn btn-sm btn-orange" onclick="openDrawer('editarPaciente', getPatient('${p.id}'))">Editar</button>
-                            <button class="btn btn-sm btn-red" onclick="deletePatient('${p.id}')">Excluir</button>
-                        </td>
-                    </tr>`;
-                });
-                html += '</table>';
-            }
-            document.getElementById('patientList').innerHTML = html;
-        }
+    };
 
-        function getPatient(id) {
-            return getData('patients').find(p => p.id === id);
-        }
+}
 
-        function deletePatient(id) {
-            if(!confirm('Excluir paciente?')) return;
-            let patients = getData('patients').filter(p => p.id !== id);
-            setData('patients', patients);
-            // Also clear related records
-            localStorage.removeItem('av_records_' + id);
-            renderPatients();
-        }
+console.log(
+    gerarAnaliseFinanceira()
+);
 
-        // Records (Prontuários)
-        function addRecord(patientId) {
-            let content = prompt('Digite o prontuário:');
-            if(!content) return;
-            let records = getData('records_' + patientId);
-            records.push({id:generateId(), type:'prontuario', content, date: new Date().toISOString().slice(0,10)});
-            setData('records_' + patientId, records);
-            renderProntuarios(patientId);
-        }
+// =========================================
+// CONFIRMAÇÃO WHATSAPP
+// =========================================
 
-        function renderProntuarios(patientId) {
-            let records = getData('records_' + patientId).filter(r => r.type === 'prontuario');
-            let html = '';
-            if(records.length === 0) {
-                html = '<p style="color:#888;">Nenhum prontuário registrado.</p>';
-            } else {
-                records.forEach(r => {
-                    html += `<div style="background:#f8f9fa;padding:12px;border-radius:8px;margin-bottom:8px;">
-                        <small>${r.date}</small>
-                        <p>${r.content}</p>
-                        <button class="btn btn-sm btn-red" onclick="deleteRecord('${patientId}','${r.id}')">Excluir</button>
-                    </div>`;
-                });
-            }
-            let container = document.getElementById('prontuarioList');
-            if(container) container.innerHTML = html;
-        }
+function confirmarConsulta(nome){
 
-        function deleteRecord(patientId, recordId) {
-            if(!confirm('Excluir registro?')) return;
-            let records = getData('records_' + patientId).filter(r => r.id !== recordId);
-            setData('records_' + patientId, records);
-            renderProntuarios(patientId);
-        }
+    alert(
+        "Consulta confirmada automaticamente para " + nome
+    );
 
-        // Evolution Chart
-        function renderEvolutionChart(patientId) {
-            let records = getData('records_' + patientId).filter(r => r.type === 'evolucao');
-            // Count by month
-            let months = {};
-            records.forEach(r => {
-                let month = r.date ? r.date.slice(0,7) : 'sem data';
-                if(!months[month]) months[month] = 0;
-                months[month]++;
-            });
-            let sortedMonths = Object.keys(months).sort();
-            let container = document.getElementById('evolutionChartContainer');
-            if(!container) return;
-            if(sortedMonths.length === 0) {
-                container.innerHTML = '<p>Nenhum registro de evolução.</p>';
-                return;
-            }
-            let maxCount = Math.max(...Object.values(months),1);
-            let html = '<div class="bar-chart">';
-            sortedMonths.forEach(m => {
-                let count = months[m];
-                let height = (count / maxCount * 180) + 2;
-                html += `<div style="display:flex;flex-direction:column;align-items:center;flex:1;">
-                    <div class="bar-value">${count}</div>
-                    <div class="bar" style="height:${height}px;"></div>
-                    <div class="bar-label">${m}</div>
-                </div>`;
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        }
+}
 
-        // Appointments
-        function saveAppointment(id) {
-            let pacienteId = document.getElementById('aPaciente').value;
-            let data = document.getElementById('aData').value;
-            let hora = document.getElementById('aHora').value;
-            let profissional = document.getElementById('aProf').value.trim();
-            let pagamento = document.getElementById('aPagamento').value;
-            let valor = parseFloat(document.getElementById('aValor').value) || 0;
-            if(!pacienteId || !data) { alert('Paciente e data obrigatórios.'); return; }
-            let appointments = getData('appointments');
-            if(id) {
-                let idx = appointments.findIndex(a => a.id === id);
-                if(idx !== -1) {
-                    appointments[idx] = { ...appointments[idx], pacienteId, data, hora, profissional, pagamento, valor };
-                }
-            } else {
-                appointments.push({id:generateId(), pacienteId, data, hora, profissional, pagamento, valor, pago: false});
-            }
-            setData('appointments', appointments);
-            closeDrawer();
-            renderAppointments();
-        }
+</script>
 
-        function renderAppointments() {
-            let appointments = getData('appointments');
-            let patients = getData('patients');
-            let html = '';
-            if(appointments.length === 0) {
-                html = '<p style="color:#888;">Nenhum agendamento.</p>';
-            } else {
-                html = `<table>
-                    <tr><th>Paciente</th><th>Data</th><th>Hora</th><th>Profissional</th><th>Pagamento</th><th>Valor</th><th>Status</th><th>Ações</th></tr>`;
-                appointments.forEach(a => {
-                    let paciente = patients.find(p => p.id === a.pacienteId);
-                    let nome = paciente ? paciente.nome : 'Desconhecido';
-                    let status = a.pago ? 'Pago' : 'Pendente';
-                    html += `<tr>
-                        <td>${nome}</td>
-                        <td>${a.data}</td>
-                        <td>${a.hora || '-'}</td>
-                        <td>${a.profissional || '-'}</td>
-                        <td>${a.pagamento || '-'}</td>
-                        <td>R$ ${a.valor.toFixed(2)}</td>
-                        <td>${status}</td>
-                        <td>
-                            ${!a.pago ? `<button class="btn btn-sm" onclick="markPaid('${a.id}')">Pagar</button>` : ''}
-                            <button class="btn btn-sm btn-orange" onclick="openDrawer('editarAgendamento', getAppointment('${a.id}'))">Editar</button>
-                            <button class="btn btn-sm btn-red" onclick="deleteAppointment('${a.id}')">Excluir</button>
-                        </td>
-                    </tr>`;
-                });
-                html += '</table>';
-            }
-            document.getElementById('appointmentList').innerHTML = html;
-        }
-
-        function getAppointment(id) {
-            return getData('appointments').find(a => a.id === id);
-        }
-
-        function markPaid(id) {
-            let appointments = getData('appointments');
-            let idx = appointments.findIndex(a => a.id === id);
-            if(idx !== -1) {
-                appointments[idx].pago = true;
-                // Auto export to financial
-                let a = appointments[idx];
-                let transactions = getData('transactions');
-                transactions.push({
-                    id: generateId(),
-                    tipo: 'Receita',
-                    descricao: 'Pagamento de consulta - ' + (getData('patients').find(p=>p.id===a.pacienteId)?.nome || 'desconhecido'),
-                    valor: a.valor,
-                    data: a.data,
-                    categoria: a.pagamento || 'Consulta'
-                });
-                setData('transactions', transactions);
-                setData('appointments', appointments);
-                renderAppointments();
-                renderFinancial();
-            }
-        }
-
-        function deleteAppointment(id) {
-            if(!confirm('Excluir agendamento?')) return;
-            let appointments = getData('appointments').filter(a => a.id !== id);
-            setData('appointments', appointments);
-            renderAppointments();
-        }
-
-        // Financial
-        function saveTransaction(id) {
-            let tipo = document.getElementById('tTipo').value;
-            let desc = document.getElementById('tDesc').value.trim();
-            let valor = parseFloat(document.getElementById('tValor').value) || 0;
-            let data = document.getElementById('tData').value;
-            let cat = document.getElementById('tCat').value.trim();
-            if(!desc || !data) { alert('Descrição e data obrigatórias.'); return; }
-            let transactions = getData('transactions');
-            if(id) {
-                let idx = transactions.findIndex(t => t.id === id);
-                if(idx !== -1) transactions[idx] = { ...transactions[idx], tipo, descricao: desc, valor, data, categoria: cat };
-            } else {
-                transactions.push({id:generateId(), tipo, descricao: desc, valor, data, categoria: cat});
-            }
-            setData('transactions', transactions);
-            closeDrawer();
-            renderFinancial();
-        }
-
-        function renderFinancial() {
-            let transactions = getData('transactions');
-            let html = '';
-            if(transactions.length === 0) {
-                html = '<p style="color:#888;">Nenhuma transação.</p>';
-            } else {
-                html = `<table>
-                    <tr><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Data</th><th>Categoria</th><th>Ações</th></tr>`;
-                transactions.forEach(t => {
-                    html += `<tr>
-                        <td>${t.tipo}</td>
-                        <td>${t.descricao}</td>
-                        <td>R$ ${t.valor.toFixed(2)}</td>
-                        <td>${t.data}</td>
-                        <td>${t.categoria || '-'}</td>
-                        <td>
-                            <button class="btn btn-sm btn-red" onclick="deleteTransaction('${t.id}')">Excluir</button>
-                        </td>
-                    </tr>`;
-                });
-                html += '</table>';
-            }
-            document.getElementById('financialList').innerHTML = html;
-        }
-
-        function deleteTransaction(id) {
-            if(!confirm('Excluir transação?')) return;
-            let transactions = getData('transactions').filter(t => t.id !== id);
-            setData('transactions', transactions);
-            renderFinancial();
-        }
-
-        function generateFinancialChart() {
-            let container = document.getElementById('financialChartContainer');
-            container.style.display = 'block';
-            let transactions = getData('transactions');
-            let revenues = transactions.filter(t => t.tipo === 'Receita').reduce((sum, t) => sum + t.valor, 0);
-            let expenses = transactions.filter(t => t.tipo === 'Despesa').reduce((sum, t) => sum + t.valor, 0);
-            let maxVal = Math.max(revenues, expenses, 1);
-            let html = `<h4 style="margin-bottom:16px;">Comparativo Receitas vs Despesas</h4>
-                <div class="bar-chart" style="height:250px;">
-                    <div style="display:flex;flex-direction:column;align-items:center;flex:1;">
-                        <div class="bar-value">R$ ${revenues.toFixed(2)}</div>
-                        <div class="bar" style="height:${(revenues/maxVal*220)+2}px;background:#20B2AA;"></div>
-                        <div class="bar-label">Receitas</div>
-                    </div>
-                    <div style="display:flex;flex-direction:column;align-items:center;flex:1;">
-                        <div class="bar-value">R$ ${expenses.toFixed(2)}</div>
-                        <div class="bar" style="height:${(expenses/maxVal*220)+2}px;background:#dc3545;"></div>
-                        <div class="bar-label">Despesas</div>
-                    </div>
-                </div>`;
-            container.innerHTML = html;
-        }
-
-        // Reports
-        function generateReports() {
-            // Distribution of patients by professional
-            let patients = getData('patients');
-            let profCount = {};
-            patients.forEach(p => {
-                let prof = p.profissional || 'Sem profissional';
-                if(!profCount[prof]) profCount[prof] = 0;
-                profCount[prof]++;
-            });
-            let profHtml = '<div class="bar-chart" style="height:150px;">';
-            let maxProf = Math.max(...Object.values(profCount),1);
-            for(let prof in profCount) {
-                let height = (profCount[prof]/maxProf*130)+2;
-                profHtml += `<div style="display:flex;flex-direction:column;align-items:center;flex:1;">
-                    <div class="bar-value">${profCount[prof]}</div>
-                    <div class="bar" style="height:${height}px;"></div>
-                    <div class="bar-label" style="font-size:10px;">${prof}</div>
-                </div>`;
-            }
-            profHtml += '</div>';
-            document.getElementById('chartDistribuicao').innerHTML = profHtml;
-
-            // Payment methods from appointments
-            let appointments = getData('appointments');
-            let pagCount = {};
-            appointments.forEach(a => {
-                let pag = a.pagamento || 'Não definido';
-                if(!pagCount[pag]) pagCount[pag] = 0;
-                pagCount[pag]++;
-            });
-            let pagHtml = '<div class="bar-chart" style="height:150px;">';
-            let maxPag = Math.max(...Object.values(pagCount),1);
-            for(let pag in pagCount) {
-                let height = (pagCount[pag]/maxPag*130)+2;
-                pagHtml += `<div style="display:flex;flex-direction:column;align-items:center;flex:1;">
-                    <div class="bar-value">${pagCount[pag]}</div>
-                    <div class="bar" style="height:${height}px;background:#FF8C00;"></div>
-                    <div class="bar-label" style="font-size:10px;">${pag}</div>
-                </div>`;
-            }
-            pagHtml += '</div>';
-            document.getElementById('chartPagamento').innerHTML = pagHtml;
-
-            // Professional ranking by number of appointments
-            let profAppCount = {};
-            appointments.forEach(a => {
-                let prof = a.profissional || 'Sem profissional';
-                if(!profAppCount[prof]) profAppCount[prof] = 0;
-                profAppCount[prof]++;
-            });
-            let profAppHtml = '<div class="bar-chart" style="height:150px;">';
-            let maxProfApp = Math.max(...Object.values(profAppCount),1);
-            for(let prof in profAppCount) {
-                let height = (profAppCount[prof]/maxProfApp*130)+2;
-                profAppHtml += `<div style="display:flex;flex-direction:column;align-items:center;flex:1;">
-                    <div class="bar-value">${profAppCount[prof]}</div>
-                    <div class="bar" style="height:${height}px;background:#20B2AA;"></div>
-                    <div class="bar-label" style="font-size:10px;">${prof}</div>
-                </div>`;
-            }
-            profAppHtml += '</div>';
-            document.getElementById('chartProfissional').innerHTML = profAppHtml;
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ensure default admin exists
-            let users = getData('users');
-            if(users.length === 0) {
-                setData('users', [{id:'admin', user:'admin', pass:'admin'}]);
-            }
-        });
-    </script>
 </body>
 </html>
