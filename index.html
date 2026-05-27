@@ -1,38 +1,208 @@
 <!-- ========================================= -->
-<!-- SUBSTITUA TODO O JAVASCRIPT PELO ABAIXO -->
-<!-- SISTEMA TOTALMENTE FUNCIONAL -->
+<!-- KPI AGENDA - SUBSTITUA PELO ABAIXO -->
+<!-- ========================================= -->
+
+<div class="kpi-card">
+
+    <div class="kpi-top">
+
+        <div>
+
+            <div class="kpi-label">
+                Agenda Hoje
+            </div>
+
+            <div class="kpi-value" id="kpiAgenda">
+                0
+            </div>
+
+        </div>
+
+        <div class="kpi-icon">
+            📅
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- KPI PACIENTES - SUBSTITUA PELO ABAIXO -->
+<!-- ========================================= -->
+
+<div class="kpi-card">
+
+    <div class="kpi-top">
+
+        <div>
+
+            <div class="kpi-label">
+                Pacientes Ativos
+            </div>
+
+            <div class="kpi-value" id="kpiPacientes">
+                0
+            </div>
+
+        </div>
+
+        <div class="kpi-icon">
+            👥
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- KPI PROFISSIONAIS - SUBSTITUA PELO ABAIXO -->
+<!-- ========================================= -->
+
+<div class="kpi-card">
+
+    <div class="kpi-top">
+
+        <div>
+
+            <div class="kpi-label">
+                Profissionais
+            </div>
+
+            <div class="kpi-value" id="kpiProfissionais">
+                0
+            </div>
+
+        </div>
+
+        <div class="kpi-icon">
+            🩺
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- TABELA AGENDA - SUBSTITUA O TBODY -->
+<!-- ========================================= -->
+
+<tbody id="agendaTable">
+</tbody>
+
+<!-- ========================================= -->
+<!-- TABELA PROFISSIONAIS -->
+<!-- COLOQUE DENTRO DO MÓDULO PROFISSIONAIS -->
+<!-- ========================================= -->
+
+<table>
+
+    <thead>
+
+        <tr>
+
+            <th>Nome</th>
+            <th>Especialidade</th>
+            <th>Telefone</th>
+            <th>Ações</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody id="profissionaisTable">
+    </tbody>
+
+</table>
+
+<!-- ========================================= -->
+<!-- BOTÃO AGENDA -->
+<!-- ========================================= -->
+
+<button
+    class="btn-primary"
+    onclick="incluirAgenda()"
+>
+    Incluir
+</button>
+
+<!-- ========================================= -->
+<!-- BOTÕES PACIENTES -->
+<!-- ========================================= -->
+
+<button
+    class="btn-primary"
+    onclick="incluirPaciente()"
+>
+    Incluir
+</button>
+
+<button
+    class="btn-warning"
+    onclick="editarPaciente()"
+>
+    Editar
+</button>
+
+<button
+    class="btn-danger"
+    onclick="excluirPaciente()"
+>
+    Excluir
+</button>
+
+<!-- ========================================= -->
+<!-- BOTÃO PROFISSIONAIS -->
+<!-- ========================================= -->
+
+<button
+    class="btn-primary"
+    onclick="incluirProfissional()"
+>
+    Incluir
+</button>
+
+<!-- ========================================= -->
+<!-- BOTÃO IMPRIMIR -->
+<!-- ========================================= -->
+
+<button
+    class="btn-secondary"
+    onclick="imprimirModulo()"
+>
+    Imprimir
+</button>
+
+<!-- ========================================= -->
+<!-- APAGUE TODO SEU JAVASCRIPT -->
+<!-- E COLE ESTE COMPLETO -->
 <!-- ========================================= -->
 
 <script>
 
 /* =========================================
-   BANCO DE DADOS LOCAL
+   DADOS
 ========================================= */
 
 let pacientes = [
+
     {
-        nome:"Maria Souza",
-        nascimento:"1995-05-10",
-        telefone:"(11) 99999-9999",
-        profissional:"Dra. Ana Paula",
-        valor:"250"
+        nome:"Maria Souza"
     }
+
 ];
 
 let profissionais = [
+
     {
         nome:"Dra. Ana Paula",
         especialidade:"Psicóloga Clínica",
-        telefone:"(11) 98888-8888"
-    },
-    {
-        nome:"Dr. Lucas",
-        especialidade:"Neuropsicólogo",
-        telefone:"(11) 97777-7777"
+        telefone:"(11) 99999-9999"
     }
+
 ];
 
 let agenda = [
+
     {
         paciente:"Maria Souza",
         profissional:"Dra. Ana Paula",
@@ -41,42 +211,66 @@ let agenda = [
         sala:"Sala 1",
         status:"Confirmado"
     }
+
 ];
 
 /* =========================================
-   KPI DINÂMICO
+   KPI
 ========================================= */
 
 function atualizarKPIs(){
 
-    // PACIENTES
-    document.getElementById("kpiPacientes").innerText =
-        pacientes.length;
+    const agendaKPI =
+        document.getElementById("kpiAgenda");
 
-    // PROFISSIONAIS
-    document.getElementById("kpiProfissionais").innerText =
-        profissionais.length;
+    const pacientesKPI =
+        document.getElementById("kpiPacientes");
 
-    // AGENDA
-    document.getElementById("kpiAgenda").innerText =
-        agenda.length;
+    const profissionaisKPI =
+        document.getElementById("kpiProfissionais");
+
+    if(agendaKPI){
+
+        agendaKPI.innerText =
+            agenda.length;
+
+    }
+
+    if(pacientesKPI){
+
+        pacientesKPI.innerText =
+            pacientes.length;
+
+    }
+
+    if(profissionaisKPI){
+
+        profissionaisKPI.innerText =
+            profissionais.length;
+
+    }
 
 }
 
 /* =========================================
-   RENDER PROFISSIONAIS
+   PROFISSIONAIS
 ========================================= */
 
 function renderProfissionais(){
 
-    const tbody =
-        document.getElementById("profissionaisTable");
+    const tabela =
+        document.getElementById(
+            "profissionaisTable"
+        );
 
-    tbody.innerHTML = "";
+    if(!tabela) return;
+
+    tabela.innerHTML = "";
 
     profissionais.forEach((prof,index)=>{
 
-        tbody.innerHTML += `
+        tabela.innerHTML += `
+
             <tr>
 
                 <td>${prof.nome}</td>
@@ -104,20 +298,17 @@ function renderProfissionais(){
                 </td>
 
             </tr>
+
         `;
 
     });
 
 }
 
-/* =========================================
-   ADICIONAR PROFISSIONAL
-========================================= */
-
 function incluirProfissional(){
 
     const nome =
-        prompt("Nome do profissional:");
+        prompt("Nome:");
 
     if(!nome) return;
 
@@ -138,56 +329,44 @@ function incluirProfissional(){
     renderProfissionais();
     atualizarKPIs();
 
-    alert("Profissional adicionado!");
-
 }
-
-/* =========================================
-   EDITAR PROFISSIONAL
-========================================= */
 
 function editarProfissional(index){
 
-    const profissional =
+    const prof =
         profissionais[index];
 
     const novoNome =
         prompt(
             "Editar nome:",
-            profissional.nome
+            prof.nome
         );
 
     if(!novoNome) return;
 
-    profissional.nome = novoNome;
+    prof.nome = novoNome;
 
-    profissional.especialidade =
+    prof.especialidade =
         prompt(
             "Especialidade:",
-            profissional.especialidade
+            prof.especialidade
         );
 
-    profissional.telefone =
+    prof.telefone =
         prompt(
             "Telefone:",
-            profissional.telefone
+            prof.telefone
         );
 
     renderProfissionais();
 
-    alert("Profissional atualizado!");
-
 }
-
-/* =========================================
-   EXCLUIR PROFISSIONAL
-========================================= */
 
 function excluirProfissional(index){
 
     const confirmar =
         confirm(
-            "Deseja excluir profissional?"
+            "Excluir profissional?"
         );
 
     if(confirmar){
@@ -197,72 +376,6 @@ function excluirProfissional(index){
         renderProfissionais();
         atualizarKPIs();
 
-        alert("Profissional removido!");
-
-    }
-
-}
-
-/* =========================================
-   PACIENTES
-========================================= */
-
-function incluirPaciente(){
-
-    const nome =
-        prompt("Nome do paciente:");
-
-    if(!nome) return;
-
-    const nascimento =
-        prompt("Nascimento:");
-
-    const telefone =
-        prompt("Telefone:");
-
-    const profissional =
-        prompt("Profissional:");
-
-    const valor =
-        prompt("Valor:");
-
-    pacientes.push({
-
-        nome,
-        nascimento,
-        telefone,
-        profissional,
-        valor
-
-    });
-
-    atualizarKPIs();
-
-    alert("Paciente cadastrado!");
-
-}
-
-function editarPaciente(){
-
-    alert(
-        "Selecione o paciente pela tabela futura."
-    );
-
-}
-
-function excluirPaciente(){
-
-    const confirmar =
-        confirm("Deseja excluir paciente?");
-
-    if(confirmar){
-
-        pacientes.pop();
-
-        atualizarKPIs();
-
-        alert("Paciente removido!");
-
     }
 
 }
@@ -271,71 +384,34 @@ function excluirPaciente(){
    AGENDA
 ========================================= */
 
-function incluirAgenda(){
-
-    const paciente =
-        prompt("Paciente:");
-
-    const profissional =
-        prompt("Profissional:");
-
-    const data =
-        prompt("Data:");
-
-    const hora =
-        prompt("Hora:");
-
-    const sala =
-        prompt("Sala:");
-
-    agenda.push({
-
-        paciente,
-        profissional,
-        data,
-        hora,
-        sala,
-        status:"Agendado"
-
-    });
-
-    renderAgenda();
-    atualizarKPIs();
-
-    alert("Agendamento criado!");
-
-}
-
 function renderAgenda(){
 
-    const tbody =
-        document.getElementById("agendaTable");
+    const tabela =
+        document.getElementById(
+            "agendaTable"
+        );
 
-    tbody.innerHTML = "";
+    if(!tabela) return;
+
+    tabela.innerHTML = "";
 
     agenda.forEach((item,index)=>{
 
-        let statusClass = "";
+        let classe = "agendado";
 
         if(item.status === "Confirmado"){
 
-            statusClass = "confirmado";
+            classe = "confirmado";
 
         }
 
-        else if(item.status === "Cancelado"){
+        if(item.status === "Cancelado"){
 
-            statusClass = "cancelado";
-
-        }
-
-        else{
-
-            statusClass = "agendado";
+            classe = "cancelado";
 
         }
 
-        tbody.innerHTML += `
+        tabela.innerHTML += `
 
             <tr>
 
@@ -351,7 +427,7 @@ function renderAgenda(){
 
                 <td>
 
-                    <span class="status ${statusClass}">
+                    <span class="status ${classe}">
                         ${item.status}
                     </span>
 
@@ -383,9 +459,40 @@ function renderAgenda(){
 
 }
 
-/* =========================================
-   CONFIRMAR CONSULTA
-========================================= */
+function incluirAgenda(){
+
+    const paciente =
+        prompt("Paciente:");
+
+    if(!paciente) return;
+
+    const profissional =
+        prompt("Profissional:");
+
+    const data =
+        prompt("Data:");
+
+    const hora =
+        prompt("Hora:");
+
+    const sala =
+        prompt("Sala:");
+
+    agenda.push({
+
+        paciente,
+        profissional,
+        data,
+        hora,
+        sala,
+        status:"Agendado"
+
+    });
+
+    renderAgenda();
+    atualizarKPIs();
+
+}
 
 function confirmarConsulta(index){
 
@@ -394,15 +501,7 @@ function confirmarConsulta(index){
 
     renderAgenda();
 
-    alert(
-        "Consulta confirmada!"
-    );
-
 }
-
-/* =========================================
-   CANCELAR CONSULTA
-========================================= */
 
 function cancelarConsulta(index){
 
@@ -411,9 +510,68 @@ function cancelarConsulta(index){
 
     renderAgenda();
 
-    alert(
-        "Consulta cancelada!"
-    );
+}
+
+/* =========================================
+   PACIENTES
+========================================= */
+
+function incluirPaciente(){
+
+    const nome =
+        prompt("Nome paciente:");
+
+    if(!nome) return;
+
+    pacientes.push({
+
+        nome
+
+    });
+
+    atualizarKPIs();
+
+}
+
+function editarPaciente(){
+
+    if(pacientes.length === 0){
+
+        alert("Nenhum paciente.");
+
+        return;
+
+    }
+
+    const novoNome =
+        prompt(
+            "Editar paciente:",
+            pacientes[0].nome
+        );
+
+    if(novoNome){
+
+        pacientes[0].nome =
+            novoNome;
+
+        atualizarKPIs();
+
+    }
+
+}
+
+function excluirPaciente(){
+
+    const confirmar =
+        confirm("Excluir último paciente?");
+
+    if(confirmar){
+
+        pacientes.pop();
+
+        atualizarKPIs();
+
+    }
 
 }
 
@@ -421,65 +579,26 @@ function cancelarConsulta(index){
    IMPRESSÃO
 ========================================= */
 
-function imprimirModulo(nome){
-
-    alert(
-        "Imprimindo módulo: " + nome
-    );
+function imprimirModulo(){
 
     window.print();
 
 }
 
 /* =========================================
-   IA FINANCEIRA
-========================================= */
-
-function gerarAnaliseFinanceira(){
-
-    const insight = `
-        80% da receita da clínica vem
-        de 20% dos pacientes recorrentes.
-    `;
-
-    document.getElementById(
-        "financeInsight"
-    ).innerText = insight;
-
-}
-
-/* =========================================
-   IA GESTÃO
+   IA
 ========================================= */
 
 function gerarInsightsIA(){
 
-    const insights = [
-
-        "3 pacientes com faltas recorrentes.",
-        "2 pacientes inadimplentes.",
-        "Taxa de confirmação acima de 90%.",
-        "Profissionais com excelente desempenho."
-
-    ];
-
-    const lista =
-        document.getElementById("listaInsights");
-
-    lista.innerHTML = "";
-
-    insights.forEach(item=>{
-
-        lista.innerHTML += `
-            <li>${item}</li>
-        `;
-
-    });
+    console.log(
+        "IA iniciada com sucesso."
+    );
 
 }
 
 /* =========================================
-   INICIALIZAÇÃO
+   LOAD
 ========================================= */
 
 window.onload = function(){
@@ -489,8 +608,6 @@ window.onload = function(){
     renderProfissionais();
 
     renderAgenda();
-
-    gerarAnaliseFinanceira();
 
     gerarInsightsIA();
 
