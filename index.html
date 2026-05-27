@@ -1,1328 +1,1126 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATIVAMENTE+ Clinic</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Poppins', sans-serif; background:#f4f6f9; color:#333; min-height:100vh; }
-        :root { --navy:#1a2847; --orange:#ff6b35; --teal:#00bcd4; }
-        /* === LOGIN SCREEN === */
-        #loginScreen, #registerScreen, #recoverScreen {
-            position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, var(--navy) 0%, #2a3f6f 100%); display:flex; align-items:center; justify-content:center; z-index:9999;
-        }
-        .login-card {
-            background:white; border-radius:20px; padding:40px; width:90%; max-width:420px; box-shadow:0 10px 40px rgba(0,0,0,0.3); text-align:center;
-        }
-        .logo-svg { width:120px; height:120px; margin:0 auto 20px; }
-        .form-group { margin-bottom:20px; text-align:left; position:relative; }
-        .form-group label { display:block; margin-bottom:5px; font-weight:500; color:#555; }
-        .form-group input { width:100%; padding:12px 40px 12px 15px; border:2px solid #ddd; border-radius:10px; font-size:14px; transition:0.3s; }
-        .form-group input:focus { border-color:var(--teal); outline:none; }
-        .form-group i { position:absolute; right:15px; top:38px; color:#999; cursor:pointer; }
-        .btn {
-            width:100%; padding:14px; background:var(--orange); color:white; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer; transition:0.3s; margin-top:10px;
-        }
-        .btn:hover { background:#e55a2b; }
-        .btn-secondary { background:var(--teal); }
-        .btn-secondary:hover { background:#0097a7; }
-        .link { color:var(--teal); cursor:pointer; font-size:14px; margin-top:10px; display:inline-block; }
-        .error-msg { color:#e74c3c; font-size:13px; margin-top:5px; display:none; }
-        /* === MAIN APP === */
-        #app { display:none; }
-        .sidebar {
-            position:fixed; top:0; left:0; height:100%; width:250px; background:var(--navy); color:white; padding:20px; overflow-y:auto; transition:0.3s; z-index:1000;
-        }
-        .sidebar .logo-svg { width:80px; height:80px; margin:0 auto 20px; display:block; }
-        .sidebar h2 { text-align:center; font-size:18px; margin-bottom:30px; }
-        .sidebar a {
-            display:flex; align-items:center; padding:12px 15px; color:white; text-decoration:none; border-radius:10px; margin-bottom:5px; transition:0.3s; font-size:14px;
-        }
-        .sidebar a i { margin-right:10px; width:20px; }
-        .sidebar a:hover, .sidebar a.active { background:rgba(255,255,255,0.1); }
-        .sidebar .logout { margin-top:30px; background:var(--orange); text-align:center; }
-        .main-content {
-            margin-left:250px; padding:30px; min-height:100vh; transition:0.3s;
-        }
-        /* === CARDS & KPI === */
-        .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:20px; margin-bottom:30px; }
-        .kpi-card { background:white; border-radius:15px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-        .kpi-card h3 { font-size:16px; color:#666; margin-bottom:5px; }
-        .kpi-card .value { font-size:28px; font-weight:700; color:var(--navy); }
-        .kpi-card .edit-btn { float:right; background:none; border:none; color:var(--teal); cursor:pointer; }
-        /* === TABLE === */
-        .table-container { overflow-x:auto; }
-        table { width:100%; border-collapse:collapse; background:white; border-radius:15px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-        th, td { padding:12px 15px; text-align:left; border-bottom:1px solid #eee; }
-        th { background:var(--navy); color:white; font-weight:500; }
-        tr:hover { background:#f1f1f1; }
-        .action-btns button { background:none; border:none; cursor:pointer; margin-right:5px; color:var(--navy); font-size:16px; }
-        .action-btns .delete { color:#e74c3c; }
-        /* === MODAL === */
-        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center; }
-        .modal-overlay.active { display:flex; }
-        .modal { background:white; border-radius:20px; padding:30px; width:90%; max-width:600px; max-height:80vh; overflow-y:auto; }
-        .modal h2 { margin-bottom:20px; color:var(--navy); }
-        .modal .close { float:right; font-size:24px; cursor:pointer; }
-        /* === AGENDA GRID === */
-        .agenda-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-        .agenda-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
-        .agenda-day { background:white; border-radius:8px; padding:10px; min-height:100px; border:1px solid #eee; cursor:pointer; }
-        .agenda-day .day-number { font-weight:600; color:var(--navy); }
-        .agenda-day .appointment { font-size:12px; padding:2px 5px; border-radius:5px; margin-top:5px; color:white; }
-        .agenda-day .appointment.confirmed { background:var(--teal); }
-        .agenda-day .appointment.scheduled { background:#999; }
-        .agenda-day .appointment.canceled { background:#e74c3c; }
-        /* === ACCORDION === */
-        .accordion { margin-top:20px; }
-        .accordion-item { margin-bottom:10px; }
-        .accordion-header { background:var(--navy); color:white; padding:12px 20px; border-radius:10px; cursor:pointer; display:flex; justify-content:space-between; }
-        .accordion-content { display:none; padding:20px; background:white; border-radius:0 0 10px 10px; border:1px solid #eee; }
-        .accordion-content.active { display:block; }
-        /* === RESPONSIVE === */
-        @media (max-width:768px) {
-            .sidebar { width:60px; padding:10px; }
-            .sidebar h2, .sidebar a span { display:none; }
-            .sidebar a { justify-content:center; }
-            .sidebar .logo-svg { width:40px; height:40px; }
-            .main-content { margin-left:60px; padding:15px; }
-            .kpi-grid { grid-template-columns:1fr 1fr; }
-        }
-        @media (max-width:480px) {
-            .kpi-grid { grid-template-columns:1fr; }
-            .agenda-grid { grid-template-columns:repeat(2,1fr); }
-        }
-        .hidden { display:none !important; }
-        .text-right { text-align:right; }
-        .mt-10 { margin-top:10px; }
-        .mb-10 { margin-bottom:10px; }
-        .float-right { float:right; }
-        .chart-container { width:100%; max-width:600px; margin:20px auto; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATIVAMENTE+ CLINIC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #f0f2f5; color: #333; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+    :root { --navy: #1a2847; --orange: #ff6b35; --teal: #00bcd4; --light-bg: #f0f2f5; --card-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    input, select, textarea { font-family: 'Poppins', sans-serif; }
+    /* Login */
+    #loginScreen, #registerScreen, #forgotScreen { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, var(--navy), var(--teal)); }
+    .login-card, .register-card, .forgot-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 420px; text-align: center; }
+    .login-card img { width: 200px; margin-bottom: 20px; object-fit: contain; }
+    .login-card h2 { margin-bottom: 20px; color: var(--navy); }
+    .login-card input { width: 100%; padding: 14px 16px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; transition: 0.3s; background: #fafafa; }
+    .login-card input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,188,212,0.2); outline: none; }
+    .login-card .password-wrapper { position: relative; }
+    .login-card .password-wrapper i { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; }
+    .login-card button { width: 100%; padding: 14px; background: var(--navy); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+    .login-card button:hover { background: #2a3a5a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .login-card .error { color: #e53935; font-size: 14px; margin-top: 5px; }
+    .login-card a { color: var(--teal); text-decoration: none; font-size: 14px; }
+    /* Main layout */
+    #mainApp { display: none; height: 100vh; }
+    .sidebar { width: 260px; background: var(--navy); color: white; padding: 20px; position: fixed; top: 0; left: 0; height: 100%; overflow-y: auto; z-index: 100; transition: 0.3s; }
+    .sidebar img { width: 160px; margin-bottom: 30px; object-fit: contain; }
+    .sidebar h3 { font-weight: 400; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin: 20px 0 10px; opacity: 0.7; }
+    .sidebar a { display: flex; align-items: center; padding: 14px 16px; color: #ccc; text-decoration: none; border-radius: 10px; margin-bottom: 5px; transition: 0.3s; font-weight: 500; }
+    .sidebar a i { width: 24px; margin-right: 12px; font-size: 18px; }
+    .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar .logout { margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; }
+    .main-content { margin-left: 260px; padding: 30px; min-height: 100vh; }
+    /* Cards e KPIs */
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .kpi-card { background: white; padding: 25px; border-radius: 16px; box-shadow: var(--card-shadow); position: relative; }
+    .kpi-card h4 { font-size: 14px; text-transform: uppercase; color: #888; }
+    .kpi-card .value { font-size: 32px; font-weight: 700; color: var(--navy); margin: 10px 0; }
+    .kpi-card .edit-btn { position: absolute; top: 10px; right: 10px; background: var(--teal); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; }
+    .kpi-card .edit-btn i { font-size: 14px; }
+    /* Charts */
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+    .chart-box { background: white; padding: 20px; border-radius: 16px; box-shadow: var(--card-shadow); }
+    .chart-box canvas { max-height: 300px; }
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--card-shadow); }
+    th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: var(--navy); color: white; font-weight: 600; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    tr:hover { background: #f1f1f1; }
+    /* Buttons */
+    .btn { display: inline-block; padding: 10px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; border: none; transition: 0.3s; }
+    .btn-primary { background: var(--teal); color: white; }
+    .btn-primary:hover { background: #00a5b8; }
+    .btn-danger { background: #e53935; color: white; }
+    .btn-danger:hover { background: #c62828; }
+    .btn-secondary { background: #e0e0e0; color: #333; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    /* Agenda grid */
+    .agenda-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .agenda-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #ddd; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+    .agenda-day { background: white; padding: 10px; min-height: 100px; cursor: pointer; transition: 0.2s; border: 1px solid #f0f0f0; }
+    .agenda-day:hover { background: #f5f5f5; }
+    .agenda-day .date { font-weight: 600; font-size: 14px; margin-bottom: 5px; }
+    .agenda-day .event { padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 12px; color: white; }
+    .event-confirmed { background: #4caf50; }
+    .event-scheduled { background: #9e9e9e; }
+    .event-canceled { background: #f44336; }
+    /* Accordion Paciente */
+    .accordion { margin: 20px 0; }
+    .accordion-item { background: white; border-radius: 12px; margin-bottom: 10px; box-shadow: var(--card-shadow); overflow: hidden; }
+    .accordion-header { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; transition: 0.2s; }
+    .accordion-header:hover { background: #f5f5f5; }
+    .accordion-body { padding: 0 20px 20px; display: none; }
+    .accordion-body.active { display: block; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn { padding: 8px 16px; border: 2px solid var(--navy); background: transparent; border-radius: 20px; cursor: pointer; font-weight: 500; transition: 0.3s; color: var(--navy); }
+    .tab-btn.active { background: var(--navy); color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+    .modal { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+    .modal h3 { margin-bottom: 20px; }
+    .modal input, .modal select, .modal textarea { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; }
+    .modal input:focus, .modal select:focus { border-color: var(--teal); outline: none; }
+    .modal .btn { margin-top: 10px; }
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .sidebar { width: 60px; padding: 10px; }
+      .sidebar img { width: 40px; }
+      .sidebar a span { display: none; }
+      .sidebar a i { margin: 0; }
+      .sidebar h3 { display: none; }
+      .main-content { margin-left: 60px; padding: 20px; }
+      .charts-row { grid-template-columns: 1fr; }
+      .agenda-grid { font-size: 12px; }
+    }
+  </style>
 </head>
 <body>
-    <!-- === LOGIN SCREEN === -->
-    <div id="loginScreen">
-        <div class="login-card">
-            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="45" fill="var(--teal)" />
-                <text x="50" y="55" text-anchor="middle" fill="white" font-size="20" font-weight="bold" font-family="Poppins">A+</text>
-            </svg>
-            <h2 style="color:var(--navy); margin-bottom:20px;">ATIVAMENTE+ Clinic</h2>
-            <div id="loginForm">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" placeholder="seu@email.com">
-                    <i class="fas fa-envelope"></i>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="loginPassword" placeholder="********">
-                    <i class="fas fa-eye" id="togglePassword"></i>
-                </div>
-                <div id="loginError" class="error-msg">Credenciais inválidas</div>
-                <button class="btn" onclick="login()">Entrar</button>
-                <a class="link" onclick="showScreen('recoverScreen')">Esqueci minha senha</a>
-                <a class="link" onclick="showScreen('registerScreen')">Criar conta</a>
-            </div>
-        </div>
+  <!-- Login Screen -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <img src="https://adapta-one-prod.s3.sa-east-1.amazonaws.com/celsogiodias%40gmail.com/png/Ativamente%2B-Clinic.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA3FLD6RMYLYFE2L2Q%2F20260527%2Fsa-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260527T005501Z&X-Amz-Expires=3600&X-Amz-Signature=a7408d32115e028e6c07d45043913351cc8877e23231e1bb2965eeebff835422&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject" alt="ATIVAMENTE+ CLINIC">
+      <h2>Entrar</h2>
+      <div id="loginError" class="error"></div>
+      <input type="email" id="loginEmail" placeholder="Email" value="admin@ativamente.com" required>
+      <div class="password-wrapper">
+        <input type="password" id="loginPassword" placeholder="Senha" value="admin123" required>
+        <i class="fas fa-eye" onclick="togglePassword('loginPassword', this)"></i>
+      </div>
+      <button onclick="login()">Entrar</button>
+      <p style="margin-top:15px"><a href="#" onclick="showForgot()">Esqueceu a senha?</a></p>
+      <p style="margin-top:5px"><a href="?screen=registro&token=convite" onclick="showRegister(event)">Registrar por convite</a></p>
+    </div>
+  </div>
+
+  <!-- Forgot Password Screen -->
+  <div id="forgotScreen" style="display:none">
+    <div class="forgot-card">
+      <h2>Recuperar Senha</h2>
+      <p style="margin-bottom:15px;color:#666">Insira seu email para receber um link de redefinição.</p>
+      <input type="email" id="forgotEmail" placeholder="Email">
+      <button onclick="forgotPassword()">Enviar</button>
+      <button class="btn btn-secondary" onclick="hideForgot()" style="margin-top:10px">Voltar ao Login</button>
+      <div id="forgotMessage" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- Register Screen -->
+  <div id="registerScreen" style="display:none">
+    <div class="register-card">
+      <h2>Registrar por Convite</h2>
+      <input type="text" id="regNome" placeholder="Nome completo">
+      <input type="email" id="regEmail" placeholder="Email">
+      <input type="password" id="regPassword" placeholder="Senha">
+      <div class="password-wrapper">
+        <input type="password" id="regConfirm" placeholder="Confirmar senha">
+        <i class="fas fa-eye" onclick="togglePassword('regConfirm', this)"></i>
+      </div>
+      <button onclick="register()">Registrar</button>
+      <p style="margin-top:10px"><a href="#" onclick="showLogin()">Já tem conta? Entre</a></p>
+      <div id="regError" class="error"></div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainApp">
+    <div class="sidebar">
+      <img src="https://adapta-one-prod.s3.sa-east-1.amazonaws.com/celsogiodias%40gmail.com/png/Ativamente%2B-Clinic.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA3FLD6RMYLYFE2L2Q%2F20260527%2Fsa-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260527T005501Z&X-Amz-Expires=3600&X-Amz-Signature=a7408d32115e028e6c07d45043913351cc8877e23231e1bb2965eeebff835422&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject" alt="Logo">
+      <h3>Navegação</h3>
+      <a href="#" onclick="showPage('dashboard')" class="active" id="nav-dashboard"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+      <a href="#" onclick="showPage('agenda')" id="nav-agenda"><i class="fas fa-calendar-alt"></i><span>Agenda</span></a>
+      <a href="#" onclick="showPage('pacientes')" id="nav-pacientes"><i class="fas fa-user-injured"></i><span>Pacientes</span></a>
+      <a href="#" onclick="showPage('profissionais')" id="nav-profissionais"><i class="fas fa-user-md"></i><span>Profissionais</span></a>
+      <a href="#" onclick="showPage('financeiro')" id="nav-financeiro"><i class="fas fa-coins"></i><span>Financeiro</span></a>
+      <a href="#" onclick="showPage('convites')" id="nav-convites"><i class="fas fa-envelope"></i><span>Convites</span></a>
+      <div class="logout">
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Sair</span></a>
+      </div>
     </div>
 
-    <!-- === REGISTER SCREEN === -->
-    <div id="registerScreen" style="display:none;">
-        <div class="login-card">
-            <h2 style="color:var(--navy); margin-bottom:20px;">Registro via Convite</h2>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label>Nome</label>
-                    <input type="text" id="regName" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="regEmail" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="regPassword" required>
-                </div>
-                <div class="form-group">
-                    <label>Confirmar Senha</label>
-                    <input type="password" id="regConfirm" required>
-                </div>
-                <div class="form-group">
-                    <label>Perfil</label>
-                    <input type="text" id="regProfile" readonly>
-                </div>
-                <div id="registerError" class="error-msg">Erro no registro</div>
-                <button type="submit" class="btn" onclick="registerUser(event)">Registrar</button>
-                <a class="link" onclick="showScreen('loginScreen')">Voltar ao login</a>
-            </form>
+    <div class="main-content">
+      <!-- Dashboard Page -->
+      <div id="page-dashboard" class="page active">
+        <h1>Dashboard</h1>
+        <div class="kpi-row" id="kpiContainer"></div>
+        <div class="charts-row">
+          <div class="chart-box">
+            <h3>Tendência de Agendamentos</h3>
+            <canvas id="chartLine"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Receitas vs Despesas (6 meses)</h3>
+            <canvas id="chartBar"></canvas>
+          </div>
         </div>
+      </div>
+
+      <!-- Agenda Page -->
+      <div id="page-agenda" class="page" style="display:none">
+        <h1>Agenda</h1>
+        <div class="agenda-header">
+          <button onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
+          <h2 id="agendaMonthYear"></h2>
+          <button onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+          <select id="filterProf" onchange="renderAgenda()">
+            <option value="">Todos</option>
+          </select>
+          <button class="btn btn-primary" onclick="openAgendaModal()">Novo Agendamento</button>
+        </div>
+        <div class="agenda-grid" id="agendaGrid"></div>
+      </div>
+
+      <!-- Pacientes Page -->
+      <div id="page-pacientes" class="page" style="display:none">
+        <h1>Pacientes</h1>
+        <button class="btn btn-primary" onclick="openPacienteModal()">Novo Paciente</button>
+        <div id="pacientesList"></div>
+      </div>
+
+      <!-- Profissionais Page -->
+      <div id="page-profissionais" class="page" style="display:none">
+        <h1>Profissionais</h1>
+        <button class="btn btn-primary" onclick="openProfissionalModal()">Novo Profissional</button>
+        <div id="profissionaisList"></div>
+      </div>
+
+      <!-- Financeiro Page -->
+      <div id="page-financeiro" class="page" style="display:none">
+        <h1>Financeiro</h1>
+        <div class="kpi-row">
+          <div class="kpi-card"><h4>Receitas do Mês</h4><div class="value" id="finReceitaMes">R$0</div></div>
+          <div class="kpi-card"><h4>Despesas do Mês</h4><div class="value" id="finDespesaMes">R$0</div></div>
+          <div class="kpi-card"><h4>Saldo</h4><div class="value" id="finSaldo">R$0</div></div>
+        </div>
+        <div class="chart-box" style="margin-bottom:20px">
+          <h3>Pareto - Receitas vs Despesas (6 meses)</h3>
+          <canvas id="chartPareto"></canvas>
+        </div>
+        <div id="iaAnalysis" style="background:#ffe0b2;padding:15px;border-radius:8px;margin-bottom:20px"></div>
+        <button class="btn btn-primary" onclick="openFinancaModal('receita')">Nova Receita</button>
+        <button class="btn btn-primary" onclick="openFinancaModal('despesa')">Nova Despesa</button>
+        <div id="financasList"></div>
+      </div>
+
+      <!-- Convites Page -->
+      <div id="page-convites" class="page" style="display:none">
+        <h1>Gerenciar Convites</h1>
+        <button class="btn btn-primary" onclick="openConviteModal()">Gerar Convite</button>
+        <div id="convitesList"></div>
+      </div>
     </div>
+  </div>
 
-    <!-- === RECOVER SCREEN === -->
-    <div id="recoverScreen" style="display:none;">
-        <div class="login-card">
-            <h2 style="color:var(--navy); margin-bottom:20px;">Recuperar Senha</h2>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="recoverEmail">
-            </div>
-            <div id="recoverError" class="error-msg">Email não encontrado</div>
-            <div id="recoverSuccess" class="success-msg" style="display:none; color:green; margin-bottom:10px;">Link enviado para o email (simulação).</div>
-            <button class="btn" onclick="recoverPassword()">Enviar link</button>
-            <a class="link" onclick="showScreen('loginScreen')">Voltar</a>
-        </div>
+  <!-- Modal genérico -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalContent">
+      <!-- dynamic content -->
     </div>
+  </div>
 
-    <!-- === MAIN APP === -->
-    <div id="app">
-        <div class="sidebar" id="sidebar">
-            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="45" fill="var(--teal)" />
-                <text x="50" y="55" text-anchor="middle" fill="white" font-size="20" font-weight="bold" font-family="Poppins">A+</text>
-            </svg>
-            <h2>ATIVAMENTE+</h2>
-            <a href="#" onclick="showTab('dashboard')" id="nav-dashboard" class="active"><i class="fas fa-tachometer-alt"></i><span> Dashboard</span></a>
-            <a href="#" onclick="showTab('agenda')" id="nav-agenda"><i class="fas fa-calendar-alt"></i><span> Agenda</span></a>
-            <a href="#" onclick="showTab('pacientes')" id="nav-pacientes"><i class="fas fa-user-injured"></i><span> Pacientes</span></a>
-            <a href="#" onclick="showTab('profissionais')" id="nav-profissionais"><i class="fas fa-user-md"></i><span> Profissionais</span></a>
-            <a href="#" onclick="showTab('financeiro')" id="nav-financeiro"><i class="fas fa-dollar-sign"></i><span> Financeiro</span></a>
-            <a href="#" onclick="showTab('convites')" id="nav-convites"><i class="fas fa-envelope"></i><span> Convites</span></a>
-            <a href="#" onclick="logout()" class="logout"><i class="fas fa-sign-out-alt"></i><span> Sair</span></a>
+  <script>
+    // ===== DATA LAYER =====
+    function getData(key, defaultVal) {
+      const val = localStorage.getItem(key);
+      return val ? JSON.parse(val) : defaultVal;
+    }
+    function saveData(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    const defaultUsers = [
+      { id: 1, nome: 'Admin', email: 'admin@ativamente.com', password: 'admin123', role: 'admin' }
+    ];
+    if (!localStorage.getItem('users')) {
+      saveData('users', defaultUsers);
+    }
+    if (!localStorage.getItem('profissionais')) {
+      saveData('profissionais', []);
+    }
+    if (!localStorage.getItem('pacientes')) {
+      saveData('pacientes', []);
+    }
+    if (!localStorage.getItem('agendamentos')) {
+      saveData('agendamentos', []);
+    }
+    if (!localStorage.getItem('financas')) {
+      saveData('financas', []);
+    }
+    if (!localStorage.getItem('convites')) {
+      saveData('convites', []);
+    }
+    if (!localStorage.getItem('prontuarios')) {
+      saveData('prontuarios', {});
+    }
+
+    // ===== SESSION =====
+    let currentUser = null;
+    function checkSession() {
+      const s = sessionStorage.getItem('currentUser');
+      if (s) {
+        currentUser = JSON.parse(s);
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        initApp();
+      }
+    }
+    checkSession();
+
+    // ===== LOGIN =====
+    function login() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const users = getData('users', []);
+      const user = users.find(u => u.email === email && u.password === password);
+      if (user) {
+        currentUser = user;
+        sessionStorage.setItem('currentUser', JSON.stringify(user));
+        document.getElementById('loginError').innerText = '';
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        initApp();
+      } else {
+        document.getElementById('loginError').innerText = 'Email ou senha inválidos.';
+      }
+    }
+
+    function togglePassword(id, icon) {
+      const input = document.getElementById(id);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    function showForgot() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('forgotScreen').style.display = 'flex';
+    }
+    function hideForgot() {
+      document.getElementById('forgotScreen').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+    }
+    function forgotPassword() {
+      const email = document.getElementById('forgotEmail').value.trim();
+      const users = getData('users', []);
+      if (users.find(u => u.email === email)) {
+        document.getElementById('forgotMessage').innerHTML = '<span style="color:green">Um link de redefinição foi enviado para seu email (simulado).</span>';
+      } else {
+        document.getElementById('forgotMessage').innerHTML = '<span style="color:red">Email não encontrado.</span>';
+      }
+    }
+
+    function showRegister(e) {
+      e.preventDefault();
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const convites = getData('convites', []);
+      const convite = convites.find(c => c.token === token && !c.used);
+      if (!convite) {
+        alert('Convite inválido ou já utilizado.');
+        return;
+      }
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('registerScreen').style.display = 'flex';
+      document.getElementById('regError').innerText = '';
+      // Store token for registration
+      window._registerToken = token;
+    }
+
+    function showLogin() {
+      document.getElementById('registerScreen').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+    }
+
+    function register() {
+      const nome = document.getElementById('regNome').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value.trim();
+      const confirm = document.getElementById('regConfirm').value.trim();
+      if (!nome || !email || !password || !confirm) {
+        document.getElementById('regError').innerText = 'Preencha todos os campos.';
+        return;
+      }
+      if (password !== confirm) {
+        document.getElementById('regError').innerText = 'Senhas não conferem.';
+        return;
+      }
+      const users = getData('users', []);
+      if (users.find(u => u.email === email)) {
+        document.getElementById('regError').innerText = 'Email já cadastrado.';
+        return;
+      }
+      const convites = getData('convites', []);
+      const convite = convites.find(c => c.token === window._registerToken);
+      if (!convite || convite.used) {
+        document.getElementById('regError').innerText = 'Convite inválido.';
+        return;
+      }
+      // Create user with role from convite
+      const newUser = { id: Date.now(), nome, email, password, role: convite.role };
+      users.push(newUser);
+      saveData('users', users);
+      // Mark convite as used
+      convite.used = true;
+      saveData('convites', convites);
+      alert('Registro realizado com sucesso! Faça login.');
+      showLogin();
+    }
+
+    // ===== NAVEGAÇÃO E PERMISSÕES =====
+    function initApp() {
+      const role = currentUser.role;
+      const navItems = ['dashboard','agenda','pacientes','profissionais','financeiro','convites'];
+      const permissions = {
+        admin: ['dashboard','agenda','pacientes','profissionais','financeiro','convites'],
+        profissional: ['pacientes'],
+        secretaria: ['agenda','pacientes','profissionais','financeiro']
+      };
+      const allowed = permissions[role] || [];
+      navItems.forEach(item => {
+        const el = document.getElementById('nav-'+item);
+        if (allowed.includes(item)) {
+          el.style.display = '';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+      // show first allowed page
+      const first = allowed[0] || 'dashboard';
+      showPage(first);
+      updateAll();
+    }
+
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+      document.getElementById('page-'+page).style.display = 'block';
+      document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+      const nav = document.getElementById('nav-'+page);
+      if (nav) nav.classList.add('active');
+      if (page === 'dashboard') updateDashboard();
+      else if (page === 'agenda') { renderAgenda(); populateProfFilter(); }
+      else if (page === 'pacientes') renderPacientes();
+      else if (page === 'profissionais') renderProfissionais();
+      else if (page === 'financeiro') updateFinanceiro();
+      else if (page === 'convites') renderConvites();
+    }
+
+    // ===== DASHBOARD =====
+    function updateDashboard() {
+      const pacientes = getData('pacientes', []);
+      const agendamentos = getData('agendamentos', []);
+      const financas = getData('financas', []);
+      const profissionais = getData('profissionais', []);
+      const now = new Date();
+      const mes = now.getMonth();
+      const ano = now.getFullYear();
+      const receitasMes = financas.filter(f => f.tipo === 'receita' && new Date(f.data).getMonth() === mes && new Date(f.data).getFullYear() === ano).reduce((s,f) => s + f.valor, 0);
+      const despesasMes = financas.filter(f => f.tipo === 'despesa' && new Date(f.data).getMonth() === mes && new Date(f.data).getFullYear() === ano).reduce((s,f) => s + f.valor, 0);
+      const statusFin = receitasMes >= despesasMes ? 'Positivo' : 'Negativo';
+      const saude = profissionais.filter(p => p.categoria === 'Saúde').length;
+      const tecnico = profissionais.filter(p => p.categoria === 'Técnico').length;
+      const adminProf = profissionais.filter(p => p.categoria === 'Administrativo').length;
+      const kpis = [
+        { label: 'Total Pacientes', value: pacientes.length },
+        { label: 'Agendamentos Mês', value: agendamentos.filter(a => new Date(a.data).getMonth() === mes && new Date(a.data).getFullYear() === ano).length },
+        { label: 'Receitas Mês', value: 'R$ ' + receitasMes.toFixed(2) },
+        { label: 'Status Financeiro', value: statusFin },
+        { label: 'Profissionais', value: `Total: ${profissionais.length} | Saúde: ${saude} | Técnico: ${tecnico} | Admin: ${adminProf}` }
+      ];
+      const container = document.getElementById('kpiContainer');
+      container.innerHTML = kpis.map(k => `
+        <div class="kpi-card">
+          <h4>${k.label}</h4>
+          <div class="value">${k.value}</div>
+          <button class="edit-btn" onclick="alert('Editar KPI (simulação)')"><i class="fas fa-pen"></i></button>
         </div>
+      `).join('');
 
-        <div class="main-content">
-            <!-- DASHBOARD -->
-            <div id="tab-dashboard" class="tab-content">
-                <h1>Dashboard</h1>
-                <div class="kpi-grid" id="kpiGrid">
-                    <div class="kpi-card"><h3>Total Pacientes</h3><div class="value" id="kpiPacientes">0</div><button class="edit-btn" onclick="editarKPI('pacientes')"><i class="fas fa-edit"></i></button></div>
-                    <div class="kpi-card"><h3>Total Agendamentos</h3><div class="value" id="kpiAgendamentos">0</div></div>
-                    <div class="kpi-card"><h3>Receitas Mês</h3><div class="value" id="kpiReceitas">R$ 0</div></div>
-                    <div class="kpi-card"><h3>Status Financeiro</h3><div class="value" id="kpiStatus">OK</div></div>
-                </div>
-                <div class="kpi-grid">
-                    <div class="kpi-card"><h3>Profissionais</h3><div class="value" id="kpiProfissionais">0</div><button class="edit-btn" onclick="editarKPI('profissionais')"><i class="fas fa-edit"></i></button>
-                        <p style="font-size:14px; margin-top:10px;" id="kpiProfDetalhes">Saúde: 0 | Técnico: 0 | Administrativo: 0</p>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="chartTendencia"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas id="chartReceitasDespesas"></canvas>
-                </div>
-            </div>
+      // Gráficos
+      const labels = [];
+      const agendData = [];
+      const receitaData = [];
+      const despesaData = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(ano, mes - i, 1);
+        const m = d.getMonth();
+        const y = d.getFullYear();
+        labels.push(d.toLocaleString('pt-BR', { month: 'short', year: 'numeric' }));
+        agendData.push(agendamentos.filter(a => new Date(a.data).getMonth() === m && new Date(a.data).getFullYear() === y).length);
+        receitaData.push(financas.filter(f => f.tipo === 'receita' && new Date(f.data).getMonth() === m && new Date(f.data).getFullYear() === y).reduce((s,f) => s + f.valor, 0));
+        despesaData.push(financas.filter(f => f.tipo === 'despesa' && new Date(f.data).getMonth() === m && new Date(f.data).getFullYear() === y).reduce((s,f) => s + f.valor, 0));
+      }
+      // Chart line
+      if (window.chartLine) window.chartLine.destroy();
+      const ctxLine = document.getElementById('chartLine').getContext('2d');
+      window.chartLine = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Agendamentos',
+            data: agendData,
+            borderColor: '#00bcd4',
+            fill: false,
+            tension: 0.3
+          }]
+        }
+      });
+      // Chart bar
+      if (window.chartBar) window.chartBar.destroy();
+      const ctxBar = document.getElementById('chartBar').getContext('2d');
+      window.chartBar = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Receitas', data: receitaData, backgroundColor: '#4caf50' },
+            { label: 'Despesas', data: despesaData, backgroundColor: '#f44336' }
+          ]
+        }
+      });
+    }
 
-            <!-- AGENDA -->
-            <div id="tab-agenda" class="tab-content hidden">
-                <h1>Agenda</h1>
-                <div class="agenda-header">
-                    <button class="btn btn-secondary" style="width:auto; padding:10px 20px;" onclick="navegarMes(-1)"><i class="fas fa-chevron-left"></i></button>
-                    <span id="mesAno"></span>
-                    <button class="btn btn-secondary" style="width:auto; padding:10px 20px;" onclick="navegarMes(1)"><i class="fas fa-chevron-right"></i></button>
-                    <button class="btn" style="width:auto; padding:10px 20px;" onclick="abrirModalAgendamento()">+ Novo</button>
-                </div>
-                <div class="agenda-grid" id="agendaGrid"></div>
-            </div>
+    // ===== AGENDA =====
+    let agendaCurrentDate = new Date();
+    function renderAgenda() {
+      const year = agendaCurrentDate.getFullYear();
+      const month = agendaCurrentDate.getMonth();
+      document.getElementById('agendaMonthYear').innerText = agendaCurrentDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const agendamentos = getData('agendamentos', []);
+      const filterProf = document.getElementById('filterProf').value;
+      const grid = document.getElementById('agendaGrid');
+      let html = '';
+      for (let i = 0; i < firstDay; i++) {
+        html += '<div class="agenda-day" style="background:#eee"></div>';
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dateStr = date.toISOString().split('T')[0];
+        const events = agendamentos.filter(a => a.data === dateStr);
+        const filtered = filterProf ? events.filter(a => a.profissionalId == filterProf) : events;
+        html += `<div class="agenda-day" onclick="openAgendaModal('${dateStr}')">
+          <div class="date">${day}</div>
+          ${filtered.map(e => `<div class="event event-${e.status}">${e.pacienteNome} - ${e.hora}</div>`).join('')}
+        </div>`;
+      }
+      grid.innerHTML = html;
+    }
 
-            <!-- PACIENTES -->
-            <div id="tab-pacientes" class="tab-content hidden">
-                <h1>Pacientes</h1>
-                <button class="btn" style="width:auto; padding:10px 20px; margin-bottom:20px;" onclick="abrirModalPaciente()">+ Novo Paciente</button>
-                <div class="table-container">
-                    <table id="tabelaPacientes">
-                        <thead><tr><th>Nome</th><th>Documento</th><th>Data Nasc</th><th>Telefone</th><th>Responsável</th><th>Ações</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                <!-- Accordion for patient details -->
-                <div id="pacienteAccordion"></div>
-            </div>
+    function prevMonth() {
+      agendaCurrentDate.setMonth(agendaCurrentDate.getMonth() - 1);
+      renderAgenda();
+    }
+    function nextMonth() {
+      agendaCurrentDate.setMonth(agendaCurrentDate.getMonth() + 1);
+      renderAgenda();
+    }
 
-            <!-- PROFISSIONAIS -->
-            <div id="tab-profissionais" class="tab-content hidden">
-                <h1>Profissionais</h1>
-                <button class="btn" style="width:auto; padding:10px 20px; margin-bottom:20px;" onclick="abrirModalProfissional()">+ Novo Profissional</button>
-                <div class="table-container">
-                    <table id="tabelaProfissionais">
-                        <thead><tr><th>Nome</th><th>Profissão</th><th>Categoria</th><th>Registro</th><th>Ações</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
+    function populateProfFilter() {
+      const profissionais = getData('profissionais', []);
+      const select = document.getElementById('filterProf');
+      select.innerHTML = '<option value="">Todos</option>' + profissionais.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+    }
 
-            <!-- FINANCEIRO -->
-            <div id="tab-financeiro" class="tab-content hidden">
-                <h1>Financeiro</h1>
-                <div class="kpi-grid">
-                    <div class="kpi-card"><h3>Total Receitas</h3><div class="value" id="kpiTotalReceitas">R$0</div></div>
-                    <div class="kpi-card"><h3>Total Despesas</h3><div class="value" id="kpiTotalDespesas">R$0</div></div>
-                    <div class="kpi-card"><h3>Saldo</h3><div class="value" id="kpiSaldo">R$0</div></div>
-                </div>
-                <button class="btn" style="width:auto; padding:10px 20px; margin-bottom:20px;" onclick="abrirModalFinanceiro('receita')">+ Nova Receita</button>
-                <button class="btn btn-secondary" style="width:auto; padding:10px 20px; margin-bottom:20px;" onclick="abrirModalFinanceiro('despesa')">+ Nova Despesa</button>
-                <div class="chart-container">
-                    <canvas id="chartPareto"></canvas>
-                </div>
-                <div id="iaAnalysis" style="background:#fff3cd; padding:15px; border-radius:10px; margin-top:20px;">
-                    <strong>IA Analysis:</strong> <span id="iaText">Nenhum alerta.</span>
-                </div>
+    // ===== PACIENTES =====
+    function renderPacientes() {
+      const pacientes = getData('pacientes', []);
+      const container = document.getElementById('pacientesList');
+      container.innerHTML = pacientes.map(p => `
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>${p.nome} - ${p.documento || 'Sem documento'}</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="accordion-body">
+            <div class="tabs">
+              <button class="tab-btn active" onclick="showTab(this, 'dados_${p.id}')">Dados</button>
+              <button class="tab-btn" onclick="showTab(this, 'prontuario_${p.id}')">Prontuários</button>
+              <button class="tab-btn" onclick="showTab(this, 'evolucao_${p.id}')">Evolução</button>
+              <button class="tab-btn" onclick="showTab(this, 'declaracao_${p.id}')">Declaração</button>
+              <button class="tab-btn" onclick="showTab(this, 'atestado_${p.id}')">Atestado</button>
+              <button class="tab-btn" onclick="showTab(this, 'relatorio_${p.id}')">Relatório</button>
+              <button class="tab-btn" onclick="showTab(this, 'relmult_${p.id}')">Rel. Multi</button>
+              <button class="tab-btn" onclick="showTab(this, 'laudo_${p.id}')">Laudo</button>
+              <button class="tab-btn" onclick="showTab(this, 'parecer_${p.id}')">Parecer</button>
             </div>
-
-            <!-- CONVITES -->
-            <div id="tab-convites" class="tab-content hidden">
-                <h1>Gerenciar Convites</h1>
-                <button class="btn" style="width:auto; padding:10px 20px; margin-bottom:20px;" onclick="abrirModalConvite()">+ Gerar Link</button>
-                <div class="table-container">
-                    <table id="tabelaConvites">
-                        <thead><tr><th>Email</th><th>Perfil</th><th>Status</th><th>Data</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+            <div id="tab-dados_${p.id}" class="tab-content active">
+              <p><strong>Nome:</strong> ${p.nome}</p>
+              <p><strong>Documento:</strong> ${p.documento || '-'}</p>
+              <p><strong>Data Nasc:</strong> ${p.dataNasc || '-'}</p>
+              <p><strong>Telefone:</strong> ${p.telefone || '-'}</p>
+              <p><strong>Responsável:</strong> ${p.responsavel || '-'}</p>
+              <button class="btn btn-primary btn-sm" onclick="editPaciente('${p.id}')">Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="deletePaciente('${p.id}')">Excluir</button>
             </div>
+            <div id="tab-prontuario_${p.id}" class="tab-content">
+              <button class="btn btn-primary btn-sm" onclick="addProntuario('${p.id}')">Novo Prontuário</button>
+              <div id="prontuarioList_${p.id}"></div>
+            </div>
+            <div id="tab-evolucao_${p.id}" class="tab-content">
+              <p>Evolução (IA): <span id="evolucaoAI_${p.id}">Carregando...</span></p>
+            </div>
+            <div id="tab-declaracao_${p.id}" class="tab-content">
+              <button class="btn btn-primary btn-sm" onclick="addDocumento('${p.id}', 'declaracao')">Nova Declaração</button>
+              <div id="declaracaoList_${p.id}"></div>
+            </div>
+            <div id="tab-atestado_${p.id}" class="tab-content">
+              <button class="btn btn-primary btn-sm" onclick="addDocumento('${p.id}', 'atestado')">Novo Atestado</button>
+              <div id="atestadoList_${p.id}"></div>
+            </div>
+            <div id="tab-relatorio_${p.id}" class="tab-content">
+              <button class="btn btn-primary btn-sm" onclick="addDocumento('${p.id}', 'relatorio')">Novo Relatório</button>
+              <div id="relatorioList_${p.id}"></div>
+            </div>
+            <div id="tab-relmult_${p.id}" class="tab-content">
+              <button class="btn btn-primary btn-sm" onclick="addDocumento('${p.id}', 'relmult')">Novo Relatório Multiprofissional</button>
+              <div id="relmultList_${p.id}"></div>
+            </div>
+            <div id="tab-laudo_${p.id}" class="tab-content">
+              <button class="btn btn-primary btn-sm" onclick="addDocumento('${p.id}', 'laudo')">Novo Laudo</button>
+              <div id="laudoList_${p.id}"></div>
+            </div>
+            <div id="tab-parecer_${p.id}" class="tab-content">
+              <button class="btn btn-primary btn-sm" onclick="addDocumento('${p.id}', 'parecer')">Novo Parecer</button>
+              <div id="parecerList_${p.id}"></div>
+            </div>
+          </div>
         </div>
-    </div>
+      `).join('');
+      // Load prontuarios for each
+      pacientes.forEach(p => renderProntuarios(p.id));
+      // Load evolucao for each
+      pacientes.forEach(p => updateEvolucao(p.id));
+      // Load documentos for each
+      pacientes.forEach(p => ['declaracao','atestado','relatorio','relmult','laudo','parecer'].forEach(t => renderDocumentos(p.id, t)));
+    }
 
-    <!-- === MODAL === -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal" id="modalContent">
-            <span class="close" onclick="fecharModal()">&times;</span>
-            <div id="modalBody"></div>
+    function toggleAccordion(header) {
+      const body = header.nextElementSibling;
+      body.classList.toggle('active');
+      header.querySelector('i').classList.toggle('fa-chevron-up');
+    }
+
+    function showTab(btn, tabId) {
+      const parent = btn.closest('.accordion-body');
+      parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      parent.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function openPacienteModal(pacienteId = null) {
+      const pacientes = getData('pacientes', []);
+      const p = pacienteId ? pacientes.find(p => p.id == pacienteId) : null;
+      const modal = document.getElementById('modalContent');
+      modal.innerHTML = `
+        <h3>${p ? 'Editar' : 'Novo'} Paciente</h3>
+        <input type="text" id="pNome" placeholder="Nome" value="${p ? p.nome : ''}">
+        <input type="text" id="pDocumento" placeholder="Documento" value="${p ? p.documento : ''}">
+        <input type="date" id="pDataNasc" value="${p ? p.dataNasc : ''}">
+        <input type="text" id="pTelefone" placeholder="Telefone" value="${p ? p.telefone : ''}">
+        <input type="text" id="pResponsavel" placeholder="Responsável" value="${p ? p.responsavel : ''}">
+        <button class="btn btn-primary" onclick="savePaciente('${p ? p.id : ''}')">Salvar</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      `;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function savePaciente(id) {
+      const nome = document.getElementById('pNome').value.trim();
+      const documento = document.getElementById('pDocumento').value.trim();
+      const dataNasc = document.getElementById('pDataNasc').value;
+      const telefone = document.getElementById('pTelefone').value.trim();
+      const responsavel = document.getElementById('pResponsavel').value.trim();
+      if (!nome) { alert('Nome é obrigatório.'); return; }
+      let pacientes = getData('pacientes', []);
+      if (id) {
+        const index = pacientes.findIndex(p => p.id == id);
+        pacientes[index] = { ...pacientes[index], nome, documento, dataNasc, telefone, responsavel };
+      } else {
+        pacientes.push({ id: Date.now(), nome, documento, dataNasc, telefone, responsavel });
+      }
+      saveData('pacientes', pacientes);
+      closeModal();
+      renderPacientes();
+    }
+
+    function deletePaciente(id) {
+      if (!confirm('Excluir paciente?')) return;
+      let pacientes = getData('pacientes', []);
+      pacientes = pacientes.filter(p => p.id != id);
+      saveData('pacientes', pacientes);
+      renderPacientes();
+    }
+
+    // ===== PRONTUÁRIOS =====
+    function renderProntuarios(pacienteId) {
+      const prontuarios = getData('prontuarios', {});
+      const lista = prontuarios[pacienteId] || [];
+      const container = document.getElementById('prontuarioList_'+pacienteId);
+      if (!container) return;
+      container.innerHTML = lista.map((pr, idx) => `
+        <div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:8px; background:#f9f9f9;">
+          <p><strong>Data:</strong> ${pr.data}</p>
+          <p>${pr.texto}</p>
+          <button class="btn btn-primary btn-sm" onclick="imprimirProntuario('${pacienteId}', ${idx})">Imprimir</button>
         </div>
-    </div>
+      `).join('');
+    }
 
-    <script>
-        // ========== DATA LAYER ==========
-        const DATA_KEY = 'ativamenteData';
-        let data = loadData();
-        let currentUser = null;
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
-        let editingAppointment = null;
-        let editingPatient = null;
-        let editingProfessional = null;
-        let editingFinanceiro = null;
-        let patientAccordionOpen = null;
-        let chartTendencia = null;
-        let chartReceitasDespesas = null;
-        let chartPareto = null;
+    function addProntuario(pacienteId) {
+      const modal = document.getElementById('modalContent');
+      modal.innerHTML = `
+        <h3>Novo Prontuário</h3>
+        <textarea id="prTexto" rows="4" placeholder="Conteúdo do prontuário" style="width:100%"></textarea>
+        <button class="btn btn-primary" onclick="saveProntuario('${pacienteId}')">Salvar</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      `;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
 
-        function loadData() {
-            let stored = localStorage.getItem(DATA_KEY);
-            if (stored) {
-                try { return JSON.parse(stored); } catch(e) {}
-            }
-            // default data
-            return {
-                users: [
-                    { id: 1, name:'Admin', email:'admin@ativamente.com', password:'admin123', profile:'Administrador', createdAt: new Date().toISOString() }
-                ],
-                pacientes: [],
-                profissionais: [],
-                agendamentos: [],
-                receitas: [],
-                despesas: [],
-                convites: [],
-                prontuarios: [],
-                documentos: [] // each doc has: id, pacienteId, tipo, conteudo, data
-            };
+    function saveProntuario(pacienteId) {
+      const texto = document.getElementById('prTexto').value.trim();
+      if (!texto) { alert('Preencha o conteúdo.'); return; }
+      let prontuarios = getData('prontuarios', {});
+      if (!prontuarios[pacienteId]) prontuarios[pacienteId] = [];
+      prontuarios[pacienteId].push({ data: new Date().toISOString().split('T')[0], texto });
+      saveData('prontuarios', prontuarios);
+      closeModal();
+      renderProntuarios(pacienteId);
+      updateEvolucao(pacienteId);
+    }
+
+    function imprimirProntuario(pacienteId, idx) {
+      const prontuarios = getData('prontuarios', {});
+      const pr = prontuarios[pacienteId][idx];
+      const win = window.open('', '_blank');
+      win.document.write(`<html><head><title>Prontuário</title></head><body><p>${pr.data}</p><p>${pr.texto}</p></body></html>`);
+      win.document.close();
+      win.print();
+    }
+
+    // ===== EVOLUÇÃO (IA Simulada) =====
+    function updateEvolucao(pacienteId) {
+      const prontuarios = getData('prontuarios', {});
+      const lista = prontuarios[pacienteId] || [];
+      const textos = lista.map(p => p.texto).join(' ');
+      // Simulação de IA
+      const palavras = textos.split(' ').filter(w => w.length > 3);
+      const sugestoes = ['Melhora significativa', 'Manter tratamento', 'Aumentar frequência', 'Avaliação neurológica'];
+      const aleatorio = sugestoes[Math.floor(Math.random() * sugestoes.length)];
+      const evol = lista.length > 0 ? `Com base em ${lista.length} prontuários, sugere-se: ${aleatorio}` : 'Nenhum prontuário registrado.';
+      const el = document.getElementById('evolucaoAI_'+pacienteId);
+      if (el) el.innerText = evol;
+    }
+
+    // ===== DOCUMENTOS (Declaração, Atestado, etc.) =====
+    function renderDocumentos(pacienteId, tipo) {
+      const key = 'documentos_' + tipo;
+      let docs = getData(key, {});
+      const lista = docs[pacienteId] || [];
+      const container = document.getElementById(tipo+'List_'+pacienteId);
+      if (!container) return;
+      container.innerHTML = lista.map((d, idx) => `
+        <div style="border:1px solid #ddd; padding:10px; margin:10px 0; border-radius:8px;">
+          <p>${d.texto}</p>
+          <button class="btn btn-primary btn-sm" onclick="imprimirDocumento('${pacienteId}', '${tipo}', ${idx})">Imprimir</button>
+        </div>
+      `).join('');
+    }
+
+    function addDocumento(pacienteId, tipo) {
+      const modal = document.getElementById('modalContent');
+      modal.innerHTML = `
+        <h3>Nova ${tipo.charAt(0).toUpperCase()+tipo.slice(1)}</h3>
+        <textarea id="docTexto" rows="4" placeholder="Conteúdo" style="width:100%"></textarea>
+        <button class="btn btn-primary" onclick="saveDocumento('${pacienteId}', '${tipo}')">Salvar</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      `;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function saveDocumento(pacienteId, tipo) {
+      const texto = document.getElementById('docTexto').value.trim();
+      if (!texto) { alert('Preencha o conteúdo.'); return; }
+      const key = 'documentos_' + tipo;
+      let docs = getData(key, {});
+      if (!docs[pacienteId]) docs[pacienteId] = [];
+      docs[pacienteId].push({ data: new Date().toISOString().split('T')[0], texto });
+      saveData(key, docs);
+      closeModal();
+      renderDocumentos(pacienteId, tipo);
+    }
+
+    function imprimirDocumento(pacienteId, tipo, idx) {
+      const key = 'documentos_' + tipo;
+      const docs = getData(key, {});
+      const d = docs[pacienteId][idx];
+      const win = window.open('', '_blank');
+      win.document.write(`<html><head><title>${tipo}</title></head><body><p>${d.data}</p><p>${d.texto}</p></body></html>`);
+      win.document.close();
+      win.print();
+    }
+
+    // ===== PROFISSIONAIS =====
+    function renderProfissionais() {
+      const profissionais = getData('profissionais', []);
+      const container = document.getElementById('profissionaisList');
+      container.innerHTML = `
+        <table>
+          <thead><tr><th>Nome</th><th>Profissão</th><th>Categoria</th><th>Registro</th><th>Ações</th></tr></thead>
+          <tbody>
+            ${profissionais.map(p => `
+              <tr>
+                <td>${p.nome}</td>
+                <td>${p.profissao}</td>
+                <td>${p.categoria}</td>
+                <td>${p.categoria === 'Saúde' ? (p.registro || '-') : '-'}</td>
+                <td>
+                  <button class="btn btn-primary btn-sm" onclick="editProfissional('${p.id}')">Editar</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteProfissional('${p.id}')">Excluir</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function openProfissionalModal(id = null) {
+      const profissionais = getData('profissionais', []);
+      const p = id ? profissionais.find(prof => prof.id == id) : null;
+      const modal = document.getElementById('modalContent');
+      modal.innerHTML = `
+        <h3>${p ? 'Editar' : 'Novo'} Profissional</h3>
+        <input type="text" id="profNome" placeholder="Nome" value="${p ? p.nome : ''}">
+        <input type="text" id="profProfissao" placeholder="Profissão" value="${p ? p.profissao : ''}">
+        <select id="profCategoria" onchange="toggleRegistro()">
+          <option value="Saúde" ${p && p.categoria === 'Saúde' ? 'selected' : ''}>Saúde</option>
+          <option value="Técnico" ${p && p.categoria === 'Técnico' ? 'selected' : ''}>Técnico</option>
+          <option value="Administrativo" ${p && p.categoria === 'Administrativo' ? 'selected' : ''}>Administrativo</option>
+        </select>
+        <input type="text" id="profRegistro" placeholder="Registro no Conselho" style="${p && p.categoria !== 'Saúde' ? 'display:none' : ''}" value="${p ? (p.registro || '') : ''}">
+        <input type="date" id="profDataNasc" value="${p ? p.dataNasc : ''}">
+        <input type="text" id="profTelefone" placeholder="Telefone" value="${p ? p.telefone : ''}">
+        <button class="btn btn-primary" onclick="saveProfissional('${p ? p.id : ''}')">Salvar</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      `;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function toggleRegistro() {
+      const cat = document.getElementById('profCategoria').value;
+      const reg = document.getElementById('profRegistro');
+      reg.style.display = cat === 'Saúde' ? 'block' : 'none';
+    }
+
+    function saveProfissional(id) {
+      const nome = document.getElementById('profNome').value.trim();
+      const profissao = document.getElementById('profProfissao').value.trim();
+      const categoria = document.getElementById('profCategoria').value;
+      const registro = document.getElementById('profRegistro').value.trim();
+      const dataNasc = document.getElementById('profDataNasc').value;
+      const telefone = document.getElementById('profTelefone').value.trim();
+      if (!nome || !profissao) { alert('Preencha nome e profissão.'); return; }
+      let profissionais = getData('profissionais', []);
+      if (id) {
+        const idx = profissionais.findIndex(p => p.id == id);
+        profissionais[idx] = { ...profissionais[idx], nome, profissao, categoria, registro, dataNasc, telefone };
+      } else {
+        profissionais.push({ id: Date.now(), nome, profissao, categoria, registro, dataNasc, telefone });
+      }
+      saveData('profissionais', profissionais);
+      closeModal();
+      renderProfissionais();
+      populateProfFilter();
+    }
+
+    function deleteProfissional(id) {
+      if (!confirm('Excluir profissional?')) return;
+      let profissionais = getData('profissionais', []);
+      profissionais = profissionais.filter(p => p.id != id);
+      saveData('profissionais', profissionais);
+      renderProfissionais();
+      populateProfFilter();
+    }
+
+    // ===== FINANCEIRO =====
+    function updateFinanceiro() {
+      const financas = getData('financas', []);
+      const now = new Date();
+      const mes = now.getMonth();
+      const ano = now.getFullYear();
+      const receitasMes = financas.filter(f => f.tipo === 'receita' && new Date(f.data).getMonth() === mes && new Date(f.data).getFullYear() === ano).reduce((s,f) => s + f.valor, 0);
+      const despesasMes = financas.filter(f => f.tipo === 'despesa' && new Date(f.data).getMonth() === mes && new Date(f.data).getFullYear() === ano).reduce((s,f) => s + f.valor, 0);
+      document.getElementById('finReceitaMes').innerText = 'R$ ' + receitasMes.toFixed(2);
+      document.getElementById('finDespesaMes').innerText = 'R$ ' + despesasMes.toFixed(2);
+      document.getElementById('finSaldo').innerText = 'R$ ' + (receitasMes - despesasMes).toFixed(2);
+
+      // Pareto chart
+      const labels = [];
+      const receitaData = [];
+      const despesaData = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(ano, mes - i, 1);
+        const m = d.getMonth();
+        const y = d.getFullYear();
+        labels.push(d.toLocaleString('pt-BR', { month: 'short', year: 'numeric' }));
+        receitaData.push(financas.filter(f => f.tipo === 'receita' && new Date(f.data).getMonth() === m && new Date(f.data).getFullYear() === y).reduce((s,f) => s + f.valor, 0));
+        despesaData.push(financas.filter(f => f.tipo === 'despesa' && new Date(f.data).getMonth() === m && new Date(f.data).getFullYear() === y).reduce((s,f) => s + f.valor, 0));
+      }
+      if (window.chartPareto) window.chartPareto.destroy();
+      const ctx = document.getElementById('chartPareto').getContext('2d');
+      window.chartPareto = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Receitas', data: receitaData, backgroundColor: '#4caf50' },
+            { label: 'Despesas', data: despesaData, backgroundColor: '#f44336' }
+          ]
         }
+      });
 
-        function saveData() {
-            localStorage.setItem(DATA_KEY, JSON.stringify(data));
-        }
+      // IA Analysis
+      const totalReceita6 = receitaData.reduce((a,b) => a+b, 0);
+      const totalDespesa6 = despesaData.reduce((a,b) => a+b, 0);
+      const analysis = document.getElementById('iaAnalysis');
+      if (totalDespesa6 > totalReceita6) {
+        analysis.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#e65100"></i> Alerta: Despesas superam receitas nos últimos 6 meses. Considere revisar gastos.';
+      } else {
+        analysis.innerHTML = '<i class="fas fa-check-circle" style="color:#2e7d32"></i> Saúde financeira: Receitas maiores que despesas no período.';
+      }
 
-        // ========== SESSION ==========
-        function getSession() {
-            return sessionStorage.getItem('currentUserId');
-        }
+      // List
+      const list = document.getElementById('financasList');
+      list.innerHTML = `
+        <table>
+          <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead>
+          <tbody>
+            ${financas.sort((a,b) => new Date(b.data) - new Date(a.data)).map(f => `
+              <tr>
+                <td>${f.data}</td>
+                <td>${f.tipo === 'receita' ? 'Receita' : 'Despesa'}</td>
+                <td>${f.descricao}</td>
+                <td>R$ ${f.valor.toFixed(2)}</td>
+                <td>
+                  <button class="btn btn-danger btn-sm" onclick="deleteFinanca('${f.id}')">Excluir</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
 
-        function setSession(userId) {
-            sessionStorage.setItem('currentUserId', userId);
-        }
+    function openFinancaModal(tipo) {
+      const modal = document.getElementById('modalContent');
+      modal.innerHTML = `
+        <h3>Nova ${tipo === 'receita' ? 'Receita' : 'Despesa'}</h3>
+        <input type="date" id="finData">
+        <input type="text" id="finDescricao" placeholder="Descrição">
+        <input type="number" id="finValor" placeholder="Valor" step="0.01">
+        <button class="btn btn-primary" onclick="saveFinanca('${tipo}')">Salvar</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      `;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
 
-        function clearSession() {
-            sessionStorage.removeItem('currentUserId');
-        }
+    function saveFinanca(tipo) {
+      const data = document.getElementById('finData').value;
+      const descricao = document.getElementById('finDescricao').value.trim();
+      const valor = parseFloat(document.getElementById('finValor').value);
+      if (!data || !descricao || isNaN(valor) || valor <= 0) { alert('Preencha todos os campos.'); return; }
+      let financas = getData('financas', []);
+      financas.push({ id: Date.now(), data, descricao, valor, tipo });
+      saveData('financas', financas);
+      closeModal();
+      updateFinanceiro();
+    }
 
-        // ========== UTILITY ==========
-        function generateId() { return Date.now() + Math.random().toString(36).substr(2,9); }
+    function deleteFinanca(id) {
+      if (!confirm('Excluir?')) return;
+      let financas = getData('financas', []);
+      financas = financas.filter(f => f.id != id);
+      saveData('financas', financas);
+      updateFinanceiro();
+    }
 
-        function formatCurrency(value) { return 'R$ ' + value.toFixed(2).replace('.',','); }
+    // ===== CONVITES =====
+    function renderConvites() {
+      const convites = getData('convites', []);
+      const container = document.getElementById('convitesList');
+      container.innerHTML = `
+        <table>
+          <thead><tr><th>Email</th><th>Perfil</th><th>Status</th><th>Link</th></tr></thead>
+          <tbody>
+            ${convites.map(c => `
+              <tr>
+                <td>${c.email}</td>
+                <td>${c.role}</td>
+                <td>${c.used ? 'Usado' : 'Pendente'}</td>
+                <td><input type="text" value="${window.location.origin}${window.location.pathname}?screen=registro&token=${c.token}" readonly style="width:100%"></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
 
-        function parseCurrency(str) { return parseFloat(str.replace('R$','').replace('.','').replace(',','.')); }
+    function openConviteModal() {
+      const modal = document.getElementById('modalContent');
+      modal.innerHTML = `
+        <h3>Gerar Convite</h3>
+        <input type="email" id="convEmail" placeholder="Email do convidado">
+        <select id="convRole">
+          <option value="profissional">Profissional da Saúde</option>
+          <option value="secretaria">Secretária</option>
+          <option value="admin">Administrador</option>
+        </select>
+        <button class="btn btn-primary" onclick="generateConvite()">Gerar e Copiar Link</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      `;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
 
-        function formatDate(date) { return date.toISOString().split('T')[0]; }
+    function generateConvite() {
+      const email = document.getElementById('convEmail').value.trim();
+      const role = document.getElementById('convRole').value;
+      if (!email) { alert('Informe o email.'); return; }
+      let convites = getData('convites', []);
+      const token = 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      convites.push({ email, role, token, used: false });
+      saveData('convites', convites);
+      const link = window.location.origin + window.location.pathname + '?screen=registro&token=' + token;
+      // Copy to clipboard
+      navigator.clipboard.writeText(link).then(() => alert('Link copiado!')).catch(() => alert('Link: ' + link));
+      closeModal();
+      renderConvites();
+    }
 
-        function formatDateBR(date) { return date.toLocaleDateString('pt-BR'); }
+    // ===== AGENDA CRUD =====
+    function openAgendaModal(dateStr = null) {
+      const pacientes = getData('pacientes', []);
+      const profissionais = getData('profissionais', []);
+      let selectPac = '<option value="">Selecione</option>' + pacientes.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+      let selectProf = '<option value="">Selecione</option>' + profissionais.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+      const hoje = new Date().toISOString().split('T')[0];
+      const modal = document.getElementById('modalContent');
+      modal.innerHTML = `
+        <h3>Novo Agendamento</h3>
+        <input type="date" id="agData" value="${dateStr || hoje}">
+        <input type="time" id="agHora" value="08:00">
+        <label>Paciente:</label>
+        <select id="agPaciente">${selectPac}</select>
+        <label>Profissional:</label>
+        <select id="agProfissional">${selectProf}</select>
+        <select id="agStatus">
+          <option value="scheduled">Agendado</option>
+          <option value="confirmed">Confirmado</option>
+          <option value="canceled">Cancelado</option>
+        </select>
+        <button class="btn btn-primary" onclick="saveAgendamento()">Salvar</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      `;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
 
-        function getCurrentUser() {
-            if (currentUser) return currentUser;
-            let userId = getSession();
-            if (!userId) return null;
-            currentUser = data.users.find(u => u.id == userId);
-            return currentUser;
-        }
+    function saveAgendamento() {
+      const data = document.getElementById('agData').value;
+      const hora = document.getElementById('agHora').value;
+      const pacienteId = document.getElementById('agPaciente').value;
+      const profissionalId = document.getElementById('agProfissional').value;
+      const status = document.getElementById('agStatus').value;
+      if (!data || !hora || !pacienteId || !profissionalId) { alert('Preencha todos os campos.'); return; }
+      const pacientes = getData('pacientes', []);
+      const profissionais = getData('profissionais', []);
+      const pacienteNome = pacientes.find(p => p.id == pacienteId)?.nome || 'Desconhecido';
+      const profissionalNome = profissionais.find(p => p.id == profissionalId)?.nome || 'Desconhecido';
+      let agendamentos = getData('agendamentos', []);
+      agendamentos.push({ id: Date.now(), data, hora, pacienteId, pacienteNome, profissionalId, profissionalNome, status });
+      saveData('agendamentos', agendamentos);
+      closeModal();
+      renderAgenda();
+    }
 
-        function hasAccess(requiredProfiles) {
-            let user = getCurrentUser();
-            if (!user) return false;
-            if (user.profile === 'Administrador') return true;
-            return requiredProfiles.includes(user.profile);
-        }
+    // ===== MODAL UTILITIES =====
+    function closeModal() {
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+    // Fechar modal ao clicar fora
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
 
-        function showScreen(screenId) {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('registerScreen').style.display = 'none';
-            document.getElementById('recoverScreen').style.display = 'none';
-            document.getElementById('app').style.display = 'none';
-            document.getElementById(screenId).style.display = 'flex';
-            if (screenId === 'registerScreen') {
-                // check token
-                const params = new URLSearchParams(window.location.search);
-                const token = params.get('token');
-                if (!token) {
-                    alert('Link de convite inválido.');
-                    showScreen('loginScreen');
-                    return;
-                }
-                let convite = data.convites.find(c => c.token === token && !c.used);
-                if (!convite) {
-                    alert('Convite expirado ou inválido.');
-                    showScreen('loginScreen');
-                    return;
-                }
-                document.getElementById('regEmail').value = convite.email;
-                document.getElementById('regProfile').value = convite.profile;
-            }
-        }
+    // ===== LOGOUT =====
+    function logout() {
+      sessionStorage.removeItem('currentUser');
+      currentUser = null;
+      document.getElementById('mainApp').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+    }
 
-        // ========== LOGIN / REGISTER / RECOVER ==========
-        function login() {
-            let email = document.getElementById('loginEmail').value.trim();
-            let password = document.getElementById('loginPassword').value;
-            let user = data.users.find(u => u.email === email && u.password === password);
-            if (user) {
-                setSession(user.id);
-                currentUser = user;
-                document.getElementById('loginError').style.display = 'none';
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('app').style.display = 'block';
-                initializeApp();
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-            }
-        }
+    // ===== UPDATE ALL =====
+    function updateAll() {
+      if (currentUser) {
+        updateDashboard();
+        renderAgenda();
+        renderPacientes();
+        renderProfissionais();
+        updateFinanceiro();
+        renderConvites();
+      }
+    }
 
-        function registerUser(event) {
-            event.preventDefault();
-            let name = document.getElementById('regName').value.trim();
-            let email = document.getElementById('regEmail').value.trim();
-            let password = document.getElementById('regPassword').value;
-            let confirm = document.getElementById('regConfirm').value;
-            let profile = document.getElementById('regProfile').value;
-            if (!name || !email || !password || !confirm || !profile) {
-                document.getElementById('registerError').textContent = 'Preencha todos os campos.';
-                document.getElementById('registerError').style.display = 'block';
-                return;
-            }
-            if (password !== confirm) {
-                document.getElementById('registerError').textContent = 'Senhas não conferem.';
-                document.getElementById('registerError').style.display = 'block';
-                return;
-            }
-            // check if email already exists
-            if (data.users.find(u => u.email === email)) {
-                document.getElementById('registerError').textContent = 'Email já cadastrado.';
-                document.getElementById('registerError').style.display = 'block';
-                return;
-            }
-            let newUser = {
-                id: generateId(),
-                name: name,
-                email: email,
-                password: password,
-                profile: profile,
-                createdAt: new Date().toISOString()
-            };
-            data.users.push(newUser);
-            // mark convite as used
-            const params = new URLSearchParams(window.location.search);
-            const token = params.get('token');
-            if (token) {
-                let convite = data.convites.find(c => c.token === token);
-                if (convite) convite.used = true;
-            }
-            saveData();
-            alert('Conta criada com sucesso! Faça login.');
-            showScreen('loginScreen');
-        }
-
-        function recoverPassword() {
-            let email = document.getElementById('recoverEmail').value.trim();
-            let user = data.users.find(u => u.email === email);
-            if (user) {
-                document.getElementById('recoverError').style.display = 'none';
-                document.getElementById('recoverSuccess').style.display = 'block';
-                //simulation
-            } else {
-                document.getElementById('recoverError').style.display = 'block';
-                document.getElementById('recoverSuccess').style.display = 'none';
-            }
-        }
-
-        // toggle password visibility
-        document.getElementById('togglePassword')?.addEventListener('click', function() {
-            let input = document.getElementById('loginPassword');
-            input.type = input.type === 'password' ? 'text' : 'password';
-        });
-
-        // ========== LOGOUT ==========
-        function logout() {
-            clearSession();
-            currentUser = null;
-            document.getElementById('app').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-        }
-
-        // ========== INITIALIZE APP ==========
-        function initializeApp() {
-            let user = getCurrentUser();
-            if (!user) { logout(); return; }
-            // Show/hide navigation based on profile
-            const navItems = {
-                'nav-dashboard': ['Administrador', 'Profissional da Saúde', 'Secretária'],
-                'nav-agenda': ['Administrador', 'Secretária'],
-                'nav-pacientes': ['Administrador', 'Profissional da Saúde', 'Secretária'],
-                'nav-profissionais': ['Administrador', 'Secretária'],
-                'nav-financeiro': ['Administrador', 'Secretária'],
-                'nav-convites': ['Administrador']
-            };
-            for (let [id, profiles] of Object.entries(navItems)) {
-                let el = document.getElementById(id);
-                if (profiles.includes(user.profile)) {
-                    el.style.display = 'block';
-                } else {
-                    el.style.display = 'none';
-                }
-            }
-            // Default tab
-            showTab('dashboard');
-        }
-
-        // ========== TAB NAVIGATION ==========
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            // Show selected
-            document.getElementById('tab-' + tabName).classList.remove('hidden');
-            // Update sidebar active
-            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-            document.getElementById('nav-' + tabName).classList.add('active');
-            // Render data
-            if (tabName === 'dashboard') renderDashboard();
-            else if (tabName === 'agenda') renderAgenda();
-            else if (tabName === 'pacientes') renderPacientes();
-            else if (tabName === 'profissionais') renderProfissionais();
-            else if (tabName === 'financeiro') renderFinanceiro();
-            else if (tabName === 'convites') renderConvites();
-        }
-
-        // ========== DASHBOARD ==========
-        function renderDashboard() {
-            document.getElementById('kpiPacientes').textContent = data.pacientes.length;
-            document.getElementById('kpiAgendamentos').textContent = data.agendamentos.length;
-            let totalReceitas = data.receitas.reduce((sum, r) => sum + r.valor, 0);
-            let totalDespesas = data.despesas.reduce((sum, d) => sum + d.valor, 0);
-            document.getElementById('kpiReceitas').textContent = formatCurrency(totalReceitas);
-            document.getElementById('kpiStatus').textContent = totalReceitas >= totalDespesas ? 'Positivo' : 'Negativo';
-            document.getElementById('kpiStatus').style.color = totalReceitas >= totalDespesas ? 'green' : 'red';
-            // Profissionais KPIs
-            let totalProf = data.profissionais.length;
-            let saude = data.profissionais.filter(p => p.categoria === 'Saúde').length;
-            let tecnico = data.profissionais.filter(p => p.categoria === 'Técnico').length;
-            let admin = data.profissionais.filter(p => p.categoria === 'Administrativo').length;
-            document.getElementById('kpiProfissionais').textContent = totalProf;
-            document.getElementById('kpiProfDetalhes').textContent = `Saúde: ${saude} | Técnico: ${tecnico} | Administrativo: ${admin}`;
-            // Charts
-            renderCharts();
-        }
-
-        function renderCharts() {
-            // Tendência de agendamentos (linha) - últimos 6 meses
-            let labels = [];
-            let dataCounts = [];
-            let now = new Date();
-            for (let i = 5; i >= 0; i--) {
-                let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                let mes = d.toLocaleString('pt-BR', { month: 'short' });
-                labels.push(mes);
-                let count = data.agendamentos.filter(a => {
-                    let ad = new Date(a.data);
-                    return ad.getMonth() === d.getMonth() && ad.getFullYear() === d.getFullYear();
-                }).length;
-                dataCounts.push(count);
-            }
-            if (chartTendencia) chartTendencia.destroy();
-            let ctx1 = document.getElementById('chartTendencia').getContext('2d');
-            chartTendencia = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Agendamentos',
-                        data: dataCounts,
-                        borderColor: '#00bcd4',
-                        backgroundColor: 'rgba(0,188,212,0.2)',
-                        fill: true
-                    }]
-                },
-                options: { responsive: true }
-            });
-            // Receitas vs Despesas (barras)
-            let labels2 = [];
-            let receitasData = [];
-            let despesasData = [];
-            for (let i = 5; i >= 0; i--) {
-                let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                let mes = d.toLocaleString('pt-BR', { month: 'short' });
-                labels2.push(mes);
-                let rec = data.receitas.filter(r => {
-                    let rd = new Date(r.data);
-                    return rd.getMonth() === d.getMonth() && rd.getFullYear() === d.getFullYear();
-                }).reduce((s, r) => s + r.valor, 0);
-                receitasData.push(rec);
-                let desp = data.despesas.filter(dd => {
-                    let dd2 = new Date(dd.data);
-                    return dd2.getMonth() === d.getMonth() && dd2.getFullYear() === d.getFullYear();
-                }).reduce((s, ddd) => s + ddd.valor, 0);
-                despesasData.push(desp);
-            }
-            if (chartReceitasDespesas) chartReceitasDespesas.destroy();
-            let ctx2 = document.getElementById('chartReceitasDespesas').getContext('2d');
-            chartReceitasDespesas = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: labels2,
-                    datasets: [
-                        { label: 'Receitas', data: receitasData, backgroundColor: '#00bcd4' },
-                        { label: 'Despesas', data: despesasData, backgroundColor: '#ff6b35' }
-                    ]
-                },
-                options: { responsive: true }
-            });
-        }
-
-        function editarKPI(tipo) {
-            let novoValor = prompt('Novo valor:');
-            if (novoValor !== null) {
-                // For demo, we can update the count directly in data? Better to just show alert.
-                alert('KPI editado (simulação). Recarregue para ver dados reais.');
-            }
-        }
-
-        // ========== AGENDA ==========
-        function renderAgenda() {
-            let mes = currentMonth;
-            let ano = currentYear;
-            document.getElementById('mesAno').textContent = new Date(ano, mes).toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
-            let firstDay = new Date(ano, mes, 1).getDay();
-            let daysInMonth = new Date(ano, mes + 1, 0).getDate();
-            let grid = document.getElementById('agendaGrid');
-            grid.innerHTML = '';
-            // Headers
-            let diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-            diasSemana.forEach(d => {
-                let div = document.createElement('div');
-                div.className = 'agenda-day';
-                div.style.fontWeight = 'bold';
-                div.style.textAlign = 'center';
-                div.textContent = d;
-                grid.appendChild(div);
-            });
-            // Blank days
-            for (let i = 0; i < firstDay; i++) {
-                let div = document.createElement('div');
-                div.className = 'agenda-day';
-                grid.appendChild(div);
-            }
-            // Days
-            for (let day = 1; day <= daysInMonth; day++) {
-                let div = document.createElement('div');
-                div.className = 'agenda-day';
-                let span = document.createElement('span');
-                span.className = 'day-number';
-                span.textContent = day;
-                div.appendChild(span);
-                // Appointments
-                let dateStr = `${ano}-${String(mes+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                let appointments = data.agendamentos.filter(a => a.data === dateStr);
-                // Filter by professional if needed (if user is not admin, maybe filter)
-                let user = getCurrentUser();
-                if (user && user.profile !== 'Administrador') {
-                    // For secretaria, show all? Actually agenda is for admin and secretaria. We'll show all for simplicity.
-                }
-                appointments.forEach(a => {
-                    let appDiv = document.createElement('div');
-                    appDiv.className = 'appointment ' + a.status;
-                    appDiv.textContent = a.hora + ' - ' + a.pacienteNome;
-                    appDiv.onclick = () => abrirModalAgendamento(a);
-                    div.appendChild(appDiv);
-                });
-                grid.appendChild(div);
-            }
-        }
-
-        function navegarMes(delta) {
-            currentMonth += delta;
-            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            renderAgenda();
-        }
-
-        function abrirModalAgendamento(appointment = null) {
-            editingAppointment = appointment;
-            let html = `<h2>${appointment ? 'Editar Agendamento' : 'Novo Agendamento'}</h2>
-                <form id="agendamentoForm">
-                    <div class="form-group"><label>Paciente</label><select id="agPaciente" required>${data.pacientes.map(p => `<option value="${p.id}" ${appointment && appointment.pacienteId === p.id ? 'selected' : ''}>${p.nome}</option>`).join('')}</select></div>
-                    <div class="form-group"><label>Profissional</label><select id="agProfissional" required>${data.profissionais.map(p => `<option value="${p.id}" ${appointment && appointment.profissionalId === p.id ? 'selected' : ''}>${p.nome}</option>`).join('')}</select></div>
-                    <div class="form-group"><label>Data</label><input type="date" id="agData" value="${appointment ? appointment.data : ''}" required></div>
-                    <div class="form-group"><label>Hora</label><input type="time" id="agHora" value="${appointment ? appointment.hora : ''}" required></div>
-                    <div class="form-group"><label>Status</label><select id="agStatus">
-                        <option value="scheduled" ${appointment && appointment.status === 'scheduled' ? 'selected' : ''}>Agendado</option>
-                        <option value="confirmed" ${appointment && appointment.status === 'confirmed' ? 'selected' : ''}>Confirmado</option>
-                        <option value="canceled" ${appointment && appointment.status === 'canceled' ? 'selected' : ''}>Cancelado</option>
-                    </select></div>
-                    <button type="submit" class="btn">Salvar</button>
-                    ${appointment ? `<button type="button" class="btn btn-secondary" onclick="excluirAgendamento('${appointment.id}')">Excluir</button>` : ''}
-                </form>`;
-            document.getElementById('modalBody').innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-            document.getElementById('agendamentoForm').onsubmit = function(e) {
-                e.preventDefault();
-                let pacienteId = document.getElementById('agPaciente').value;
-                let profissionalId = document.getElementById('agProfissional').value;
-                let data = document.getElementById('agData').value;
-                let hora = document.getElementById('agHora').value;
-                let status = document.getElementById('agStatus').value;
-                let paciente = data.pacientes.find(p => p.id === pacienteId);
-                let profissional = data.profissionais.find(p => p.id === profissionalId);
-                if (appointment) {
-                    // update
-                    let idx = data.agendamentos.findIndex(a => a.id === appointment.id);
-                    data.agendamentos[idx] = { ...data.agendamentos[idx], pacienteId, profissionalId, data, hora, status, pacienteNome: paciente.nome, profissionalNome: profissional.nome };
-                } else {
-                    let newApp = {
-                        id: generateId(),
-                        pacienteId,
-                        profissionalId,
-                        data,
-                        hora,
-                        status,
-                        pacienteNome: paciente.nome,
-                        profissionalNome: profissional.nome
-                    };
-                    data.agendamentos.push(newApp);
-                }
-                saveData();
-                fecharModal();
-                renderAgenda();
-                renderDashboard();
-            };
-        }
-
-        function excluirAgendamento(id) {
-            if (confirm('Excluir agendamento?')) {
-                data.agendamentos = data.agendamentos.filter(a => a.id !== id);
-                saveData();
-                fecharModal();
-                renderAgenda();
-            }
-        }
-
-        // ========== PACIENTES ==========
-        function renderPacientes() {
-            let tbody = document.querySelector('#tabelaPacientes tbody');
-            tbody.innerHTML = '';
-            data.pacientes.forEach(p => {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `<td>${p.nome}</td><td>${p.documento}</td><td>${p.dataNasc}</td><td>${p.telefone}</td><td>${p.responsavel || ''}</td>
-                    <td class="action-btns">
-                        <button onclick="abrirModalPaciente('${p.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="delete" onclick="excluirPaciente('${p.id}')"><i class="fas fa-trash"></i></button>
-                        <button onclick="toggleAccordion('${p.id}')"><i class="fas fa-chevron-down"></i></button>
-                    </td>`;
-                tbody.appendChild(tr);
-            });
-            // Accordion
-            document.getElementById('pacienteAccordion').innerHTML = '';
-            // Render dynamically when opened
-        }
-
-        function abrirModalPaciente(pacienteId = null) {
-            let paciente = pacienteId ? data.pacientes.find(p => p.id === pacienteId) : null;
-            let html = `<h2>${paciente ? 'Editar Paciente' : 'Novo Paciente'}</h2>
-                <form id="pacienteForm">
-                    <div class="form-group"><label>Nome</label><input type="text" id="pNome" value="${paciente ? paciente.nome : ''}" required></div>
-                    <div class="form-group"><label>Documento</label><input type="text" id="pDocumento" value="${paciente ? paciente.documento : ''}" required></div>
-                    <div class="form-group"><label>Data Nascimento</label><input type="date" id="pDataNasc" value="${paciente ? paciente.dataNasc : ''}" required></div>
-                    <div class="form-group"><label>Telefone</label><input type="text" id="pTelefone" value="${paciente ? paciente.telefone : ''}" required></div>
-                    <div class="form-group"><label>Responsável</label><input type="text" id="pResponsavel" value="${paciente ? paciente.responsavel : ''}"></div>
-                    <button type="submit" class="btn">Salvar</button>
-                    ${paciente ? `<button type="button" class="btn btn-secondary" onclick="excluirPaciente('${paciente.id}')">Excluir</button>` : ''}
-                </form>`;
-            document.getElementById('modalBody').innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-            document.getElementById('pacienteForm').onsubmit = function(e) {
-                e.preventDefault();
-                let nome = document.getElementById('pNome').value.trim();
-                let documento = document.getElementById('pDocumento').value.trim();
-                let dataNasc = document.getElementById('pDataNasc').value;
-                let telefone = document.getElementById('pTelefone').value.trim();
-                let responsavel = document.getElementById('pResponsavel').value.trim();
-                if (paciente) {
-                    paciente.nome = nome;
-                    paciente.documento = documento;
-                    paciente.dataNasc = dataNasc;
-                    paciente.telefone = telefone;
-                    paciente.responsavel = responsavel;
-                } else {
-                    let newP = { id: generateId(), nome, documento, dataNasc, telefone, responsavel };
-                    data.pacientes.push(newP);
-                }
-                saveData();
-                fecharModal();
-                renderPacientes();
-                renderDashboard();
-            };
-        }
-
-        function excluirPaciente(id) {
-            if (confirm('Excluir paciente?')) {
-                data.pacientes = data.pacientes.filter(p => p.id !== id);
-                // also remove related appointments and documents? For simplicity, just remove.
-                saveData();
-                renderPacientes();
-                renderDashboard();
-            }
-        }
-
-        function toggleAccordion(pacienteId) {
-            if (patientAccordionOpen === pacienteId) {
-                document.getElementById('pacienteAccordion').innerHTML = '';
-                patientAccordionOpen = null;
-                return;
-            }
-            patientAccordionOpen = pacienteId;
-            let paciente = data.pacientes.find(p => p.id === pacienteId);
-            if (!paciente) return;
-            let html = `<div class="accordion">
-                <div class="accordion-item"><div class="accordion-header" onclick="toggleAccordionTab('dados')">1. Dados <i class="fas fa-chevron-down"></i></div><div class="accordion-content" id="acc-dados">${renderDados(paciente)}</div></div>
-                <div class="accordion-item"><div class="accordion-header" onclick="toggleAccordionTab('prontuarios')">2. Prontuários <i class="fas fa-chevron-down"></i></div><div class="accordion-content" id="acc-prontuarios">${renderProntuarios(paciente)}</div></div>
-                <div class="accordion-item"><div class="accordion-header" onclick="toggleAccordionTab('evolucao')">3. Evolução <i class="fas fa-chevron-down"></i></div><div class="accordion-content" id="acc-evolucao">${renderEvolucao(paciente)}</div></div>
-                <div class="accordion-item"><div class="accordion-header" onclick="toggleAccordionTab('declaracao')">4. Declaração Psicológica <i class="fas fa-chevron-down"></i></div><div class="accordion-content" id="acc-declaracao">${renderDocumento(paciente, 'declaracao')}</div></div>
-                <div class="accordion-item"><div class="accordion-header" onclick="toggleAccordionTab('atestado')">5. Atestado Psicológico <i class="fas fa-chevron-down"></i></div><div class="accordion-content" id="acc-atestado">${renderDocumento(paciente, 'atestado')}</div></div>
-                <div class="accordion-item"><div class="accordion-header" onclick="toggleAccordionTab('relatorio')">6. Relatório Psicológico <i class="fas fa-chevron-down"></i></div><div class="accordion-content" id="acc-relatorio">${renderDocumento(paciente, 'relatorio')}</div></div>
-                <div class="accordion-item"><div class="accordion-header" onclick="toggleAccordionTab('multiprofissional')">7. Relatório Multiprofissional <i class="fas fa-chevron-down"></i></div><div class="accordion-content" id="acc-multiprofissional">${renderDocumento(paciente, 'multiprofissional')}</div></div>
-                <div class="accordion-item"><div class="accordion-header" onclick="toggleAccordionTab('laudo')">8. Laudo Psicológico <i class="fas fa-chevron-down"></i></div><div class="accordion-content" id="acc-laudo">${renderDocumento(paciente, 'laudo')}</div></div>
-                <div class="accordion-item"><div class="accordion-header" onclick="toggleAccordionTab('parecer')">9. Parecer Psicológico <i class="fas fa-chevron-down"></i></div><div class="accordion-content" id="acc-parecer">${renderDocumento(paciente, 'parecer')}</div></div>
-            </div>`;
-            document.getElementById('pacienteAccordion').innerHTML = html;
-        }
-
-        function toggleAccordionTab(tab) {
-            let el = document.getElementById('acc-' + tab);
-            if (el.style.display === 'block') el.style.display = 'none';
-            else el.style.display = 'block';
-        }
-
-        function renderDados(paciente) {
-            return `<p><strong>Nome:</strong> ${paciente.nome}</p>
-                <p><strong>Documento:</strong> ${paciente.documento}</p>
-                <p><strong>Data Nasc:</strong> ${paciente.dataNasc}</p>
-                <p><strong>Telefone:</strong> ${paciente.telefone}</p>
-                <p><strong>Responsável:</strong> ${paciente.responsavel || 'N/A'}</p>
-                <button class="btn" style="width:auto; padding:10px;" onclick="abrirModalPaciente('${paciente.id}')">Editar</button>`;
-        }
-
-        function renderProntuarios(paciente) {
-            let prontuarios = data.prontuarios.filter(p => p.pacienteId === paciente.id);
-            let html = `<div style="margin-bottom:10px;">
-                <button class="btn" style="width:auto; padding:10px;" onclick="abrirModalProntuario('${paciente.id}')">+ Novo Prontuário</button>
-                <button class="btn btn-secondary" style="width:auto; padding:10px;" onclick="imprimirProntuarios('${paciente.id}')"><i class="fas fa-print"></i> Imprimir</button>
-            </div>`;
-            if (prontuarios.length === 0) {
-                html += '<p>Nenhum prontuário cadastrado.</p>';
-            } else {
-                html += '<div class="timeline">';
-                prontuarios.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(p => {
-                    html += `<div style="border-left:2px solid var(--teal); padding:10px 20px; margin-bottom:10px;">
-                        <p><strong>${p.data}</strong> - ${p.texto}</p>
-                        <div class="action-btns">
-                            <button onclick="editarProntuario('${p.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="delete" onclick="excluirProntuario('${p.id}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>`;
-                });
-                html += '</div>';
-            }
-            return html;
-        }
-
-        function abrirModalProntuario(pacienteId, prontuarioId = null) {
-            let prontuario = prontuarioId ? data.prontuarios.find(p => p.id === prontuarioId) : null;
-            let html = `<h2>${prontuario ? 'Editar Prontuário' : 'Novo Prontuário'}</h2>
-                <form id="prontuarioForm">
-                    <div class="form-group"><label>Data</label><input type="date" id="prData" value="${prontuario ? prontuario.data : new Date().toISOString().split('T')[0]}" required></div>
-                    <div class="form-group"><label>Texto</label><textarea id="prTexto" required>${prontuario ? prontuario.texto : ''}</textarea></div>
-                    <button type="submit" class="btn">Salvar</button>
-                    ${prontuario ? `<button type="button" class="btn btn-secondary" onclick="excluirProntuario('${prontuario.id}')">Excluir</button>` : ''}
-                </form>`;
-            document.getElementById('modalBody').innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-            document.getElementById('prontuarioForm').onsubmit = function(e) {
-                e.preventDefault();
-                let data = document.getElementById('prData').value;
-                let texto = document.getElementById('prTexto').value.trim();
-                if (prontuario) {
-                    prontuario.data = data;
-                    prontuario.texto = texto;
-                } else {
-                    let newP = { id: generateId(), pacienteId, data, texto };
-                    data.prontuarios.push(newP);
-                }
-                saveData();
-                fecharModal();
-                toggleAccordion(pacienteId); // refresh
-            };
-        }
-
-        function editarProntuario(id) {
-            let prontuario = data.prontuarios.find(p => p.id === id);
-            if (prontuario) abrirModalProntuario(prontuario.pacienteId, id);
-        }
-
-        function excluirProntuario(id) {
-            let prontuario = data.prontuarios.find(p => p.id === id);
-            if (prontuario && confirm('Excluir prontuário?')) {
-                data.prontuarios = data.prontuarios.filter(p => p.id !== id);
-                saveData();
-                toggleAccordion(prontuario.pacienteId);
-            }
-        }
-
-        function imprimirProntuarios(pacienteId) {
-            let prontuarios = data.prontuarios.filter(p => p.pacienteId === pacienteId);
-            let paciente = data.pacientes.find(p => p.id === pacienteId);
-            let printContent = `<h2>Prontuários de ${paciente.nome}</h2>`;
-            prontuarios.forEach(p => {
-                printContent += `<p><strong>${p.data}</strong>: ${p.texto}</p><hr>`;
-            });
-            let win = window.open('', '_blank');
-            win.document.write('<html><head><title>Impressão</title></head><body>');
-            win.document.write(printContent);
-            win.document.write('</body></html>');
-            win.print();
-        }
-
-        function renderEvolucao(paciente) {
-            // Simulate IA: collect all prontuarios, generate graph and suggestions
-            let prontuarios = data.prontuarios.filter(p => p.pacienteId === paciente.id);
-            let html = '<h3>Evolução do Paciente</h3>';
-            if (prontuarios.length === 0) {
-                html += '<p>Nenhum prontuário disponível para análise.</p>';
-            } else {
-                // Simple sentiment analysis: count positive/negative words
-                let positiveWords = ['melhorou', 'bom', 'ótimo', 'evolução', 'progresso', 'feliz', 'calmo'];
-                let negativeWords = ['piorou', 'ruim', 'difícil', 'regressão', 'ansioso', 'triste', 'agitado'];
-                let posCount = 0, negCount = 0;
-                prontuarios.forEach(p => {
-                    let texto = p.texto.toLowerCase();
-                    positiveWords.forEach(w => { if (texto.includes(w)) posCount++; });
-                    negativeWords.forEach(w => { if (texto.includes(w)) negCount++; });
-                });
-                let total = posCount + negCount;
-                let percentPos = total > 0 ? (posCount / total * 100).toFixed(0) : 50;
-                let percentNeg = 100 - percentPos;
-                html += `<canvas id="evolucaoChart" width="200" height="200"></canvas>
-                    <p>Análise: ${percentPos}% positivo, ${percentNeg}% negativo.</p>
-                    <p>Sugestão: ${percentPos >= 60 ? 'Paciente apresentando boa evolução. Manter estratégias.' : 'Paciente requer atenção. Considere ajustar plano terapêutico.'}</p>`;
-                // draw simple pie chart using canvas (or use Chart.js)
-                setTimeout(() => {
-                    let ctx = document.getElementById('evolucaoChart').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Positivo', 'Negativo'],
-                            datasets: [{ data: [percentPos, percentNeg], backgroundColor: ['#00bcd4', '#ff6b35'] }]
-                        }
-                    });
-                }, 100);
-            }
-            return html;
-        }
-
-        function renderDocumento(paciente, tipo) {
-            let docs = data.documentos.filter(d => d.pacienteId === paciente.id && d.tipo === tipo);
-            let nomes = {
-                declaracao: 'Declaração Psicológica',
-                atestado: 'Atestado Psicológico',
-                relatorio: 'Relatório Psicológico',
-                multiprofissional: 'Relatório Multiprofissional',
-                laudo: 'Laudo Psicológico',
-                parecer: 'Parecer Psicológico'
-            };
-            let html = `<div style="margin-bottom:10px;">
-                <button class="btn" style="width:auto; padding:10px;" onclick="abrirModalDocumento('${paciente.id}', '${tipo}')">+ Nova ${nomes[tipo]}</button>
-                <button class="btn btn-secondary" style="width:auto; padding:10px;" onclick="imprimirDocumentos('${paciente.id}', '${tipo}')"><i class="fas fa-print"></i> Imprimir</button>
-            </div>`;
-            if (docs.length === 0) {
-                html += `<p>Nenhum(a) ${nomes[tipo]} cadastrado(a).</p>`;
-            } else {
-                docs.forEach(d => {
-                    html += `<div style="border:1px solid #ddd; padding:15px; margin-bottom:10px; border-radius:10px;">
-                        <p><strong>${d.titulo}</strong> - ${d.data}</p>
-                        <p>${d.conteudo}</p>
-                        <div class="action-btns">
-                            <button onclick="editarDocumento('${d.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="delete" onclick="excluirDocumento('${d.id}')"><i class="fas fa-trash"></i></button>
-                            <button onclick="imprimirDocumentoUnico('${d.id}')"><i class="fas fa-print"></i></button>
-                        </div>
-                    </div>`;
-                });
-            }
-            return html;
-        }
-
-        function abrirModalDocumento(pacienteId, tipo, docId = null) {
-            let doc = docId ? data.documentos.find(d => d.id === docId) : null;
-            let nomes = {
-                declaracao: 'Declaração Psicológica',
-                atestado: 'Atestado Psicológico',
-                relatorio: 'Relatório Psicológico',
-                multiprofissional: 'Relatório Multiprofissional',
-                laudo: 'Laudo Psicológico',
-                parecer: 'Parecer Psicológico'
-            };
-            let html = `<h2>${doc ? 'Editar ' : 'Nova '} ${nomes[tipo]}</h2>
-                <form id="docForm">
-                    <div class="form-group"><label>Título</label><input type="text" id="docTitulo" value="${doc ? doc.titulo : ''}" required></div>
-                    <div class="form-group"><label>Data</label><input type="date" id="docData" value="${doc ? doc.data : new Date().toISOString().split('T')[0]}" required></div>
-                    <div class="form-group"><label>Conteúdo</label><textarea id="docConteudo" required>${doc ? doc.conteudo : ''}</textarea></div>
-                    <button type="submit" class="btn">Salvar</button>
-                    ${doc ? `<button type="button" class="btn btn-secondary" onclick="excluirDocumento('${doc.id}')">Excluir</button>` : ''}
-                </form>`;
-            document.getElementById('modalBody').innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-            document.getElementById('docForm').onsubmit = function(e) {
-                e.preventDefault();
-                let titulo = document.getElementById('docTitulo').value.trim();
-                let data = document.getElementById('docData').value;
-                let conteudo = document.getElementById('docConteudo').value.trim();
-                if (doc) {
-                    doc.titulo = titulo;
-                    doc.data = data;
-                    doc.conteudo = conteudo;
-                } else {
-                    let newDoc = { id: generateId(), pacienteId, tipo, titulo, data, conteudo };
-                    data.documentos.push(newDoc);
-                }
-                saveData();
-                fecharModal();
-                toggleAccordion(pacienteId);
-            };
-        }
-
-        function editarDocumento(id) {
-            let doc = data.documentos.find(d => d.id === id);
-            if (doc) abrirModalDocumento(doc.pacienteId, doc.tipo, id);
-        }
-
-        function excluirDocumento(id) {
-            let doc = data.documentos.find(d => d.id === id);
-            if (doc && confirm('Excluir documento?')) {
-                data.documentos = data.documentos.filter(d => d.id !== id);
-                saveData();
-                toggleAccordion(doc.pacienteId);
-            }
-        }
-
-        function imprimirDocumentos(pacienteId, tipo) {
-            let docs = data.documentos.filter(d => d.pacienteId === pacienteId && d.tipo === tipo);
-            let paciente = data.pacientes.find(p => p.id === pacienteId);
-            let printContent = `<h2>${tipo.charAt(0).toUpperCase() + tipo.slice(1)} de ${paciente.nome}</h2>`;
-            docs.forEach(d => {
-                printContent += `<h3>${d.titulo} - ${d.data}</h3><p>${d.conteudo}</p><hr>`;
-            });
-            let win = window.open('', '_blank');
-            win.document.write('<html><head><title>Impressão</title></head><body>');
-            win.document.write(printContent);
-            win.document.write('</body></html>');
-            win.print();
-        }
-
-        function imprimirDocumentoUnico(id) {
-            let doc = data.documentos.find(d => d.id === id);
-            if (doc) {
-                let win = window.open('', '_blank');
-                win.document.write(`<html><head><title>Impressão</title></head><body><h2>${doc.titulo}</h2><p>${doc.data}</p><p>${doc.conteudo}</p></body></html>`);
-                win.print();
-            }
-        }
-
-        // ========== PROFISSIONAIS ==========
-        function renderProfissionais() {
-            let tbody = document.querySelector('#tabelaProfissionais tbody');
-            tbody.innerHTML = '';
-            data.profissionais.forEach(p => {
-                let registro = p.categoria === 'Saúde' ? (p.registro || '') : '';
-                let tr = document.createElement('tr');
-                tr.innerHTML = `<td>${p.nome}</td><td>${p.profissao}</td><td>${p.categoria}</td><td>${registro}</td>
-                    <td class="action-btns">
-                        <button onclick="abrirModalProfissional('${p.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="delete" onclick="excluirProfissional('${p.id}')"><i class="fas fa-trash"></i></button>
-                    </td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function abrirModalProfissional(profissionalId = null) {
-            let profissional = profissionalId ? data.profissionais.find(p => p.id === profissionalId) : null;
-            let html = `<h2>${profissional ? 'Editar Profissional' : 'Novo Profissional'}</h2>
-                <form id="profissionalForm">
-                    <div class="form-group"><label>Nome</label><input type="text" id="profNome" value="${profissional ? profissional.nome : ''}" required></div>
-                    <div class="form-group"><label>Profissão</label><input type="text" id="profProfissao" value="${profissional ? profissional.profissao : ''}" required></div>
-                    <div class="form-group"><label>Categoria</label><select id="profCategoria" required onchange="toggleRegistro()">
-                        <option value="Saúde" ${profissional && profissional.categoria === 'Saúde' ? 'selected' : ''}>Saúde</option>
-                        <option value="Técnico" ${profissional && profissional.categoria === 'Técnico' ? 'selected' : ''}>Técnico</option>
-                        <option value="Administrativo" ${profissional && profissional.categoria === 'Administrativo' ? 'selected' : ''}>Administrativo</option>
-                    </select></div>
-                    <div class="form-group" id="registroGroup"><label>Registro no Conselho (CRP/CRM/CREFITO/outros)</label><input type="text" id="profRegistro" value="${profissional ? profissional.registro || '' : ''}"></div>
-                    <div class="form-group"><label>Data Nascimento</label><input type="date" id="profDataNasc" value="${profissional ? profissional.dataNasc : ''}" required></div>
-                    <div class="form-group"><label>Telefone</label><input type="text" id="profTelefone" value="${profissional ? profissional.telefone : ''}" required></div>
-                    <button type="submit" class="btn">Salvar</button>
-                    ${profissional ? `<button type="button" class="btn btn-secondary" onclick="excluirProfissional('${profissional.id}')">Excluir</button>` : ''}
-                </form>`;
-            document.getElementById('modalBody').innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-            toggleRegistro(); // initial
-            document.getElementById('profissionalForm').onsubmit = function(e) {
-                e.preventDefault();
-                let nome = document.getElementById('profNome').value.trim();
-                let profissao = document.getElementById('profProfissao').value.trim();
-                let categoria = document.getElementById('profCategoria').value;
-                let registro = document.getElementById('profRegistro').value.trim();
-                let dataNasc = document.getElementById('profDataNasc').value;
-                let telefone = document.getElementById('profTelefone').value.trim();
-                if (profissional) {
-                    profissional.nome = nome;
-                    profissional.profissao = profissao;
-                    profissional.categoria = categoria;
-                    profissional.registro = registro;
-                    profissional.dataNasc = dataNasc;
-                    profissional.telefone = telefone;
-                } else {
-                    let newP = { id: generateId(), nome, profissao, categoria, registro, dataNasc, telefone };
-                    data.profissionais.push(newP);
-                }
-                saveData();
-                fecharModal();
-                renderProfissionais();
-                renderDashboard();
-            };
-        }
-
-        function toggleRegistro() {
-            let cat = document.getElementById('profCategoria').value;
-            let group = document.getElementById('registroGroup');
-            if (cat === 'Saúde') {
-                group.style.display = 'block';
-            } else {
-                group.style.display = 'none';
-            }
-        }
-
-        function excluirProfissional(id) {
-            if (confirm('Excluir profissional?')) {
-                data.profissionais = data.profissionais.filter(p => p.id !== id);
-                saveData();
-                renderProfissionais();
-                renderDashboard();
-            }
-        }
-
-        // ========== FINANCEIRO ==========
-        function renderFinanceiro() {
-            let totalReceitas = data.receitas.reduce((s, r) => s + r.valor, 0);
-            let totalDespesas = data.despesas.reduce((s, d) => s + d.valor, 0);
-            document.getElementById('kpiTotalReceitas').textContent = formatCurrency(totalReceitas);
-            document.getElementById('kpiTotalDespesas').textContent = formatCurrency(totalDespesas);
-            document.getElementById('kpiSaldo').textContent = formatCurrency(totalReceitas - totalDespesas);
-            // Pareto chart
-            renderPareto();
-            // IA Analysis
-            let iaText = document.getElementById('iaText');
-            if (totalDespesas > totalReceitas) {
-                iaText.textContent = 'Alerta: Despesas maiores que receitas. Considere reduzir custos ou aumentar receitas. Sugestão: Revisar gastos e buscar novas fontes de renda.';
-            } else {
-                iaText.textContent = 'Situação financeira saudável. Continue monitorando.';
-            }
-        }
-
-        function renderPareto() {
-            let labels = [];
-            let receitas = [];
-            let despesas = [];
-            let now = new Date();
-            for (let i = 5; i >= 0; i--) {
-                let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                let mes = d.toLocaleString('pt-BR', { month: 'short' });
-                labels.push(mes);
-                let rec = data.receitas.filter(r => { let rd = new Date(r.data); return rd.getMonth() === d.getMonth() && rd.getFullYear() === d.getFullYear(); }).reduce((s, r) => s + r.valor, 0);
-                receitas.push(rec);
-                let desp = data.despesas.filter(dd => { let dd2 = new Date(dd.data); return dd2.getMonth() === d.getMonth() && dd2.getFullYear() === d.getFullYear(); }).reduce((s, ddd) => s + ddd.valor, 0);
-                despesas.push(desp);
-            }
-            if (chartPareto) chartPareto.destroy();
-            let ctx = document.getElementById('chartPareto').getContext('2d');
-            chartPareto = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Receitas', data: receitas, backgroundColor: '#00bcd4' },
-                        { label: 'Despesas', data: despesas, backgroundColor: '#ff6b35' }
-                    ]
-                },
-                options: { responsive: true, scales: { y: { beginAtZero: true } } }
-            });
-        }
-
-        function abrirModalFinanceiro(tipo, item = null) {
-            let title = tipo === 'receita' ? 'Receita' : 'Despesa';
-            let html = `<h2>${item ? 'Editar ' : 'Nova '} ${title}</h2>
-                <form id="finForm">
-                    <div class="form-group"><label>Descrição</label><input type="text" id="finDesc" value="${item ? item.descricao : ''}" required></div>
-                    <div class="form-group"><label>Valor (R$)</label><input type="number" step="0.01" id="finValor" value="${item ? item.valor : ''}" required></div>
-                    <div class="form-group"><label>Data</label><input type="date" id="finData" value="${item ? item.data : new Date().toISOString().split('T')[0]}" required></div>
-                    <button type="submit" class="btn">Salvar</button>
-                    ${item ? `<button type="button" class="btn btn-secondary" onclick="excluirFinanceiro('${item.id}', '${tipo}')">Excluir</button>` : ''}
-                </form>`;
-            document.getElementById('modalBody').innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-            document.getElementById('finForm').onsubmit = function(e) {
-                e.preventDefault();
-                let descricao = document.getElementById('finDesc').value.trim();
-                let valor = parseFloat(document.getElementById('finValor').value);
-                let data = document.getElementById('finData').value;
-                if (item) {
-                    item.descricao = descricao;
-                    item.valor = valor;
-                    item.data = data;
-                } else {
-                    let newItem = { id: generateId(), descricao, valor, data, tipo };
-                    if (tipo === 'receita') data.receitas.push(newItem);
-                    else data.despesas.push(newItem);
-                }
-                saveData();
-                fecharModal();
-                renderFinanceiro();
-                renderDashboard();
-            };
-        }
-
-        function excluirFinanceiro(id, tipo) {
-            if (confirm('Excluir?')) {
-                if (tipo === 'receita') data.receitas = data.receitas.filter(r => r.id !== id);
-                else data.despesas = data.despesas.filter(d => d.id !== id);
-                saveData();
-                fecharModal();
-                renderFinanceiro();
-                renderDashboard();
-            }
-        }
-
-        // ========== CONVITES ==========
-        function renderConvites() {
-            let tbody = document.querySelector('#tabelaConvites tbody');
-            tbody.innerHTML = '';
-            data.convites.forEach(c => {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `<td>${c.email}</td><td>${c.profile}</td><td>${c.used ? 'Usado' : 'Pendente'}</td><td>${new Date(c.createdAt).toLocaleDateString('pt-BR')}</td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function abrirModalConvite() {
-            let html = `<h2>Gerar Link de Convite</h2>
-                <form id="conviteForm">
-                    <div class="form-group"><label>Email</label><input type="email" id="convEmail" required></div>
-                    <div class="form-group"><label>Perfil</label><select id="convProfile">
-                        <option value="Profissional da Saúde">Profissional da Saúde</option>
-                        <option value="Secretária">Secretária</option>
-                    </select></div>
-                    <button type="submit" class="btn">Gerar Link</button>
-                </form>`;
-            document.getElementById('modalBody').innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-            document.getElementById('conviteForm').onsubmit = function(e) {
-                e.preventDefault();
-                let email = document.getElementById('convEmail').value.trim();
-                let profile = document.getElementById('convProfile').value;
-                let token = generateId();
-                let convite = { id: generateId(), email, profile, token, used: false, createdAt: new Date().toISOString() };
-                data.convites.push(convite);
-                saveData();
-                let link = window.location.origin + window.location.pathname + '?screen=registro&token=' + token;
-                // copy to clipboard
-                navigator.clipboard.writeText(link).then(() => {
-                    alert('Link copiado: ' + link);
-                }).catch(() => {
-                    alert('Link: ' + link);
-                });
-                fecharModal();
-                renderConvites();
-            };
-        }
-
-        // ========== MODAL ==========
-        function fecharModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-        }
-
-        // ========== INIT ==========
-        // Check session on load
-        window.onload = function() {
-            let userId = getSession();
-            if (userId) {
-                let user = data.users.find(u => u.id == userId);
-                if (user) {
-                    currentUser = user;
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('app').style.display = 'block';
-                    initializeApp();
-                    return;
-                }
-            }
-            // Check URL params for register screen
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('screen') === 'registro' && params.get('token')) {
-                showScreen('registerScreen');
-            } else {
-                showScreen('loginScreen');
-            }
-        };
-
-        // Close modal on overlay click
-        document.getElementById('modalOverlay').addEventListener('click', function(e) {
-            if (e.target === this) fecharModal();
-        });
-    </script>
+    // ===== INICIALIZAÇÃO =====
+    // Handle URL for registration
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('screen') === 'registro' && urlParams.get('token')) {
+      const convites = getData('convites', []);
+      const convite = convites.find(c => c.token === urlParams.get('token') && !c.used);
+      if (convite) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('registerScreen').style.display = 'flex';
+        window._registerToken = convite.token;
+      }
+    }
+  </script>
 </body>
 </html>
