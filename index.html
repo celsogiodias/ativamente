@@ -1,491 +1,858 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ATIVAMENTE+ Clinic Enterprise</title>
-<style>
-body{font-family:Arial;background:#f4f7fb;margin:0;display:flex}
-.sidebar{width:260px;background:#032D6B;color:#fff;height:100vh;padding:20px;position:fixed}
-.logo{font-size:34px;font-weight:bold;background:linear-gradient(90deg,#032D6B,#FF6B57,#00C7C7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:30px}
-.sidebar a{display:block;color:#fff;text-decoration:none;padding:12px;margin-bottom:8px;background:rgba(255,255,255,.08);border-radius:10px}
-.main{margin-left:260px;padding:25px;width:100%}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
-.card,.section{background:#fff;padding:20px;border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
-.value{font-size:30px;font-weight:bold;color:#032D6B}
-.section{margin-top:25px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.tabs{display:flex;gap:10px;overflow:auto;margin-bottom:20px}
-.tab{padding:10px 14px;background:#edf2f7;border-radius:10px;font-weight:bold;white-space:nowrap}
-input,select,textarea{width:100%;padding:10px;margin-top:6px;margin-bottom:14px;border-radius:10px;border:1px solid #ddd}
-button{border:none;padding:10px 14px;border-radius:10px;font-weight:bold;cursor:pointer}
-.primary{background:#032D6B;color:#fff}
-.warning{background:#f59e0b;color:#fff}
-.danger{background:#dc2626;color:#fff}
-.success{background:#16a34a;color:#fff}
-table{width:100%;border-collapse:collapse}
-th,td{padding:12px;border-bottom:1px solid #eee}
-.payscroll{display:flex;overflow:auto;gap:10px}
-.pay{min-width:120px;background:#e6ffff;padding:10px;border-radius:10px;text-align:center;font-weight:bold}
-.aibox{background:linear-gradient(135deg,#032D6B,#00C7C7);padding:18px;border-radius:16px;color:#fff;margin-top:20px}
-@media(max-width:900px){body{flex-direction:column}.sidebar{position:relative;width:100%;height:auto}.main{margin-left:0}.grid2{grid-template-columns:1fr}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ativamente+ Clinic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            display: flex;
+            height: 100vh;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #fff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar .logo {
+            margin-bottom: 30px;
+        }
+        .sidebar .logo svg {
+            width: 100%;
+            height: auto;
+        }
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sidebar nav a {
+            text-decoration: none;
+            color: #333;
+            padding: 10px;
+            border-radius: 8px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background: #e0f7fa;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .page { display: none; }
+        .page.active { display: block; }
+        h2 { margin-bottom: 20px; color: #1a237e; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #1a237e; color: #fff; }
+        tr:hover { background: #f5f5f5; }
+        .btn {
+            background: #1a237e;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 2px;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-warning { background: #ff6b35; }
+        .btn-danger { background: #d32f2f; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+        }
+        .modal-content input, .modal-content select, .modal-content textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .kpi-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 200px;
+        }
+        .kpi-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-
-<div class="sidebar">
-<div class="logo">ATIVAMENTE+</div>
-<a href="#">Dashboard</a>
-<a href="#">Agenda</a>
-<a href="#">Pacientes</a>
-<a href="#">Profissionais</a>
-<a href="#">Financeiro</a>
-<a href="#">Gestão</a>
-<a href="#">IA Clínica</a>
-<a href="#">Configurações</a>
-</div>
-
-<div class="main">
-
-<h1>ATIVAMENTE+ Clinic Enterprise</h1>
-
-<section class="kpis">
-<div class="card"><h3>Agenda</h3><div class="value" id="kAgenda">0</div></div>
-<div class="card"><h3>Pacientes</h3><div class="value" id="kPacientes">0</div></div>
-<div class="card"><h3>Profissionais</h3><div class="value" id="kProfissionais">0</div></div>
-<div class="card"><h3>Financeiro</h3><div class="value" id="kReceita">R$ 0</div></div>
-</section>
-
-<section class="section">
-<h2>Dashboard + IA</h2>
-<div class="aibox">
-IA analisando dados reais da clínica em tempo real.
-</div>
-</section>
-
-<section class="section">
-<div style="display:flex;justify-content:space-between;align-items:center">
-<h2>Agenda Inteligente</h2>
-<button class="primary" onclick="novoAgendamento()">Novo Atendimento</button>
-</div>
-
-<div class="grid2">
-
-<div>
-
-<input list="listaPacientes" id="paciente" placeholder="Paciente">
-<datalist id="listaPacientes"></datalist>
-
-<input list="listaProfissionais" id="profissional" placeholder="Profissional">
-<datalist id="listaProfissionais"></datalist>
-
-<input id="data" placeholder="DD/MM/AAAA">
-<input id="hora" placeholder="HH:mm">
-<input id="valor" placeholder="Valor">
-
-<div class="payscroll">
-<div class="pay">Crédito</div>
-<div class="pay">Débito</div>
-<div class="pay">PIX</div>
-<div class="pay">Convênio</div>
-<div class="pay">Dinheiro</div>
-<div class="pay">Outros</div>
-</div>
-
-<select id="pagamento">
-<option>Crédito</option>
-<option>Débito</option>
-<option>PIX</option>
-<option>Convênio</option>
-<option>Dinheiro</option>
-<option>Outros</option>
-</select>
-
-<button class="success" onclick="sugestaoIA()">AI-Agenda</button>
-
-<p id="sugestao"></p>
-
-</div>
-
-<div>
-
-<table>
-<thead>
-<tr>
-<th>Paciente</th>
-<th>Profissional</th>
-<th>Data</th>
-<th>Hora</th>
-</tr>
-</thead>
-<tbody id="agendaTable"></tbody>
-</table>
-
-</div>
-
-</div>
-</section>
-
-<section class="section">
-
-<h2>Paciente - Drawer Clínico</h2>
-
-<div class="tabs">
-<div class="tab">Perfil</div>
-<div class="tab">Histórico</div>
-<div class="tab">Exames</div>
-<div class="tab">Evolução</div>
-<div class="tab">Documentos</div>
-<div class="tab">Prescrições</div>
-<div class="tab">Atestados</div>
-<div class="tab">Faturamento</div>
-<div class="tab">Anotações</div>
-</div>
-
-<div class="grid2">
-
-<div>
-
-<input id="nomePaciente" placeholder="Nome paciente">
-<input id="telefonePaciente" placeholder="Telefone">
-
-<input list="listaCID" placeholder="CID-11">
-<datalist id="listaCID">
-<option value="6A02 TEA">
-<option value="6D10 TDAH">
-<option value="6B00 Ansiedade">
-<option value="MB26 Depressão">
-</datalist>
-
-<textarea id="evolucao" rows="7" placeholder="Evolução clínica"></textarea>
-
-<button class="primary" onclick="gerarIA()">Analisar IA</button>
-
-<div class="aibox">
-<p id="resultadoIA">Aguardando análise clínica...</p>
-</div>
-
-<div style="margin-top:20px">
-<button class="success">Gerar Recibo</button>
-<button class="primary">PDF</button>
-<button class="warning">Imprimir</button>
-<button class="danger">Excluir</button>
-</div>
-
-</div>
-
-<div>
-
-<button class="primary" onclick="novoPaciente()">Novo Paciente</button>
-
-<table>
-<thead>
-<tr>
-<th>Paciente</th>
-<th>Telefone</th>
-<th>Ações</th>
-</tr>
-</thead>
-
-<tbody id="pacientesTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</section>
-
-<section class="section">
-
-<div style="display:flex;justify-content:space-between;align-items:center">
-<h2>Profissionais</h2>
-<button class="primary" onclick="novoProfissional()">Novo Profissional</button>
-</div>
-
-<table>
-<thead>
-<tr>
-<th>Nome</th>
-<th>Registro</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="profissionaisTable"></tbody>
-</table>
-
-</section>
-
-<section class="section">
-<h2>Financeiro</h2>
-
-<select>
-<option>Todos</option>
-<option>Crédito</option>
-<option>Débito</option>
-<option>PIX</option>
-<option>Convênio</option>
-<option>Dinheiro</option>
-<option>Outros</option>
-</select>
-
-<div class="aibox">
-Financeiro integrado automaticamente à Gestão.
-</div>
-
-</section>
-
-<section class="section">
-<h2>Gestão</h2>
-
-<div class="kpis">
-<div class="card"><h3>PIX</h3><div class="value">R$ 5.000</div></div>
-<div class="card"><h3>Crédito</h3><div class="value">R$ 8.200</div></div>
-<div class="card"><h3>Convênio</h3><div class="value">R$ 10.300</div></div>
-</div>
-
-</section>
-
-<section class="section">
-<h2>Configurações</h2>
-
-<div class="grid2">
-<div>
-<input placeholder="Nome da Clínica">
-<input placeholder="CNPJ">
-<input placeholder="Telefone">
-</div>
-
-<div>
-<input placeholder="Endereço">
-<input placeholder="E-mail">
-<input placeholder="Instagram">
-</div>
-</div>
-
-</section>
-
-</div>
-
-<script>
-
-let pacientes=[];
-let profissionais=[];
-let agenda=[];
-
-function atualizarKPIs(){
-
-document.getElementById('kAgenda').innerText=agenda.length;
-document.getElementById('kPacientes').innerText=pacientes.length;
-document.getElementById('kProfissionais').innerText=profissionais.length;
-
-let total=0;
-
-agenda.forEach(a=>{
-total += Number(a.valor || 0);
-});
-
-document.getElementById('kReceita').innerText='R$ '+total.toFixed(2);
-
-}
-
-document.getElementById('data').addEventListener('input',function(e){
-
-let v=e.target.value.replace(/\D/g,'');
-
-if(v.length>2)
-v=v.slice(0,2)+'/'+v.slice(2);
-
-if(v.length>5)
-v=v.slice(0,5)+'/'+v.slice(5,9);
-
-e.target.value=v;
-
-});
-
-document.getElementById('hora').addEventListener('input',function(e){
-
-let v=e.target.value.replace(/\D/g,'');
-
-if(v.length>2)
-v=v.slice(0,2)+':'+v.slice(2,4);
-
-e.target.value=v;
-
-});
-
-function atualizarSugestoes(){
-
-const lp=document.getElementById('listaPacientes');
-lp.innerHTML='';
-
-pacientes.forEach(p=>{
-lp.innerHTML += `<option value="${p.nome}">`;
-});
-
-const lf=document.getElementById('listaProfissionais');
-lf.innerHTML='';
-
-profissionais.forEach(p=>{
-lf.innerHTML += `<option value="${p.nome}">`;
-});
-
-}
-
-function novoPaciente(){
-
-const nome=document.getElementById('nomePaciente').value;
-const telefone=document.getElementById('telefonePaciente').value;
-
-if(!nome) return;
-
-pacientes.push({nome,telefone});
-
-renderPacientes();
-atualizarSugestoes();
-atualizarKPIs();
-
-}
-
-function renderPacientes(){
-
-const tbody=document.getElementById('pacientesTable');
-tbody.innerHTML='';
-
-pacientes.forEach((p,index)=>{
-
-tbody.innerHTML += `
-<tr>
-<td>${p.nome}</td>
-<td>${p.telefone}</td>
-<td>
-<button class="warning">Editar</button>
-<button class="danger">Excluir</button>
-</td>
-</tr>
-`;
-
-});
-
-}
-
-function novoProfissional(){
-
-const nome=prompt('Nome');
-const registro=prompt('Registro');
-
-if(!nome) return;
-
-profissionais.push({nome,registro});
-
-renderProfissionais();
-atualizarSugestoes();
-atualizarKPIs();
-
-}
-
-function renderProfissionais(){
-
-const tbody=document.getElementById('profissionaisTable');
-tbody.innerHTML='';
-
-profissionais.forEach((p,index)=>{
-
-tbody.innerHTML += `
-<tr>
-<td>${p.nome}</td>
-<td>${p.registro}</td>
-<td>
-<button class="warning" onclick="editarProfissional(${index})">Editar</button>
-<button class="danger" onclick="excluirProfissional(${index})">Excluir</button>
-</td>
-</tr>
-`;
-
-});
-
-}
-
-function editarProfissional(index){
-
-const nome=prompt('Editar',profissionais[index].nome);
-
-if(nome){
-
-profissionais[index].nome=nome;
-renderProfissionais();
-
-}
-
-}
-
-function excluirProfissional(index){
-
-if(confirm('Excluir?')){
-
-profissionais.splice(index,1);
-
-renderProfissionais();
-atualizarKPIs();
-
-}
-
-}
-
-function novoAgendamento(){
-
-const item={
-paciente:document.getElementById('paciente').value,
-profissional:document.getElementById('profissional').value,
-data:document.getElementById('data').value,
-hora:document.getElementById('hora').value,
-valor:document.getElementById('valor').value,
-pagamento:document.getElementById('pagamento').value
-};
-
-agenda.push(item);
-
-renderAgenda();
-atualizarKPIs();
-
-}
-
-function renderAgenda(){
-
-const tbody=document.getElementById('agendaTable');
-tbody.innerHTML='';
-
-agenda.forEach(a=>{
-
-tbody.innerHTML += `
-<tr>
-<td>${a.paciente}</td>
-<td>${a.profissional}</td>
-<td>${a.data}</td>
-<td>${a.hora}</td>
-</tr>
-`;
-
-});
-
-}
-
-function gerarIA(){
-
-document.getElementById('resultadoIA').innerHTML=
-'<b>Evolução:</b> melhora clínica progressiva.<br><br><b>Plano terapêutico:</b> continuidade do protocolo.<br><br><b>Diagnóstico provável:</b> compatível com CID informado.';
-
-}
-
-function sugestaoIA(){
-
-document.getElementById('sugestao').innerHTML=
-'IA sugere horários livres às 14:00 e 16:00.';
-
-}
-
-</script>
-
+    <div class="sidebar">
+        <div class="logo">
+            <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#ff6b35"/>
+                        <stop offset="100%" stop-color="#00bcd4"/>
+                    </linearGradient>
+                </defs>
+                <!-- Letra A estilizada -->
+                <path d="M20 70 L40 10 L60 70 L50 70 L45 50 L35 50 L30 70 Z" fill="#1a237e"/>
+                <path d="M35 50 L45 50 L40 30 Z" fill="#ff6b35"/>
+                <path d="M33 48 L47 48 L40 28 Z" fill="none" stroke="#00bcd4" stroke-width="1.5"/>
+                <!-- Texto ATIVAMENTE+ -->
+                <text x="70" y="30" font-family="Arial" font-weight="bold" font-size="18" fill="#1a237e">ATIVA</text>
+                <text x="125" y="30" font-family="Arial" font-weight="bold" font-size="18" fill="url(#grad)">MENTE+</text>
+                <text x="70" y="50" font-family="Arial" font-weight="bold" font-size="14" fill="#1a237e">CLINIC</text>
+                <line x1="70" y1="55" x2="190" y2="55" stroke="#1a237e" stroke-width="1"/>
+                <line x1="70" y1="58" x2="190" y2="58" stroke="#1a237e" stroke-width="1"/>
+            </svg>
+        </div>
+        <nav>
+            <a href="#" data-page="dashboard" class="active">Dashboard</a>
+            <a href="#" data-page="agenda">Agenda</a>
+            <a href="#" data-page="ai-agenda">AI-Agenda</a>
+            <a href="#" data-page="paciente">Paciente</a>
+            <a href="#" data-page="profissional">Profissional</a>
+            <a href="#" data-page="recibo">Recibo</a>
+            <a href="#" data-page="financeiro">Financeiro</a>
+            <a href="#" data-page="gestao">Gestão</a>
+        </nav>
+        <div style="margin-top: auto;">
+            <button onclick="logout()" class="btn">Logout</button>
+        </div>
+    </div>
+    <div class="main-content">
+        <!-- Páginas -->
+        <div id="page-dashboard" class="page active">
+            <h2>Dashboard</h2>
+            <div class="kpi-grid" id="kpiContainer"></div>
+            <div id="aiInsights" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h3>Insights IA</h3>
+                <p id="aiInsightText">Carregando...</p>
+            </div>
+        </div>
+        <div id="page-agenda" class="page">
+            <h2>Agenda</h2>
+            <input type="date" id="agendaDate" onchange="loadAgenda()">
+            <button class="btn" onclick="openNewConsulta()">Nova Consulta</button>
+            <table id="agendaTable">
+                <thead><tr><th>Hora</th><th>Paciente</th><th>Profissional</th><th>Status</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="page-ai-agenda" class="page">
+            <h2>AI-Agenda</h2>
+            <div id="aiAgendaSuggestions"></div>
+        </div>
+        <div id="page-paciente" class="page">
+            <h2>Paciente</h2>
+            <input type="text" id="pacienteSearch" placeholder="Buscar paciente..." oninput="searchPaciente()">
+            <button class="btn" onclick="openPacienteDrawer()">Novo Paciente</button>
+            <table id="pacienteTable">
+                <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <!-- Drawer Paciente -->
+            <div id="pacienteDrawer" class="modal">
+                <div class="modal-content" style="width: 80%; max-width: 800px;">
+                    <span onclick="closePacienteDrawer()" style="float:right; cursor:pointer; font-size:24px;">&times;</span>
+                    <h3 id="pacienteDrawerTitle">Novo Paciente</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <button class="btn" onclick="showTab('perfil')">Perfil</button>
+                        <button class="btn" onclick="showTab('historico')">Histórico</button>
+                        <button class="btn" onclick="showTab('exames')">Exames</button>
+                        <button class="btn" onclick="showTab('evolucao')">Evolução</button>
+                        <button class="btn" onclick="showTab('documentos')">Documentos</button>
+                        <button class="btn" onclick="showTab('prescricoes')">Prescrições</button>
+                        <button class="btn" onclick="showTab('atestados')">Atestados</button>
+                        <button class="btn" onclick="showTab('faturamento')">Faturamento</button>
+                        <button class="btn" onclick="showTab('anotacoes')">Anotações</button>
+                    </div>
+                    <div id="tabPerfil" class="tab-content">
+                        <input type="text" id="pacienteName" placeholder="Nome">
+                        <input type="text" id="pacientePhone" placeholder="Telefone">
+                        <input type="email" id="pacienteEmail" placeholder="Email">
+                        <button class="btn" onclick="savePaciente()">Salvar</button>
+                    </div>
+                    <div id="tabHistorico" class="tab-content" style="display:none;">
+                        <textarea id="pacienteHistorico" rows="5" style="width:100%;"></textarea>
+                        <button class="btn" onclick="savePacienteField('historico')">Salvar</button>
+                    </div>
+                    <div id="tabExames" class="tab-content" style="display:none;">
+                        <textarea id="pacienteExames" rows="5" style="width:100%;"></textarea>
+                        <button class="btn" onclick="savePacienteField('exames')">Salvar</button>
+                    </div>
+                    <div id="tabEvolucao" class="tab-content" style="display:none;">
+                        <input type="text" id="pacienteCID" placeholder="Buscar CID-11" list="cidList">
+                        <datalist id="cidList"></datalist>
+                        <button class="btn" onclick="searchCIDOnline()">Buscar Online (WHO)</button>
+                        <div id="cidSuggestion"></div>
+                        <textarea id="pacienteEvolucao" rows="5" style="width:100%;" placeholder="Evolução"></textarea>
+                        <button class="btn" onclick="savePacienteField('evolucao')">Salvar</button>
+                    </div>
+                    <div id="tabDocumentos" class="tab-content" style="display:none;">
+                        <p>Upload de documentos</p>
+                        <input type="file" id="pacienteDocumentos" multiple>
+                        <button class="btn" onclick="savePacienteField('documentos')">Salvar</button>
+                        <p><small>Apenas Admin e Profissional podem ver documentos.</small></p>
+                    </div>
+                    <div id="tabPrescricoes" class="tab-content" style="display:none;">
+                        <textarea id="pacientePrescricoes" rows="5" style="width:100%;"></textarea>
+                        <button class="btn" onclick="savePacienteField('prescricoes')">Salvar</button>
+                    </div>
+                    <div id="tabAtestados" class="tab-content" style="display:none;">
+                        <textarea id="pacienteAtestados" rows="5" style="width:100%;"></textarea>
+                        <button class="btn" onclick="savePacienteField('atestados')">Salvar</button>
+                    </div>
+                    <div id="tabFaturamento" class="tab-content" style="display:none;">
+                        <input type="text" id="pacienteFaturamento" placeholder="Informações de faturamento">
+                        <button class="btn" onclick="savePacienteField('faturamento')">Salvar</button>
+                    </div>
+                    <div id="tabAnotacoes" class="tab-content" style="display:none;">
+                        <textarea id="pacienteAnotacoes" rows="5" style="width:100%;"></textarea>
+                        <button class="btn" onclick="savePacienteField('anotacoes')">Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="page-profissional" class="page">
+            <h2>Profissional</h2>
+            <button class="btn" onclick="openProfissionalModal()">Novo Profissional</button>
+            <table id="profissionalTable">
+                <thead><tr><th>Nome</th><th>Especialidade</th><th>Registro</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div id="profissionalModal" class="modal">
+                <div class="modal-content">
+                    <span onclick="closeModal('profissionalModal')" style="float:right; cursor:pointer; font-size:24px;">&times;</span>
+                    <h3 id="profissionalModalTitle">Novo Profissional</h3>
+                    <input type="text" id="profissionalNome" placeholder="Nome">
+                    <input type="text" id="profissionalEspecialidade" placeholder="Especialidade">
+                    <input type="text" id="profissionalRegistro" placeholder="Registro">
+                    <button class="btn" onclick="saveProfissional()">Salvar</button>
+                </div>
+            </div>
+        </div>
+        <div id="page-recibo" class="page">
+            <h2>Recibo</h2>
+            <button class="btn" onclick="gerarRecibo()">Gerar Recibo</button>
+            <button class="btn" onclick="imprimirRecibo()">Imprimir</button>
+            <div id="reciboContent" style="background: #fff; padding: 20px; margin-top: 20px; border-radius: 8px;"></div>
+        </div>
+        <div id="page-financeiro" class="page">
+            <h2>Financeiro</h2>
+            <button class="btn" onclick="openFinanceiroModal()">Nova Transação</button>
+            <table id="financeiroTable">
+                <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Tipo</th><th>Forma</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div id="financeiroModal" class="modal">
+                <div class="modal-content">
+                    <span onclick="closeModal('financeiroModal')" style="float:right; cursor:pointer; font-size:24px;">&times;</span>
+                    <h3 id="financeiroModalTitle">Nova Transação</h3>
+                    <input type="date" id="finData">
+                    <input type="text" id="finDescricao" placeholder="Descrição">
+                    <input type="number" id="finValor" placeholder="Valor" step="0.01">
+                    <select id="finTipo">
+                        <option value="Receita">Receita</option>
+                        <option value="Despesa">Despesa</option>
+                    </select>
+                    <select id="finForma">
+                        <option value="Crédito">Crédito</option>
+                        <option value="Débito">Débito</option>
+                        <option value="PIX">PIX</option>
+                        <option value="Convênio">Convênio</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                    <button class="btn" onclick="saveFinanceiro()">Salvar</button>
+                </div>
+            </div>
+        </div>
+        <div id="page-gestao" class="page">
+            <h2>Gestão</h2>
+            <label>Filtrar por Forma de Pagamento:</label>
+            <select id="gestaoFiltroForma" onchange="loadGestao()">
+                <option value="Todas">Todas</option>
+                <option value="Crédito">Crédito</option>
+                <option value="Débito">Débito</option>
+                <option value="PIX">PIX</option>
+                <option value="Convênio">Convênio</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Outros">Outros</option>
+            </select>
+            <table id="gestaoTable">
+                <thead><tr><th>Forma</th><th>Quantidade</th><th>Valor Total</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ========== UTILITÁRIOS ==========
+        function formatDateBR(dateStr) {
+            if (!dateStr) return '';
+            const [y, m, d] = dateStr.split('-');
+            return `${d}/${m}/${y}`;
+        }
+        function formatTimeBR(hour, minute) {
+            return `${hour.toString().padStart(2,'0')}:${minute.toString().padStart(2,'0')}`;
+        }
+        function getToday() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        // ========== LOCALSTORAGE ==========
+        function getData(key) {
+            return JSON.parse(localStorage.getItem(key)) || [];
+        }
+        function setData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        // ========== AUTENTICAÇÃO ==========
+        let currentUser = null;
+        function login(email, password) {
+            const users = getData('users');
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                currentUser = user;
+                return true;
+            }
+            return false;
+        }
+        function register(name, email, password, role) {
+            const users = getData('users');
+            if (users.find(u => u.email === email)) return false;
+            users.push({ name, email, password, role });
+            setData('users', users);
+            return true;
+        }
+        function logout() {
+            currentUser = null;
+            location.reload();
+        }
+        // Login inicial default
+        if (!localStorage.getItem('users')) {
+            setData('users', [{ name: 'Admin', email: 'admin@admin.com', password: 'admin123', role: 'Admin' }]);
+        }
+        // Simples login prompt
+        if (!currentUser) {
+            const email = prompt('Email:');
+            const password = prompt('Senha:');
+            if (email && password && login(email, password)) {
+                // OK
+            } else {
+                document.body.innerHTML = '<h2>Login falhou. Recarregue e tente novamente.</h2>';
+                throw new Error('Login failed');
+            }
+        }
+
+        // ========== NAVEGAÇÃO ==========
+        document.querySelectorAll('.sidebar nav a').forEach(a => {
+            a.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar nav a').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+                const page = this.dataset.page;
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById('page-' + page).classList.add('active');
+                if (page === 'dashboard') loadDashboard();
+                if (page === 'agenda') loadAgenda();
+                if (page === 'ai-agenda') loadAIAgenda();
+                if (page === 'paciente') loadPacientes();
+                if (page === 'profissional') loadProfissionais();
+                if (page === 'recibo') loadRecibo();
+                if (page === 'financeiro') loadFinanceiro();
+                if (page === 'gestao') loadGestao();
+            });
+        });
+
+        // ========== DASHBOARD ==========
+        function loadDashboard() {
+            const consultas = getData('consultas');
+            const transacoes = getData('transacoes');
+            const hoje = getToday();
+            const consultasHoje = consultas.filter(c => c.data === hoje).length;
+            const receitaMes = transacoes.filter(t => t.tipo === 'Receita' && t.data.startsWith(hoje.substring(0,7))).reduce((s, t) => s + parseFloat(t.valor), 0);
+            const despesaMes = transacoes.filter(t => t.tipo === 'Despesa' && t.data.startsWith(hoje.substring(0,7))).reduce((s, t) => s + parseFloat(t.valor), 0);
+            const lucro = receitaMes - despesaMes;
+            document.getElementById('kpiContainer').innerHTML = `
+                <div class="kpi-card"><h4>Consultas Hoje</h4><p>${consultasHoje}</p></div>
+                <div class="kpi-card"><h4>Receita do Mês</h4><p>R$ ${receitaMes.toFixed(2)}</p></div>
+                <div class="kpi-card"><h4>Despesas do Mês</h4><p>R$ ${despesaMes.toFixed(2)}</p></div>
+                <div class="kpi-card"><h4>Lucro</h4><p>R$ ${lucro.toFixed(2)}</p></div>
+            `;
+            // KPI AI
+            let insight = '';
+            if (consultasHoje === 0) {
+                insight = 'Alerta: Nenhuma consulta hoje. Considere divulgar ou revisar agendamentos.';
+            } else if (lucro > 0) {
+                insight = 'Sugestão: Lucro positivo. Invista em marketing ou novos equipamentos.';
+            } else if (despesaMes > receitaMes) {
+                insight = 'Alerta: Despesas superam receitas. Reveja custos.';
+            } else {
+                insight = 'Tudo dentro do esperado. Continue assim!';
+            }
+            document.getElementById('aiInsightText').textContent = insight;
+        }
+
+        // ========== AGENDA ==========
+        function loadAgenda() {
+            const date = document.getElementById('agendaDate').value || getToday();
+            const consultas = getData('consultas').filter(c => c.data === date);
+            const tbody = document.querySelector('#agendaTable tbody');
+            tbody.innerHTML = consultas.map(c => {
+                return `<tr><td>${formatTimeBR(c.hora, c.minuto)}</td><td>${c.paciente}</td><td>${c.profissional}</td><td>${c.status}</td></tr>`;
+            }).join('');
+        }
+        function openNewConsulta() {
+            // Simples prompt
+            const paciente = prompt('Paciente:');
+            if (!paciente) return;
+            const profissional = prompt('Profissional:');
+            if (!profissional) return;
+            const data = prompt('Data (AAAA-MM-DD):', getToday());
+            if (!data) return;
+            const hora = prompt('Hora (HH):', '08');
+            if (!hora) return;
+            const minuto = prompt('Minuto (MM):', '00');
+            if (!minuto) return;
+            const consultas = getData('consultas');
+            consultas.push({ paciente, profissional, data, hora: parseInt(hora), minuto: parseInt(minuto), status: 'Agendado' });
+            setData('consultas', consultas);
+            loadAgenda();
+        }
+
+        // ========== AI-AGENDA ==========
+        function loadAIAgenda() {
+            const consultas = getData('consultas');
+            const hoje = getToday();
+            const futuras = consultas.filter(c => c.data >= hoje);
+            let suggestions = '';
+            if (futuras.length === 0) {
+                suggestions = '<p>Nenhuma consulta futura. Sugiro agendar revisões.</p>';
+            } else {
+                suggestions = '<ul>' + futuras.map(c => `<li>${formatDateBR(c.data)} - ${formatTimeBR(c.hora, c.minuto)} - ${c.paciente} com ${c.profissional}</li>`).join('') + '</ul>';
+            }
+            document.getElementById('aiAgendaSuggestions').innerHTML = suggestions;
+        }
+
+        // ========== PACIENTE ==========
+        let currentPacienteId = null;
+        function loadPacientes() {
+            const pacientes = getData('pacientes');
+            const tbody = document.querySelector('#pacienteTable tbody');
+            tbody.innerHTML = pacientes.map((p, i) => {
+                return `<tr><td>${p.name}</td><td>${p.phone}</td><td>${p.email}</td><td><button class="btn" onclick="editPaciente(${i})">Editar</button></td></tr>`;
+            }).join('');
+        }
+        function searchPaciente() {
+            const q = document.getElementById('pacienteSearch').value.toLowerCase();
+            const pacientes = getData('pacientes').filter(p => p.name.toLowerCase().includes(q));
+            const tbody = document.querySelector('#pacienteTable tbody');
+            tbody.innerHTML = pacientes.map((p, i) => {
+                return `<tr><td>${p.name}</td><td>${p.phone}</td><td>${p.email}</td><td><button class="btn" onclick="editPaciente(${i})">Editar</button></td></tr>`;
+            }).join('');
+        }
+        function openPacienteDrawer(id) {
+            currentPacienteId = id !== undefined ? id : null;
+            document.getElementById('pacienteDrawer').classList.add('active');
+            if (id !== null) {
+                const pacientes = getData('pacientes');
+                const p = pacientes[id];
+                document.getElementById('pacienteName').value = p.name;
+                document.getElementById('pacientePhone').value = p.phone;
+                document.getElementById('pacienteEmail').value = p.email;
+                document.getElementById('pacienteHistorico').value = p.historico || '';
+                document.getElementById('pacienteExames').value = p.exames || '';
+                document.getElementById('pacienteEvolucao').value = p.evolucao || '';
+                document.getElementById('pacientePrescricoes').value = p.prescricoes || '';
+                document.getElementById('pacienteAtestados').value = p.atestados || '';
+                document.getElementById('pacienteFaturamento').value = p.faturamento || '';
+                document.getElementById('pacienteAnotacoes').value = p.anotacoes || '';
+                document.getElementById('pacienteDrawerTitle').textContent = 'Editar Paciente';
+            } else {
+                document.getElementById('pacienteDrawerTitle').textContent = 'Novo Paciente';
+                document.getElementById('pacienteName').value = '';
+                document.getElementById('pacientePhone').value = '';
+                document.getElementById('pacienteEmail').value = '';
+                document.getElementById('pacienteHistorico').value = '';
+                document.getElementById('pacienteExames').value = '';
+                document.getElementById('pacienteEvolucao').value = '';
+                document.getElementById('pacientePrescricoes').value = '';
+                document.getElementById('pacienteAtestados').value = '';
+                document.getElementById('pacienteFaturamento').value = '';
+                document.getElementById('pacienteAnotacoes').value = '';
+            }
+            showTab('perfil');
+        }
+        function closePacienteDrawer() {
+            document.getElementById('pacienteDrawer').classList.remove('active');
+        }
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).style.display = 'block';
+        }
+        function savePaciente() {
+            const name = document.getElementById('pacienteName').value.trim();
+            const phone = document.getElementById('pacientePhone').value.trim();
+            const email = document.getElementById('pacienteEmail').value.trim();
+            if (!name) { alert('Nome obrigatório'); return; }
+            let pacientes = getData('pacientes');
+            if (currentPacienteId !== null) {
+                pacientes[currentPacienteId] = { ...pacientes[currentPacienteId], name, phone, email };
+            } else {
+                pacientes.push({ name, phone, email, historico: '', exames: '', evolucao: '', documentos: [], prescricoes: '', atestados: '', faturamento: '', anotacoes: '' });
+                currentPacienteId = pacientes.length - 1;
+            }
+            setData('pacientes', pacientes);
+            loadPacientes();
+            alert('Paciente salvo!');
+        }
+        function savePacienteField(field) {
+            if (currentPacienteId === null) { alert('Salve o perfil primeiro'); return; }
+            let pacientes = getData('pacientes');
+            const value = document.getElementById('paciente' + field.charAt(0).toUpperCase() + field.slice(1)).value;
+            pacientes[currentPacienteId][field] = value;
+            setData('pacientes', pacientes);
+            alert('Salvo!');
+        }
+        function editPaciente(id) {
+            openPacienteDrawer(id);
+        }
+
+        // ========== CID-11 DATABASE ==========
+        const cid11Data = [
+            { code: '6A00', description: 'Transtorno do desenvolvimento intelectual' },
+            { code: '6A01', description: 'Transtorno do desenvolvimento da fala e linguagem' },
+            { code: '6A02', description: 'Transtorno do espectro autista' },
+            { code: '6A03', description: 'Transtorno de déficit de atenção/hiperatividade' },
+            { code: '6A04', description: 'Transtorno específico da aprendizagem' },
+            { code: '6A05', description: 'Transtorno do movimento estereotipado' },
+            { code: '6A06', description: 'Transtorno da tique' },
+            { code: '6A07', description: 'Outros transtornos do desenvolvimento neurológico' },
+            { code: '6B00', description: 'Transtorno de ansiedade generalizada' },
+            { code: '6B01', description: 'Transtorno de pânico' },
+            { code: '6B02', description: 'Agorafobia' },
+            { code: '6B03', description: 'Fobia específica' },
+            { code: '6B04', description: 'Transtorno de ansiedade social' },
+            { code: '6B05', description: 'Transtorno obsessivo-compulsivo' },
+            { code: '6B06', description: 'Transtorno dismórfico corporal' },
+            { code: '6B07', description: 'Transtorno de acumulação' },
+            { code: '6B08', description: 'Tricotilomania' },
+            { code: '6B09', description: 'Transtorno de escoriação' },
+            { code: '6B10', description: 'Transtorno de estresse pós-traumático' },
+            { code: '6B11', description: 'Transtorno de estresse agudo' },
+            { code: '6B12', description: 'Transtorno de adaptação' },
+            { code: '6B13', description: 'Transtorno de apego reativo' },
+            { code: '6B14', description: 'Transtorno de desinibição do contato social' },
+            { code: '6B20', description: 'Transtorno depressivo unipolar' },
+            { code: '6B21', description: 'Transtorno depressivo recorrente' },
+            { code: '6B22', description: 'Transtorno distímico' },
+            { code: '6B23', description: 'Transtorno disfórico pré-menstrual' },
+            { code: '6B30', description: 'Transtorno bipolar tipo I' },
+            { code: '6B31', description: 'Transtorno bipolar tipo II' },
+            { code: '6B32', description: 'Transtorno ciclotímico' },
+            { code: '6B40', description: 'Transtorno de pânico (repetido)' },
+            { code: '6B41', description: 'Agorafobia (repetido)' },
+            { code: '6B42', description: 'Fobia específica (repetido)' },
+            { code: '6B43', description: 'Transtorno de ansiedade social (repetido)' },
+            { code: '6B44', description: 'TOC (repetido)' },
+            { code: '6C00', description: 'Esquizofrenia' },
+            { code: '6C01', description: 'Transtorno esquizoafetivo' },
+            { code: '6C02', description: 'Transtorno delirante' },
+            { code: '6C03', description: 'Transtorno psicótico breve' },
+            { code: '6C04', description: 'Transtorno esquizotípico' },
+            { code: '6C10', description: 'Transtorno bipolar tipo I (repetido)' },
+            { code: '6C11', description: 'Transtorno bipolar tipo II (repetido)' },
+            { code: '6C12', description: 'Transtorno depressivo unipolar (repetido)' },
+            { code: '6C20', description: 'Transtorno de personalidade paranóide' },
+            { code: '6C21', description: 'Transtorno de personalidade esquizoide' },
+            { code: '6C22', description: 'Transtorno de personalidade dissocial' },
+            { code: '6C23', description: 'Transtorno de personalidade emocionalmente instável' },
+            { code: '6C24', description: 'Transtorno de personalidade histriônica' },
+            { code: '6C25', description: 'Transtorno de personalidade anancástica' },
+            { code: '6C26', description: 'Transtorno de personalidade ansiosa' },
+            { code: '6C27', description: 'Transtorno de personalidade dependente' },
+            { code: '6C28', description: 'Outros transtornos de personalidade' },
+            { code: '6C30', description: 'Transtorno de identidade de gênero' },
+            { code: '6C40', description: 'Transtorno de preferência sexual' },
+            { code: '6C50', description: 'Transtorno factício' },
+            { code: '6C60', description: 'Transtorno dissociativo' },
+            { code: '6C61', description: 'Transtorno de conversão' },
+            { code: '6C62', description: 'Transtorno somatoforme' },
+            { code: '6C63', description: 'Transtorno de ansiedade comórbido' },
+            { code: '6C64', description: 'Transtorno depressivo comórbido' },
+            { code: '6C65', description: 'Outros transtornos relacionados' },
+            { code: '6C66', description: 'Transtorno de estresse pós-traumático complexo' },
+            { code: '6C67', description: 'Transtorno de luto prolongado' },
+            { code: '6C68', description: 'Outros transtornos específicos' },
+            { code: '6D00', description: 'Transtornos relacionados ao uso de álcool' },
+            { code: '6D01', description: 'Transtornos relacionados ao uso de opioides' },
+            { code: '6D02', description: 'Transtornos relacionados ao uso de canabinoides' },
+            { code: '6D03', description: 'Transtornos relacionados ao uso de sedativos' },
+            { code: '6D04', description: 'Transtornos relacionados ao uso de cocaína' },
+            { code: '6D05', description: 'Transtornos relacionados ao uso de estimulantes' },
+            { code: '6D06', description: 'Transtornos relacionados ao uso de alucinógenos' },
+            { code: '6D07', description: 'Transtornos relacionados ao uso de nicotina' },
+            { code: '6D08', description: 'Transtornos relacionados ao uso de inalantes' },
+            { code: '6D09', description: 'Outros transtornos por uso de substâncias' },
+            { code: '6D10', description: 'Transtornos alimentares: anorexia nervosa' },
+            { code: '6D11', description: 'Transtornos alimentares: bulimia nervosa' },
+            { code: '6D12', description: 'Transtorno de compulsão alimentar' },
+            { code: '6D13', description: 'Outros transtornos alimentares' },
+            { code: '6D20', description: 'Transtorno de insônia' },
+            { code: '6D21', description: 'Transtorno de hipersonolência' },
+            { code: '6D22', description: 'Transtorno do ritmo circadiano' },
+            { code: '6D23', description: 'Parassonias' },
+            { code: '6D30', description: 'Transtornos sexuais: disfunção erétil' },
+            { code: '6D31', description: 'Transtornos sexuais: ejaculação precoce' },
+            { code: '6D32', description: 'Transtornos sexuais: anorgasmia' },
+            { code: '6D33', description: 'Outras disfunções sexuais' },
+            { code: '6D40', description: 'Transtorno de gênero na infância' },
+            { code: '6D41', description: 'Transtorno de ansiedade na infância' },
+            { code: '6D42', description: 'Transtorno depressivo na infância' },
+            { code: '6D43', description: 'Transtorno de conduta na infância' },
+            { code: '6E00', description: 'Transtorno de apego na infância' },
+            { code: '6E01', description: 'Transtorno de ansiedade de separação' },
+            { code: '6E02', description: 'Mutismo seletivo' },
+            { code: '6E03', description: 'Transtorno de oposição desafiante' },
+            { code: '6E04', description: 'Transtorno de conduta' },
+            { code: '6E05', description: 'Transtorno de tiques' },
+            { code: '6E06', description: 'Transtorno de eliminação' },
+            { code: '6E07', description: 'Transtorno de movimento estereotipado' },
+            { code: '6E08', description: 'Outros transtornos da infância' },
+            { code: '6E09', description: 'Transtorno de aprendizagem' },
+            { code: '6E10', description: 'Transtorno de comunicação social' },
+            { code: '6E11', description: 'Transtorno do desenvolvimento motor' },
+            { code: '6E20', description: 'Transtorno de estresse pós-traumático na infância' },
+            { code: '6E30', description: 'Transtorno de humor na infância' },
+            { code: '6E40', description: 'Transtorno alimentar na infância' },
+            { code: '6E41', description: 'Outros transtornos da infância e adolescência' },
+            { code: '6F00', description: 'Transtorno de somatização' },
+            { code: '6F01', description: 'Transtorno de ansiedade somática' },
+            { code: '6F02', description: 'Transtorno de conversão (somático)' },
+            { code: '6F03', description: 'Transtorno de dor somática' },
+            { code: '6F04', description: 'Outros transtornos somáticos' }
+        ];
+        // Preencher datalist
+        window.addEventListener('DOMContentLoaded', () => {
+            const datalist = document.getElementById('cidList');
+            cid11Data.forEach(c => {
+                const option = document.createElement('option');
+                option.value = `${c.code} - ${c.description}`;
+                datalist.appendChild(option);
+            });
+        });
+        function searchCIDOnline() {
+            const input = document.getElementById('pacienteCID').value;
+            const match = cid11Data.find(c => input.includes(c.code));
+            if (match) {
+                document.getElementById('cidSuggestion').innerHTML = `<p>CID-11: ${match.code} - ${match.description}</p><p>Plano terapêutico sugerido: Terapia cognitivo-comportamental, acompanhamento psiquiátrico.</p>`;
+            } else {
+                document.getElementById('cidSuggestion').innerHTML = '<p>Código não encontrado. Tente buscar online (simulado).</p>';
+            }
+        }
+
+        // ========== PROFISSIONAL ==========
+        function loadProfissionais() {
+            const profs = getData('profissionais');
+            const tbody = document.querySelector('#profissionalTable tbody');
+            tbody.innerHTML = profs.map((p, i) => {
+                return `<tr><td>${p.nome}</td><td>${p.especialidade}</td><td>${p.registro}</td><td><button class="btn" onclick="editProfissional(${i})">Editar</button></td></tr>`;
+            }).join('');
+        }
+        let currentProfIssionalId = null;
+        function openProfissionalModal(id) {
+            currentProfIssionalId = id !== undefined ? id : null;
+            document.getElementById('profissionalModal').classList.add('active');
+            if (id !== null) {
+                const profs = getData('profissionais');
+                const p = profs[id];
+                document.getElementById('profissionalNome').value = p.nome;
+                document.getElementById('profissionalEspecialidade').value = p.especialidade;
+                document.getElementById('profissionalRegistro').value = p.registro;
+                document.getElementById('profissionalModalTitle').textContent = 'Editar Profissional';
+            } else {
+                document.getElementById('profissionalModalTitle').textContent = 'Novo Profissional';
+                document.getElementById('profissionalNome').value = '';
+                document.getElementById('profissionalEspecialidade').value = '';
+                document.getElementById('profissionalRegistro').value = '';
+            }
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        function saveProfissional() {
+            const nome = document.getElementById('profissionalNome').value.trim();
+            const especialidade = document.getElementById('profissionalEspecialidade').value.trim();
+            const registro = document.getElementById('profissionalRegistro').value.trim();
+            if (!nome) { alert('Nome obrigatório'); return; }
+            let profs = getData('profissionais');
+            if (currentProfIssionalId !== null) {
+                profs[currentProfIssionalId] = { nome, especialidade, registro };
+            } else {
+                profs.push({ nome, especialidade, registro });
+            }
+            setData('profissionais', profs);
+            loadProfissionais();
+            closeModal('profissionalModal');
+        }
+        function editProfissional(id) {
+            openProfissionalModal(id);
+        }
+
+        // ========== RECIBO ==========
+        function loadRecibo() {
+            // Recibo padrão
+            document.getElementById('reciboContent').innerHTML = `
+                <h3>Recibo</h3>
+                <p>Recibo de serviços prestados.</p>
+                <p>Valor: R$ 100,00</p>
+                <p>Data: ${formatDateBR(getToday())}</p>
+            `;
+        }
+        function gerarRecibo() {
+            // Simples
+            loadRecibo();
+            alert('Recibo gerado!');
+        }
+        function imprimirRecibo() {
+            window.print();
+        }
+
+        // ========== FINANCEIRO ==========
+        let currentFinanceiroId = null;
+        function loadFinanceiro() {
+            const transacoes = getData('transacoes');
+            const tbody = document.querySelector('#financeiroTable tbody');
+            tbody.innerHTML = transacoes.map((t, i) => {
+                const valor = parseFloat(t.valor).toFixed(2);
+                return `<tr><td>${formatDateBR(t.data)}</td><td>${t.descricao}</td><td>R$ ${valor}</td><td>${t.tipo}</td><td>${t.forma}</td><td><button class="btn btn-warning" onclick="editFinanceiro(${i})">Editar</button><button class="btn btn-danger" onclick="deleteFinanceiro(${i})">Excluir</button></td></tr>`;
+            }).join('');
+        }
+        function openFinanceiroModal(id) {
+            currentFinanceiroId = id !== undefined ? id : null;
+            document.getElementById('financeiroModal').classList.add('active');
+            if (id !== null) {
+                const transacoes = getData('transacoes');
+                const t = transacoes[id];
+                document.getElementById('finData').value = t.data;
+                document.getElementById('finDescricao').value = t.descricao;
+                document.getElementById('finValor').value = t.valor;
+                document.getElementById('finTipo').value = t.tipo;
+                document.getElementById('finForma').value = t.forma;
+                document.getElementById('financeiroModalTitle').textContent = 'Editar Transação';
+            } else {
+                document.getElementById('financeiroModalTitle').textContent = 'Nova Transação';
+                document.getElementById('finData').value = getToday();
+                document.getElementById('finDescricao').value = '';
+                document.getElementById('finValor').value = '';
+                document.getElementById('finTipo').value = 'Receita';
+                document.getElementById('finForma').value = 'Crédito';
+            }
+        }
+        function saveFinanceiro() {
+            const data = document.getElementById('finData').value;
+            const descricao = document.getElementById('finDescricao').value.trim();
+            const valor = parseFloat(document.getElementById('finValor').value);
+            const tipo = document.getElementById('finTipo').value;
+            const forma = document.getElementById('finForma').value;
+            if (!data || !descricao || isNaN(valor)) { alert('Preencha todos os campos'); return; }
+            let transacoes = getData('transacoes');
+            if (currentFinanceiroId !== null) {
+                transacoes[currentFinanceiroId] = { data, descricao, valor, tipo, forma };
+            } else {
+                transacoes.push({ data, descricao, valor, tipo, forma });
+            }
+            setData('transacoes', transacoes);
+            loadFinanceiro();
+            closeModal('financeiroModal');
+        }
+        function editFinanceiro(id) {
+            openFinanceiroModal(id);
+        }
+        function deleteFinanceiro(id) {
+            if (confirm('Tem certeza que deseja excluir esta transação?')) {
+                let transacoes = getData('transacoes');
+                transacoes.splice(id, 1);
+                setData('transacoes', transacoes);
+                loadFinanceiro();
+            }
+        }
+
+        // ========== GESTÃO ==========
+        function loadGestao() {
+            const filtro = document.getElementById('gestaoFiltroForma').value;
+            const transacoes = getData('transacoes');
+            const filtered = filtro === 'Todas' ? transacoes : transacoes.filter(t => t.forma === filtro);
+            // Agrupar por forma
+            const grouped = {};
+            filtered.forEach(t => {
+                if (!grouped[t.forma]) grouped[t.forma] = { qtd: 0, total: 0 };
+                grouped[t.forma].qtd++;
+                grouped[t.forma].total += parseFloat(t.valor);
+            });
+            const tbody = document.querySelector('#gestaoTable tbody');
+            tbody.innerHTML = Object.entries(grouped).map(([forma, dados]) => {
+                return `<tr><td>${forma}</td><td>${dados.qtd}</td><td>R$ ${dados.total.toFixed(2)}</td></tr>`;
+            }).join('');
+        }
+
+        // ========== LGPD: Controle de acesso a documentos ==========
+        // Só admin e profissional podem ver documentos
+        // Na tab de documentos, ocultamos se não tiver permissão
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se o botão de documentos deve ser oculto
+            const role = currentUser.role;
+            const docBtn = document.querySelector('[data-tab="documentos"]');
+            if (role !== 'Admin' && role !== 'Psicologo' && role !== 'TO' && role !== 'Fisioterapeuta' && role !== 'Fonoaudiologo') {
+                // Ocultar a aba documentos
+                const btns = document.querySelectorAll('#pacienteDrawer .btn');
+                btns.forEach(btn => {
+                    if (btn.textContent.trim() === 'Documentos') {
+                        btn.style.display = 'none';
+                    }
+                });
+                document.getElementById('tabDocumentos').style.display = 'none';
+            }
+        });
+
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+            // Preencher data da agenda atual
+            document.getElementById('agendaDate').value = getToday();
+            loadAgenda();
+        });
+    </script>
 </body>
 </html>
