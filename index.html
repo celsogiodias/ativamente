@@ -1,858 +1,1374 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ativamente+ Clinic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        :root {
+            --navy: #1a2847;
+            --orange: #ff6b35;
+            --teal: #00bcd4;
+            --light-bg: #f4f6f9;
+            --white: #ffffff;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
+            background: var(--light-bg);
+            height: 100vh;
+            overflow: hidden;
+        }
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--navy), #0f1a2f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.3s;
+        }
+        #loginOverlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            width: 380px;
+            max-width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: var(--navy);
+        }
+        .login-container .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        .login-container .logo-text .ativa {
+            color: var(--navy);
+        }
+        .login-container .logo-text .mente {
+            background: linear-gradient(90deg, var(--orange), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .login-container label {
+            display: block;
+            margin-top: 16px;
+            margin-bottom: 4px;
+            color: #555;
+            font-weight: 500;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .login-container input:focus {
+            border-color: var(--teal);
+            outline: none;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: var(--orange);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-container button:hover {
+            background: #e0552c;
+        }
+        .login-container .link {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: var(--teal);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .login-container .link:hover {
+            text-decoration: underline;
+        }
+        #appContainer {
             display: flex;
             height: 100vh;
         }
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background: #fff;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            padding: 20px;
+        #sidebar {
+            width: 240px;
+            background: var(--navy);
+            color: white;
             display: flex;
             flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.3s;
         }
-        .sidebar .logo {
-            margin-bottom: 30px;
+        .sidebar-logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .sidebar .logo svg {
-            width: 100%;
+        .sidebar-logo svg {
+            width: 180px;
             height: auto;
         }
-        .sidebar nav {
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 15px;
+        }
+        .sidebar-menu a i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .sidebar-menu a.active {
+            background: var(--orange);
+            color: white;
+        }
+        #mainContent {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            overflow: hidden;
         }
-        .sidebar nav a {
-            text-decoration: none;
-            color: #333;
-            padding: 10px;
-            border-radius: 8px;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .sidebar nav a:hover, .sidebar nav a.active {
-            background: #e0f7fa;
-        }
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        .page { display: none; }
-        .page.active { display: block; }
-        h2 { margin-bottom: 20px; color: #1a237e; }
-        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background: #1a237e; color: #fff; }
-        tr:hover { background: #f5f5f5; }
-        .btn {
-            background: #1a237e;
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 2px;
-        }
-        .btn:hover { opacity: 0.9; }
-        .btn-warning { background: #ff6b35; }
-        .btn-danger { background: #d32f2f; }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
+        #header {
+            display: flex;
             align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: white;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            flex-shrink: 0;
         }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            width: 400px;
-            max-width: 90%;
+        #header #userNameDisplay {
+            font-weight: 600;
+            color: var(--navy);
         }
-        .modal-content input, .modal-content select, .modal-content textarea {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        #header #logoutBtn {
+            background: none;
+            border: 1px solid var(--orange);
+            color: var(--orange);
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
         }
-        .kpi-card {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        #header #logoutBtn:hover {
+            background: var(--orange);
+            color: white;
+        }
+        #pageContent {
             flex: 1;
-            min-width: 200px;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        /* tables and cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
         }
         .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .kpi-card .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy);
+        }
+        .kpi-card .kpi-label {
+            color: #777;
+            margin-top: 4px;
+        }
+        .kpi-card .kpi-icon {
+            font-size: 2rem;
+            color: var(--teal);
+            margin-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: var(--navy);
+            color: white;
+            font-weight: 500;
+        }
+        tr:hover {
+            background: #f9f9f9;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .btn-primary {
+            background: var(--orange);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #e0552c;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-teal {
+            background: var(--teal);
+            color: white;
+        }
+        .btn-teal:hover {
+            background: #0097a7;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
             display: flex;
-            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .modal h3 {
+            margin-bottom: 16px;
+            color: var(--navy);
+        }
+        .modal .form-group {
+            margin-bottom: 14px;
+        }
+        .modal .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            color: #555;
+        }
+        .modal .form-group input,
+        .modal .form-group select,
+        .modal .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .modal .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .modal .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 600px;
+            max-width: 100%;
+            height: 100%;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+            transition: right 0.3s;
+            z-index: 1500;
+            overflow-y: auto;
+        }
+        .drawer-overlay.open {
+            right: 0;
+        }
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .drawer-header h3 {
+            color: var(--navy);
+        }
+        .drawer-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+        .tabs {
+            display: flex;
             flex-wrap: wrap;
-            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 16px;
+        }
+        .tabs .tab {
+            padding: 10px 16px;
+            cursor: pointer;
+            color: #777;
+            border-bottom: 3px solid transparent;
+            transition: 0.2s;
+        }
+        .tabs .tab.active {
+            color: var(--navy);
+            border-bottom-color: var(--orange);
+            font-weight: 600;
+        }
+        .tab-content {
+            display: none;
+            padding: 10px 0;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .ai-insight {
+            background: #e8f5e9;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--teal);
+            margin: 12px 0;
+        }
+        .search-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+        }
+        @media (max-width: 768px) {
+            #sidebar {
+                width: 60px;
+            }
+            #sidebar .sidebar-logo svg {
+                width: 40px;
+            }
+            .sidebar-menu a span {
+                display: none;
+            }
+            .sidebar-menu a i {
+                margin-right: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo">
-            <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#ff6b35"/>
-                        <stop offset="100%" stop-color="#00bcd4"/>
-                    </linearGradient>
-                </defs>
-                <!-- Letra A estilizada -->
-                <path d="M20 70 L40 10 L60 70 L50 70 L45 50 L35 50 L30 70 Z" fill="#1a237e"/>
-                <path d="M35 50 L45 50 L40 30 Z" fill="#ff6b35"/>
-                <path d="M33 48 L47 48 L40 28 Z" fill="none" stroke="#00bcd4" stroke-width="1.5"/>
-                <!-- Texto ATIVAMENTE+ -->
-                <text x="70" y="30" font-family="Arial" font-weight="bold" font-size="18" fill="#1a237e">ATIVA</text>
-                <text x="125" y="30" font-family="Arial" font-weight="bold" font-size="18" fill="url(#grad)">MENTE+</text>
-                <text x="70" y="50" font-family="Arial" font-weight="bold" font-size="14" fill="#1a237e">CLINIC</text>
-                <line x1="70" y1="55" x2="190" y2="55" stroke="#1a237e" stroke-width="1"/>
-                <line x1="70" y1="58" x2="190" y2="58" stroke="#1a237e" stroke-width="1"/>
-            </svg>
-        </div>
-        <nav>
-            <a href="#" data-page="dashboard" class="active">Dashboard</a>
-            <a href="#" data-page="agenda">Agenda</a>
-            <a href="#" data-page="ai-agenda">AI-Agenda</a>
-            <a href="#" data-page="paciente">Paciente</a>
-            <a href="#" data-page="profissional">Profissional</a>
-            <a href="#" data-page="recibo">Recibo</a>
-            <a href="#" data-page="financeiro">Financeiro</a>
-            <a href="#" data-page="gestao">Gestão</a>
-        </nav>
-        <div style="margin-top: auto;">
-            <button onclick="logout()" class="btn">Logout</button>
+    <!-- Login Overlay -->
+    <div id="loginOverlay">
+        <div class="login-container">
+            <div class="logo-text">
+                <span class="ativa">ATIVA</span><span class="mente">MENTE+</span>
+                <div style="font-size:0.9rem;color:#999;margin-top:4px;">CLINIC</div>
+            </div>
+            <h2>Acessar Sistema</h2>
+            <form id="loginForm">
+                <label for="loginEmail">E-mail</label>
+                <input type="email" id="loginEmail" placeholder="seu@email.com" required />
+                <label for="loginPassword">Senha</label>
+                <input type="password" id="loginPassword" placeholder="••••••" required />
+                <button type="submit">Entrar</button>
+            </form>
+            <span class="link" id="showRegister">Criar conta</span>
+            <div id="loginError" style="color:red;text-align:center;margin-top:8px;display:none;"></div>
         </div>
     </div>
-    <div class="main-content">
-        <!-- Páginas -->
-        <div id="page-dashboard" class="page active">
-            <h2>Dashboard</h2>
-            <div class="kpi-grid" id="kpiContainer"></div>
-            <div id="aiInsights" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h3>Insights IA</h3>
-                <p id="aiInsightText">Carregando...</p>
+
+    <!-- App Container -->
+    <div id="appContainer" style="display:none;">
+        <div id="sidebar">
+            <div class="sidebar-logo">
+                <svg viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+                    <text x="5" y="32" font-size="28" font-weight="bold" fill="#ffffff">ATIVA</text>
+                    <defs>
+                        <linearGradient id="gradMente" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#ff6b35"/>
+                            <stop offset="100%" stop-color="#00bcd4"/>
+                        </linearGradient>
+                    </defs>
+                    <text x="80" y="32" font-size="28" font-weight="bold" fill="url(#gradMente)">MENTE+</text>
+                    <text x="165" y="32" font-size="16" fill="#ffffff" font-weight="500">CLINIC</text>
+                </svg>
+            </div>
+            <div class="sidebar-menu">
+                <a href="#" onclick="showSection('dashboard')" class="active" id="link-dashboard"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+                <a href="#" onclick="showSection('agenda')" id="link-agenda"><i class="fas fa-calendar-alt"></i><span>Agenda</span></a>
+                <a href="#" onclick="showSection('aiagenda')" id="link-aiagenda"><i class="fas fa-robot"></i><span>AI-Agenda</span></a>
+                <a href="#" onclick="showSection('paciente')" id="link-paciente"><i class="fas fa-user-injured"></i><span>Paciente</span></a>
+                <a href="#" onclick="showSection('profissional')" id="link-profissional"><i class="fas fa-user-md"></i><span>Profissional</span></a>
+                <a href="#" onclick="showSection('recibo')" id="link-recibo"><i class="fas fa-receipt"></i><span>Recibo</span></a>
+                <a href="#" onclick="showSection('financeiro')" id="link-financeiro"><i class="fas fa-dollar-sign"></i><span>Financeiro</span></a>
+                <a href="#" onclick="showSection('gestao')" id="link-gestao"><i class="fas fa-chart-bar"></i><span>Gestão</span></a>
             </div>
         </div>
-        <div id="page-agenda" class="page">
-            <h2>Agenda</h2>
-            <input type="date" id="agendaDate" onchange="loadAgenda()">
-            <button class="btn" onclick="openNewConsulta()">Nova Consulta</button>
-            <table id="agendaTable">
-                <thead><tr><th>Hora</th><th>Paciente</th><th>Profissional</th><th>Status</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div id="page-ai-agenda" class="page">
-            <h2>AI-Agenda</h2>
-            <div id="aiAgendaSuggestions"></div>
-        </div>
-        <div id="page-paciente" class="page">
-            <h2>Paciente</h2>
-            <input type="text" id="pacienteSearch" placeholder="Buscar paciente..." oninput="searchPaciente()">
-            <button class="btn" onclick="openPacienteDrawer()">Novo Paciente</button>
-            <table id="pacienteTable">
-                <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Ações</th></tr></thead>
-                <tbody></tbody>
-            </table>
-            <!-- Drawer Paciente -->
-            <div id="pacienteDrawer" class="modal">
-                <div class="modal-content" style="width: 80%; max-width: 800px;">
-                    <span onclick="closePacienteDrawer()" style="float:right; cursor:pointer; font-size:24px;">&times;</span>
-                    <h3 id="pacienteDrawerTitle">Novo Paciente</h3>
-                    <div style="display:flex; gap:10px; margin-bottom:10px;">
-                        <button class="btn" onclick="showTab('perfil')">Perfil</button>
-                        <button class="btn" onclick="showTab('historico')">Histórico</button>
-                        <button class="btn" onclick="showTab('exames')">Exames</button>
-                        <button class="btn" onclick="showTab('evolucao')">Evolução</button>
-                        <button class="btn" onclick="showTab('documentos')">Documentos</button>
-                        <button class="btn" onclick="showTab('prescricoes')">Prescrições</button>
-                        <button class="btn" onclick="showTab('atestados')">Atestados</button>
-                        <button class="btn" onclick="showTab('faturamento')">Faturamento</button>
-                        <button class="btn" onclick="showTab('anotacoes')">Anotações</button>
+        <div id="mainContent">
+            <div id="header">
+                <div id="userNameDisplay">Usuário</div>
+                <button id="logoutBtn">Sair</button>
+            </div>
+            <div id="pageContent">
+                <!-- Dashboard -->
+                <div class="section active" id="section-dashboard">
+                    <h2>Dashboard</h2>
+                    <div class="kpi-grid" id="kpiGrid"></div>
+                    <div class="card" id="kpiAI">
+                        <h3><i class="fas fa-robot"></i> AI Insights</h3>
+                        <div id="aiInsightContent"></div>
                     </div>
-                    <div id="tabPerfil" class="tab-content">
-                        <input type="text" id="pacienteName" placeholder="Nome">
-                        <input type="text" id="pacientePhone" placeholder="Telefone">
-                        <input type="email" id="pacienteEmail" placeholder="Email">
-                        <button class="btn" onclick="savePaciente()">Salvar</button>
+                </div>
+                <!-- Agenda -->
+                <div class="section" id="section-agenda">
+                    <h2>Agenda</h2>
+                    <div style="display:flex;gap:12px;margin-bottom:12px;align-items:center;">
+                        <input type="date" id="filterDate" />
+                        <button class="btn btn-primary" onclick="createConsulta()">Nova Consulta</button>
                     </div>
-                    <div id="tabHistorico" class="tab-content" style="display:none;">
-                        <textarea id="pacienteHistorico" rows="5" style="width:100%;"></textarea>
-                        <button class="btn" onclick="savePacienteField('historico')">Salvar</button>
+                    <table>
+                        <thead><tr><th>Hora</th><th>Paciente</th><th>Profissional</th><th>Status</th></tr></thead>
+                        <tbody id="agendaTableBody"></tbody>
+                    </table>
+                </div>
+                <!-- AI-Agenda -->
+                <div class="section" id="section-aiagenda">
+                    <h2>AI - Agenda Inteligente</h2>
+                    <p>Análise de padrões e sugestões baseadas em dados reais.</p>
+                    <div id="aiAgendaContent"></div>
+                </div>
+                <!-- Paciente -->
+                <div class="section" id="section-paciente">
+                    <h2>Pacientes</h2>
+                    <div class="search-bar">
+                        <input type="text" id="pacienteSearch" placeholder="Buscar paciente..." oninput="renderPacientes()" />
+                        <button class="btn btn-primary" onclick="openPacienteModal()">Novo</button>
                     </div>
-                    <div id="tabExames" class="tab-content" style="display:none;">
-                        <textarea id="pacienteExames" rows="5" style="width:100%;"></textarea>
-                        <button class="btn" onclick="savePacienteField('exames')">Salvar</button>
+                    <table>
+                        <thead><tr><th>Nome</th><th>Email</th><th>Telefone</th><th>Ações</th></tr></thead>
+                        <tbody id="pacienteTableBody"></tbody>
+                    </table>
+                </div>
+                <!-- Profissional -->
+                <div class="section" id="section-profissional">
+                    <h2>Profissionais</h2>
+                    <button class="btn btn-primary" onclick="openProfissionalModal()" style="margin-bottom:12px;">Novo Profissional</button>
+                    <table>
+                        <thead><tr><th>Nome</th><th>Especialidade</th><th>Registro</th><th>Ações</th></tr></thead>
+                        <tbody id="profissionalTableBody"></tbody>
+                    </table>
+                </div>
+                <!-- Recibo -->
+                <div class="section" id="section-recibo">
+                    <h2>Recibos</h2>
+                    <button class="btn btn-primary" onclick="gerarRecibo()">Gerar Recibo</button>
+                    <div id="reciboPreview" style="margin-top:16px;"></div>
+                </div>
+                <!-- Financeiro -->
+                <div class="section" id="section-financeiro">
+                    <h2>Financeiro</h2>
+                    <button class="btn btn-primary" onclick="openTransacaoModal()" style="margin-bottom:12px;">Nova Transação</button>
+                    <table>
+                        <thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Forma</th><th>Valor</th><th>Ações</th></tr></thead>
+                        <tbody id="transacaoTableBody"></tbody>
+                    </table>
+                </div>
+                <!-- Gestão -->
+                <div class="section" id="section-gestao">
+                    <h2>Gestão Financeira</h2>
+                    <div>
+                        <label>Filtrar por forma de pagamento:</label>
+                        <select id="gestaoFilter" class="filter-select" onchange="renderGestao()">
+                            <option value="todas">Todas</option>
+                            <option value="Crédito">Crédito</option>
+                            <option value="Débito">Débito</option>
+                            <option value="PIX">PIX</option>
+                            <option value="Convênio">Convênio</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Outros">Outros</option>
+                        </select>
                     </div>
-                    <div id="tabEvolucao" class="tab-content" style="display:none;">
-                        <input type="text" id="pacienteCID" placeholder="Buscar CID-11" list="cidList">
-                        <datalist id="cidList"></datalist>
-                        <button class="btn" onclick="searchCIDOnline()">Buscar Online (WHO)</button>
-                        <div id="cidSuggestion"></div>
-                        <textarea id="pacienteEvolucao" rows="5" style="width:100%;" placeholder="Evolução"></textarea>
-                        <button class="btn" onclick="savePacienteField('evolucao')">Salvar</button>
-                    </div>
-                    <div id="tabDocumentos" class="tab-content" style="display:none;">
-                        <p>Upload de documentos</p>
-                        <input type="file" id="pacienteDocumentos" multiple>
-                        <button class="btn" onclick="savePacienteField('documentos')">Salvar</button>
-                        <p><small>Apenas Admin e Profissional podem ver documentos.</small></p>
-                    </div>
-                    <div id="tabPrescricoes" class="tab-content" style="display:none;">
-                        <textarea id="pacientePrescricoes" rows="5" style="width:100%;"></textarea>
-                        <button class="btn" onclick="savePacienteField('prescricoes')">Salvar</button>
-                    </div>
-                    <div id="tabAtestados" class="tab-content" style="display:none;">
-                        <textarea id="pacienteAtestados" rows="5" style="width:100%;"></textarea>
-                        <button class="btn" onclick="savePacienteField('atestados')">Salvar</button>
-                    </div>
-                    <div id="tabFaturamento" class="tab-content" style="display:none;">
-                        <input type="text" id="pacienteFaturamento" placeholder="Informações de faturamento">
-                        <button class="btn" onclick="savePacienteField('faturamento')">Salvar</button>
-                    </div>
-                    <div id="tabAnotacoes" class="tab-content" style="display:none;">
-                        <textarea id="pacienteAnotacoes" rows="5" style="width:100%;"></textarea>
-                        <button class="btn" onclick="savePacienteField('anotacoes')">Salvar</button>
-                    </div>
+                    <table>
+                        <thead><tr><th>Forma de Pagamento</th><th>Quantidade</th><th>Valor Total</th></tr></thead>
+                        <tbody id="gestaoTableBody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        <div id="page-profissional" class="page">
-            <h2>Profissional</h2>
-            <button class="btn" onclick="openProfissionalModal()">Novo Profissional</button>
-            <table id="profissionalTable">
-                <thead><tr><th>Nome</th><th>Especialidade</th><th>Registro</th><th>Ações</th></tr></thead>
-                <tbody></tbody>
-            </table>
-            <div id="profissionalModal" class="modal">
-                <div class="modal-content">
-                    <span onclick="closeModal('profissionalModal')" style="float:right; cursor:pointer; font-size:24px;">&times;</span>
-                    <h3 id="profissionalModalTitle">Novo Profissional</h3>
-                    <input type="text" id="profissionalNome" placeholder="Nome">
-                    <input type="text" id="profissionalEspecialidade" placeholder="Especialidade">
-                    <input type="text" id="profissionalRegistro" placeholder="Registro">
-                    <button class="btn" onclick="saveProfissional()">Salvar</button>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal">
+            <h3>Criar Conta</h3>
+            <div class="form-group"><label>Nome</label><input type="text" id="regNome" /></div>
+            <div class="form-group"><label>Email</label><input type="email" id="regEmail" /></div>
+            <div class="form-group"><label>Senha</label><input type="password" id="regSenha" /></div>
+            <div class="form-group"><label>Função</label>
+                <select id="regFuncao">
+                    <option value="Admin">Admin</option>
+                    <option value="Psicologo">Psicólogo</option>
+                    <option value="TO">TO</option>
+                    <option value="Fisioterapeuta">Fisioterapeuta</option>
+                    <option value="Fonoaudiologo">Fonoaudiólogo</option>
+                    <option value="Secretaria">Secretaria</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="document.getElementById('registerModal').classList.remove('active')">Cancelar</button>
+                <button class="btn btn-primary" onclick="registerUser()">Cadastrar</button>
+            </div>
+            <div id="regError" style="color:red;margin-top:8px;display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Paciente Modal (Drawer) -->
+    <div class="drawer-overlay" id="pacienteDrawer">
+        <div class="drawer-header">
+            <h3 id="pacienteDrawerTitle">Novo Paciente</h3>
+            <button class="close-btn" onclick="closePacienteDrawer()">&times;</button>
+        </div>
+        <div style="padding:0 20px 20px;">
+            <div class="tabs" id="pacienteTabs">
+                <div class="tab active" onclick="switchPacienteTab('perfil',this)">Perfil</div>
+                <div class="tab" onclick="switchPacienteTab('historico',this)">Histórico</div>
+                <div class="tab" onclick="switchPacienteTab('exames',this)">Exames</div>
+                <div class="tab" onclick="switchPacienteTab('evolucao',this)">Evolução</div>
+                <div class="tab" onclick="switchPacienteTab('documentos',this)">Documentos</div>
+                <div class="tab" onclick="switchPacienteTab('prescricoes',this)">Prescrições</div>
+                <div class="tab" onclick="switchPacienteTab('atestados',this)">Atestados</div>
+                <div class="tab" onclick="switchPacienteTab('faturamento',this)">Faturamento</div>
+                <div class="tab" onclick="switchPacienteTab('anotacoes',this)">Anotações</div>
+            </div>
+            <div id="pacienteTabContent">
+                <div class="tab-content active" id="tab-perfil">
+                    <div class="form-group"><label>Nome</label><input type="text" id="pacNome" /></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="pacEmail" /></div>
+                    <div class="form-group"><label>Telefone</label><input type="text" id="pacTelefone" /></div>
+                    <div class="form-group"><label>Data de Nascimento</label><input type="date" id="pacDtNasc" /></div>
+                    <button class="btn btn-primary" id="pacSalvarBtn" onclick="salvarPaciente()">Salvar</button>
+                </div>
+                <div class="tab-content" id="tab-historico">
+                    <textarea style="width:100%;min-height:120px;" placeholder="Histórico médico..."></textarea>
+                </div>
+                <div class="tab-content" id="tab-exames">
+                    <textarea style="width:100%;min-height:120px;" placeholder="Exames..."></textarea>
+                </div>
+                <div class="tab-content" id="tab-evolucao">
+                    <label>CID-11:</label>
+                    <input type="text" id="cidInput" list="cidList" placeholder="Digite o código" />
+                    <datalist id="cidList"></datalist>
+                    <button class="btn btn-teal" onclick="buscarCidOnline()">Buscar Online</button>
+                    <div id="cidResult" style="margin-top:8px;"></div>
+                    <div id="planoSugerido" style="margin-top:8px;"></div>
+                    <textarea style="width:100%;min-height:80px;margin-top:8px;" placeholder="Evolução do paciente..."></textarea>
+                </div>
+                <div class="tab-content" id="tab-documentos">
+                    <p>Documentos LGPD - Visível apenas para Admin e Profissional.</p>
+                    <input type="file" multiple />
+                </div>
+                <div class="tab-content" id="tab-prescricoes">
+                    <textarea style="width:100%;min-height:120px;" placeholder="Prescrições..."></textarea>
+                </div>
+                <div class="tab-content" id="tab-atestados">
+                    <textarea style="width:100%;min-height:120px;" placeholder="Atestados..."></textarea>
+                </div>
+                <div class="tab-content" id="tab-faturamento">
+                    <textarea style="width:100%;min-height:120px;" placeholder="Faturamento..."></textarea>
+                </div>
+                <div class="tab-content" id="tab-anotacoes">
+                    <textarea style="width:100%;min-height:120px;" placeholder="Anotações diversas..."></textarea>
                 </div>
             </div>
         </div>
-        <div id="page-recibo" class="page">
-            <h2>Recibo</h2>
-            <button class="btn" onclick="gerarRecibo()">Gerar Recibo</button>
-            <button class="btn" onclick="imprimirRecibo()">Imprimir</button>
-            <div id="reciboContent" style="background: #fff; padding: 20px; margin-top: 20px; border-radius: 8px;"></div>
-        </div>
-        <div id="page-financeiro" class="page">
-            <h2>Financeiro</h2>
-            <button class="btn" onclick="openFinanceiroModal()">Nova Transação</button>
-            <table id="financeiroTable">
-                <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Tipo</th><th>Forma</th><th>Ações</th></tr></thead>
-                <tbody></tbody>
-            </table>
-            <div id="financeiroModal" class="modal">
-                <div class="modal-content">
-                    <span onclick="closeModal('financeiroModal')" style="float:right; cursor:pointer; font-size:24px;">&times;</span>
-                    <h3 id="financeiroModalTitle">Nova Transação</h3>
-                    <input type="date" id="finData">
-                    <input type="text" id="finDescricao" placeholder="Descrição">
-                    <input type="number" id="finValor" placeholder="Valor" step="0.01">
-                    <select id="finTipo">
-                        <option value="Receita">Receita</option>
-                        <option value="Despesa">Despesa</option>
-                    </select>
-                    <select id="finForma">
-                        <option value="Crédito">Crédito</option>
-                        <option value="Débito">Débito</option>
-                        <option value="PIX">PIX</option>
-                        <option value="Convênio">Convênio</option>
-                        <option value="Dinheiro">Dinheiro</option>
-                        <option value="Outros">Outros</option>
-                    </select>
-                    <button class="btn" onclick="saveFinanceiro()">Salvar</button>
-                </div>
+    </div>
+
+    <!-- Profissional Modal -->
+    <div class="modal-overlay" id="profissionalModal">
+        <div class="modal">
+            <h3 id="profModalTitle">Novo Profissional</h3>
+            <input type="hidden" id="profId" />
+            <div class="form-group"><label>Nome</label><input type="text" id="profNome" /></div>
+            <div class="form-group"><label>Especialidade</label><input type="text" id="profEspecialidade" /></div>
+            <div class="form-group"><label>Registro (CRM/CRP etc)</label><input type="text" id="profRegistro" /></div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="document.getElementById('profissionalModal').classList.remove('active')">Cancelar</button>
+                <button class="btn btn-primary" onclick="salvarProfissional()">Salvar</button>
             </div>
         </div>
-        <div id="page-gestao" class="page">
-            <h2>Gestão</h2>
-            <label>Filtrar por Forma de Pagamento:</label>
-            <select id="gestaoFiltroForma" onchange="loadGestao()">
-                <option value="Todas">Todas</option>
-                <option value="Crédito">Crédito</option>
-                <option value="Débito">Débito</option>
-                <option value="PIX">PIX</option>
-                <option value="Convênio">Convênio</option>
-                <option value="Dinheiro">Dinheiro</option>
-                <option value="Outros">Outros</option>
-            </select>
-            <table id="gestaoTable">
-                <thead><tr><th>Forma</th><th>Quantidade</th><th>Valor Total</th></tr></thead>
-                <tbody></tbody>
-            </table>
+    </div>
+
+    <!-- Transação Modal -->
+    <div class="modal-overlay" id="transacaoModal">
+        <div class="modal">
+            <h3 id="transacaoModalTitle">Nova Transação</h3>
+            <input type="hidden" id="transacaoId" />
+            <div class="form-group"><label>Data</label><input type="date" id="transData" /></div>
+            <div class="form-group"><label>Descrição</label><input type="text" id="transDesc" /></div>
+            <div class="form-group"><label>Tipo</label>
+                <select id="transTipo"><option value="Receita">Receita</option><option value="Despesa">Despesa</option></select>
+            </div>
+            <div class="form-group"><label>Forma de Pagamento</label>
+                <select id="transForma">
+                    <option value="Crédito">Crédito</option>
+                    <option value="Débito">Débito</option>
+                    <option value="PIX">PIX</option>
+                    <option value="Convênio">Convênio</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Outros">Outros</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Valor (R$)</label><input type="number" step="0.01" id="transValor" /></div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="document.getElementById('transacaoModal').classList.remove('active')">Cancelar</button>
+                <button class="btn btn-primary" onclick="salvarTransacao()">Salvar</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // ========== UTILITÁRIOS ==========
+        // ============================================================
+        // UTILITIES
+        // ============================================================
+        function formatMoney(v) {
+            return 'R$ ' + v.toFixed(2).replace('.', ',');
+        }
         function formatDateBR(dateStr) {
             if (!dateStr) return '';
-            const [y, m, d] = dateStr.split('-');
-            return `${d}/${m}/${y}`;
+            const parts = dateStr.split('-');
+            return parts[2] + '/' + parts[1] + '/' + parts[0];
         }
-        function formatTimeBR(hour, minute) {
-            return `${hour.toString().padStart(2,'0')}:${minute.toString().padStart(2,'0')}`;
+        function formatTimeBR(h, m) {
+            return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
         }
-        function getToday() {
-            return new Date().toISOString().split('T')[0];
-        }
-
-        // ========== LOCALSTORAGE ==========
         function getData(key) {
-            return JSON.parse(localStorage.getItem(key)) || [];
+            const data = localStorage.getItem('ativamente_' + key);
+            return data ? JSON.parse(data) : null;
         }
         function setData(key, data) {
-            localStorage.setItem(key, JSON.stringify(data));
+            localStorage.setItem('ativamente_' + key, JSON.stringify(data));
         }
 
-        // ========== AUTENTICAÇÃO ==========
+        // ============================================================
+        // DATA & DEFAULTS
+        // ============================================================
         let currentUser = null;
-        function login(email, password) {
-            const users = getData('users');
-            const user = users.find(u => u.email === email && u.password === password);
+        let editingPacienteId = null;
+        let editingProfissionalId = null;
+        let editingTransacaoId = null;
+        let pacienteDrawerOpen = false;
+
+        function initData() {
+            if (!getData('users')) {
+                setData('users', [
+                    { id: 1, nome: 'Admin', email: 'admin@admin.com', senha: 'admin123', funcao: 'Admin' }
+                ]);
+            }
+            if (!getData('pacientes')) {
+                setData('pacientes', [
+                    { id: 1, nome: 'Maria Silva', email: 'maria@teste.com', telefone: '(11) 99999-0001', dtNasc: '1985-03-15' },
+                    { id: 2, nome: 'João Santos', email: 'joao@teste.com', telefone: '(11) 99999-0002', dtNasc: '1990-07-22' }
+                ]);
+            }
+            if (!getData('profissionais')) {
+                setData('profissionais', [
+                    { id: 1, nome: 'Dr. Carlos', especialidade: 'Psicologia', registro: 'CRP 12345' },
+                    { id: 2, nome: 'Dra. Ana', especialidade: 'Fisioterapia', registro: 'CREFITO 67890' }
+                ]);
+            }
+            if (!getData('consultas')) {
+                const hoje = new Date().toISOString().split('T')[0];
+                setData('consultas', [
+                    { id: 1, data: hoje, hora: 9, minuto: 0, pacienteId: 1, profissionalId: 1, status: 'Confirmada' },
+                    { id: 2, data: hoje, hora: 10, minuto: 30, pacienteId: 2, profissionalId: 2, status: 'Pendente' }
+                ]);
+            }
+            if (!getData('transacoes')) {
+                const hoje = new Date().toISOString().split('T')[0];
+                setData('transacoes', [
+                    { id: 1, data: hoje, descricao: 'Consulta Maria', tipo: 'Receita', forma: 'PIX', valor: 150.00 },
+                    { id: 2, data: hoje, descricao: 'Aluguel', tipo: 'Despesa', forma: 'Débito', valor: 2000.00 }
+                ]);
+            }
+        }
+        initData();
+
+        // ============================================================
+        // LOGIN / REGISTER
+        // ============================================================
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const senha = document.getElementById('loginPassword').value.trim();
+            const users = getData('users') || [];
+            const user = users.find(u => u.email === email && u.senha === senha);
             if (user) {
                 currentUser = user;
-                return true;
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('appContainer').style.display = 'flex';
+                document.getElementById('userNameDisplay').innerText = user.nome + ' (' + user.funcao + ')';
+                renderAll();
+            } else {
+                document.getElementById('loginError').innerText = 'Credenciais inválidas!';
+                document.getElementById('loginError').style.display = 'block';
             }
-            return false;
-        }
-        function register(name, email, password, role) {
-            const users = getData('users');
-            if (users.find(u => u.email === email)) return false;
-            users.push({ name, email, password, role });
+        });
+
+        document.getElementById('showRegister').addEventListener('click', function() {
+            document.getElementById('registerModal').classList.add('active');
+        });
+
+        function registerUser() {
+            const nome = document.getElementById('regNome').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const senha = document.getElementById('regSenha').value.trim();
+            const funcao = document.getElementById('regFuncao').value;
+            if (!nome || !email || !senha) {
+                document.getElementById('regError').innerText = 'Preencha todos os campos!';
+                document.getElementById('regError').style.display = 'block';
+                return;
+            }
+            const users = getData('users') || [];
+            if (users.find(u => u.email === email)) {
+                document.getElementById('regError').innerText = 'Email já cadastrado!';
+                document.getElementById('regError').style.display = 'block';
+                return;
+            }
+            const newId = users.length ? Math.max(...users.map(u=>u.id)) + 1 : 1;
+            users.push({ id: newId, nome, email, senha, funcao });
             setData('users', users);
-            return true;
+            document.getElementById('registerModal').classList.remove('active');
+            document.getElementById('regError').style.display = 'none';
+            alert('Conta criada com sucesso!');
         }
-        function logout() {
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
             currentUser = null;
-            location.reload();
-        }
-        // Login inicial default
-        if (!localStorage.getItem('users')) {
-            setData('users', [{ name: 'Admin', email: 'admin@admin.com', password: 'admin123', role: 'Admin' }]);
-        }
-        // Simples login prompt
-        if (!currentUser) {
-            const email = prompt('Email:');
-            const password = prompt('Senha:');
-            if (email && password && login(email, password)) {
-                // OK
-            } else {
-                document.body.innerHTML = '<h2>Login falhou. Recarregue e tente novamente.</h2>';
-                throw new Error('Login failed');
-            }
-        }
-
-        // ========== NAVEGAÇÃO ==========
-        document.querySelectorAll('.sidebar nav a').forEach(a => {
-            a.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.sidebar nav a').forEach(el => el.classList.remove('active'));
-                this.classList.add('active');
-                const page = this.dataset.page;
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById('page-' + page).classList.add('active');
-                if (page === 'dashboard') loadDashboard();
-                if (page === 'agenda') loadAgenda();
-                if (page === 'ai-agenda') loadAIAgenda();
-                if (page === 'paciente') loadPacientes();
-                if (page === 'profissional') loadProfissionais();
-                if (page === 'recibo') loadRecibo();
-                if (page === 'financeiro') loadFinanceiro();
-                if (page === 'gestao') loadGestao();
-            });
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
         });
 
-        // ========== DASHBOARD ==========
-        function loadDashboard() {
-            const consultas = getData('consultas');
-            const transacoes = getData('transacoes');
-            const hoje = getToday();
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        function showSection(name) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById('section-' + name).classList.add('active');
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            const link = document.getElementById('link-' + name);
+            if (link) link.classList.add('active');
+            if (name === 'dashboard') renderDashboard();
+            else if (name === 'agenda') renderAgenda();
+            else if (name === 'aiagenda') renderAiAgenda();
+            else if (name === 'paciente') renderPacientes();
+            else if (name === 'profissional') renderProfissionais();
+            else if (name === 'recibo') renderRecibo();
+            else if (name === 'financeiro') renderFinanceiro();
+            else if (name === 'gestao') renderGestao();
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderAgenda();
+            renderAiAgenda();
+            renderPacientes();
+            renderProfissionais();
+            renderFinanceiro();
+            renderGestao();
+        }
+
+        // ============================================================
+        // DASHBOARD
+        // ============================================================
+        function renderDashboard() {
+            const consultas = getData('consultas') || [];
+            const transacoes = getData('transacoes') || [];
+            const hoje = new Date().toISOString().split('T')[0];
             const consultasHoje = consultas.filter(c => c.data === hoje).length;
-            const receitaMes = transacoes.filter(t => t.tipo === 'Receita' && t.data.startsWith(hoje.substring(0,7))).reduce((s, t) => s + parseFloat(t.valor), 0);
-            const despesaMes = transacoes.filter(t => t.tipo === 'Despesa' && t.data.startsWith(hoje.substring(0,7))).reduce((s, t) => s + parseFloat(t.valor), 0);
+            const receitaMes = transacoes.filter(t => t.tipo === 'Receita' && t.data.startsWith(hoje.slice(0,7))).reduce((s,t) => s + t.valor, 0);
+            const despesaMes = transacoes.filter(t => t.tipo === 'Despesa' && t.data.startsWith(hoje.slice(0,7))).reduce((s,t) => s + t.valor, 0);
             const lucro = receitaMes - despesaMes;
-            document.getElementById('kpiContainer').innerHTML = `
-                <div class="kpi-card"><h4>Consultas Hoje</h4><p>${consultasHoje}</p></div>
-                <div class="kpi-card"><h4>Receita do Mês</h4><p>R$ ${receitaMes.toFixed(2)}</p></div>
-                <div class="kpi-card"><h4>Despesas do Mês</h4><p>R$ ${despesaMes.toFixed(2)}</p></div>
-                <div class="kpi-card"><h4>Lucro</h4><p>R$ ${lucro.toFixed(2)}</p></div>
+            document.getElementById('kpiGrid').innerHTML = `
+                <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-calendar-check"></i></div><div class="kpi-value">${consultasHoje}</div><div class="kpi-label">Consultas Hoje</div></div>
+                <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-up" style="color:green;"></i></div><div class="kpi-value">${formatMoney(receitaMes)}</div><div class="kpi-label">Receita Mês</div></div>
+                <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-down" style="color:red;"></i></div><div class="kpi-value">${formatMoney(despesaMes)}</div><div class="kpi-label">Despesas Mês</div></div>
+                <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-chart-line" style="color:${lucro>=0?'green':'red'};}"></i></div><div class="kpi-value">${formatMoney(lucro)}</div><div class="kpi-label">Lucro</div></div>
             `;
-            // KPI AI
+            // AI Insight
             let insight = '';
-            if (consultasHoje === 0) {
-                insight = 'Alerta: Nenhuma consulta hoje. Considere divulgar ou revisar agendamentos.';
-            } else if (lucro > 0) {
-                insight = 'Sugestão: Lucro positivo. Invista em marketing ou novos equipamentos.';
-            } else if (despesaMes > receitaMes) {
-                insight = 'Alerta: Despesas superam receitas. Reveja custos.';
-            } else {
-                insight = 'Tudo dentro do esperado. Continue assim!';
+            if (consultasHoje === 0) insight += 'Nenhuma consulta hoje. Considere promover horários disponíveis. ';
+            if (receitaMes < despesaMes) insight += 'Despesas superam receitas. Reveja custos. ';
+            else if (receitaMes > 0) insight += 'Receita positiva. Bom trabalho! ';
+            if (consultas.length > 0) {
+                const profCount = {};
+                consultas.forEach(c => { profCount[c.profissionalId] = (profCount[c.profissionalId] || 0) + 1; });
+                const topProfId = Object.keys(profCount).reduce((a,b) => profCount[a] > profCount[b] ? a : b);
+                const profs = getData('profissionais') || [];
+                const topProf = profs.find(p => p.id == topProfId);
+                if (topProf) insight += `Profissional com mais consultas: ${topProf.nome}. `;
             }
-            document.getElementById('aiInsightText').textContent = insight;
+            document.getElementById('aiInsightContent').innerHTML = insight || 'Dados insuficientes para gerar insights.';
         }
 
-        // ========== AGENDA ==========
-        function loadAgenda() {
-            const date = document.getElementById('agendaDate').value || getToday();
-            const consultas = getData('consultas').filter(c => c.data === date);
-            const tbody = document.querySelector('#agendaTable tbody');
-            tbody.innerHTML = consultas.map(c => {
-                return `<tr><td>${formatTimeBR(c.hora, c.minuto)}</td><td>${c.paciente}</td><td>${c.profissional}</td><td>${c.status}</td></tr>`;
-            }).join('');
-        }
-        function openNewConsulta() {
-            // Simples prompt
-            const paciente = prompt('Paciente:');
-            if (!paciente) return;
-            const profissional = prompt('Profissional:');
-            if (!profissional) return;
-            const data = prompt('Data (AAAA-MM-DD):', getToday());
-            if (!data) return;
-            const hora = prompt('Hora (HH):', '08');
-            if (!hora) return;
-            const minuto = prompt('Minuto (MM):', '00');
-            if (!minuto) return;
-            const consultas = getData('consultas');
-            consultas.push({ paciente, profissional, data, hora: parseInt(hora), minuto: parseInt(minuto), status: 'Agendado' });
-            setData('consultas', consultas);
-            loadAgenda();
-        }
-
-        // ========== AI-AGENDA ==========
-        function loadAIAgenda() {
-            const consultas = getData('consultas');
-            const hoje = getToday();
-            const futuras = consultas.filter(c => c.data >= hoje);
-            let suggestions = '';
-            if (futuras.length === 0) {
-                suggestions = '<p>Nenhuma consulta futura. Sugiro agendar revisões.</p>';
-            } else {
-                suggestions = '<ul>' + futuras.map(c => `<li>${formatDateBR(c.data)} - ${formatTimeBR(c.hora, c.minuto)} - ${c.paciente} com ${c.profissional}</li>`).join('') + '</ul>';
-            }
-            document.getElementById('aiAgendaSuggestions').innerHTML = suggestions;
-        }
-
-        // ========== PACIENTE ==========
-        let currentPacienteId = null;
-        function loadPacientes() {
-            const pacientes = getData('pacientes');
-            const tbody = document.querySelector('#pacienteTable tbody');
-            tbody.innerHTML = pacientes.map((p, i) => {
-                return `<tr><td>${p.name}</td><td>${p.phone}</td><td>${p.email}</td><td><button class="btn" onclick="editPaciente(${i})">Editar</button></td></tr>`;
-            }).join('');
-        }
-        function searchPaciente() {
-            const q = document.getElementById('pacienteSearch').value.toLowerCase();
-            const pacientes = getData('pacientes').filter(p => p.name.toLowerCase().includes(q));
-            const tbody = document.querySelector('#pacienteTable tbody');
-            tbody.innerHTML = pacientes.map((p, i) => {
-                return `<tr><td>${p.name}</td><td>${p.phone}</td><td>${p.email}</td><td><button class="btn" onclick="editPaciente(${i})">Editar</button></td></tr>`;
-            }).join('');
-        }
-        function openPacienteDrawer(id) {
-            currentPacienteId = id !== undefined ? id : null;
-            document.getElementById('pacienteDrawer').classList.add('active');
-            if (id !== null) {
-                const pacientes = getData('pacientes');
-                const p = pacientes[id];
-                document.getElementById('pacienteName').value = p.name;
-                document.getElementById('pacientePhone').value = p.phone;
-                document.getElementById('pacienteEmail').value = p.email;
-                document.getElementById('pacienteHistorico').value = p.historico || '';
-                document.getElementById('pacienteExames').value = p.exames || '';
-                document.getElementById('pacienteEvolucao').value = p.evolucao || '';
-                document.getElementById('pacientePrescricoes').value = p.prescricoes || '';
-                document.getElementById('pacienteAtestados').value = p.atestados || '';
-                document.getElementById('pacienteFaturamento').value = p.faturamento || '';
-                document.getElementById('pacienteAnotacoes').value = p.anotacoes || '';
-                document.getElementById('pacienteDrawerTitle').textContent = 'Editar Paciente';
-            } else {
-                document.getElementById('pacienteDrawerTitle').textContent = 'Novo Paciente';
-                document.getElementById('pacienteName').value = '';
-                document.getElementById('pacientePhone').value = '';
-                document.getElementById('pacienteEmail').value = '';
-                document.getElementById('pacienteHistorico').value = '';
-                document.getElementById('pacienteExames').value = '';
-                document.getElementById('pacienteEvolucao').value = '';
-                document.getElementById('pacientePrescricoes').value = '';
-                document.getElementById('pacienteAtestados').value = '';
-                document.getElementById('pacienteFaturamento').value = '';
-                document.getElementById('pacienteAnotacoes').value = '';
-            }
-            showTab('perfil');
-        }
-        function closePacienteDrawer() {
-            document.getElementById('pacienteDrawer').classList.remove('active');
-        }
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-            document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).style.display = 'block';
-        }
-        function savePaciente() {
-            const name = document.getElementById('pacienteName').value.trim();
-            const phone = document.getElementById('pacientePhone').value.trim();
-            const email = document.getElementById('pacienteEmail').value.trim();
-            if (!name) { alert('Nome obrigatório'); return; }
-            let pacientes = getData('pacientes');
-            if (currentPacienteId !== null) {
-                pacientes[currentPacienteId] = { ...pacientes[currentPacienteId], name, phone, email };
-            } else {
-                pacientes.push({ name, phone, email, historico: '', exames: '', evolucao: '', documentos: [], prescricoes: '', atestados: '', faturamento: '', anotacoes: '' });
-                currentPacienteId = pacientes.length - 1;
-            }
-            setData('pacientes', pacientes);
-            loadPacientes();
-            alert('Paciente salvo!');
-        }
-        function savePacienteField(field) {
-            if (currentPacienteId === null) { alert('Salve o perfil primeiro'); return; }
-            let pacientes = getData('pacientes');
-            const value = document.getElementById('paciente' + field.charAt(0).toUpperCase() + field.slice(1)).value;
-            pacientes[currentPacienteId][field] = value;
-            setData('pacientes', pacientes);
-            alert('Salvo!');
-        }
-        function editPaciente(id) {
-            openPacienteDrawer(id);
-        }
-
-        // ========== CID-11 DATABASE ==========
-        const cid11Data = [
-            { code: '6A00', description: 'Transtorno do desenvolvimento intelectual' },
-            { code: '6A01', description: 'Transtorno do desenvolvimento da fala e linguagem' },
-            { code: '6A02', description: 'Transtorno do espectro autista' },
-            { code: '6A03', description: 'Transtorno de déficit de atenção/hiperatividade' },
-            { code: '6A04', description: 'Transtorno específico da aprendizagem' },
-            { code: '6A05', description: 'Transtorno do movimento estereotipado' },
-            { code: '6A06', description: 'Transtorno da tique' },
-            { code: '6A07', description: 'Outros transtornos do desenvolvimento neurológico' },
-            { code: '6B00', description: 'Transtorno de ansiedade generalizada' },
-            { code: '6B01', description: 'Transtorno de pânico' },
-            { code: '6B02', description: 'Agorafobia' },
-            { code: '6B03', description: 'Fobia específica' },
-            { code: '6B04', description: 'Transtorno de ansiedade social' },
-            { code: '6B05', description: 'Transtorno obsessivo-compulsivo' },
-            { code: '6B06', description: 'Transtorno dismórfico corporal' },
-            { code: '6B07', description: 'Transtorno de acumulação' },
-            { code: '6B08', description: 'Tricotilomania' },
-            { code: '6B09', description: 'Transtorno de escoriação' },
-            { code: '6B10', description: 'Transtorno de estresse pós-traumático' },
-            { code: '6B11', description: 'Transtorno de estresse agudo' },
-            { code: '6B12', description: 'Transtorno de adaptação' },
-            { code: '6B13', description: 'Transtorno de apego reativo' },
-            { code: '6B14', description: 'Transtorno de desinibição do contato social' },
-            { code: '6B20', description: 'Transtorno depressivo unipolar' },
-            { code: '6B21', description: 'Transtorno depressivo recorrente' },
-            { code: '6B22', description: 'Transtorno distímico' },
-            { code: '6B23', description: 'Transtorno disfórico pré-menstrual' },
-            { code: '6B30', description: 'Transtorno bipolar tipo I' },
-            { code: '6B31', description: 'Transtorno bipolar tipo II' },
-            { code: '6B32', description: 'Transtorno ciclotímico' },
-            { code: '6B40', description: 'Transtorno de pânico (repetido)' },
-            { code: '6B41', description: 'Agorafobia (repetido)' },
-            { code: '6B42', description: 'Fobia específica (repetido)' },
-            { code: '6B43', description: 'Transtorno de ansiedade social (repetido)' },
-            { code: '6B44', description: 'TOC (repetido)' },
-            { code: '6C00', description: 'Esquizofrenia' },
-            { code: '6C01', description: 'Transtorno esquizoafetivo' },
-            { code: '6C02', description: 'Transtorno delirante' },
-            { code: '6C03', description: 'Transtorno psicótico breve' },
-            { code: '6C04', description: 'Transtorno esquizotípico' },
-            { code: '6C10', description: 'Transtorno bipolar tipo I (repetido)' },
-            { code: '6C11', description: 'Transtorno bipolar tipo II (repetido)' },
-            { code: '6C12', description: 'Transtorno depressivo unipolar (repetido)' },
-            { code: '6C20', description: 'Transtorno de personalidade paranóide' },
-            { code: '6C21', description: 'Transtorno de personalidade esquizoide' },
-            { code: '6C22', description: 'Transtorno de personalidade dissocial' },
-            { code: '6C23', description: 'Transtorno de personalidade emocionalmente instável' },
-            { code: '6C24', description: 'Transtorno de personalidade histriônica' },
-            { code: '6C25', description: 'Transtorno de personalidade anancástica' },
-            { code: '6C26', description: 'Transtorno de personalidade ansiosa' },
-            { code: '6C27', description: 'Transtorno de personalidade dependente' },
-            { code: '6C28', description: 'Outros transtornos de personalidade' },
-            { code: '6C30', description: 'Transtorno de identidade de gênero' },
-            { code: '6C40', description: 'Transtorno de preferência sexual' },
-            { code: '6C50', description: 'Transtorno factício' },
-            { code: '6C60', description: 'Transtorno dissociativo' },
-            { code: '6C61', description: 'Transtorno de conversão' },
-            { code: '6C62', description: 'Transtorno somatoforme' },
-            { code: '6C63', description: 'Transtorno de ansiedade comórbido' },
-            { code: '6C64', description: 'Transtorno depressivo comórbido' },
-            { code: '6C65', description: 'Outros transtornos relacionados' },
-            { code: '6C66', description: 'Transtorno de estresse pós-traumático complexo' },
-            { code: '6C67', description: 'Transtorno de luto prolongado' },
-            { code: '6C68', description: 'Outros transtornos específicos' },
-            { code: '6D00', description: 'Transtornos relacionados ao uso de álcool' },
-            { code: '6D01', description: 'Transtornos relacionados ao uso de opioides' },
-            { code: '6D02', description: 'Transtornos relacionados ao uso de canabinoides' },
-            { code: '6D03', description: 'Transtornos relacionados ao uso de sedativos' },
-            { code: '6D04', description: 'Transtornos relacionados ao uso de cocaína' },
-            { code: '6D05', description: 'Transtornos relacionados ao uso de estimulantes' },
-            { code: '6D06', description: 'Transtornos relacionados ao uso de alucinógenos' },
-            { code: '6D07', description: 'Transtornos relacionados ao uso de nicotina' },
-            { code: '6D08', description: 'Transtornos relacionados ao uso de inalantes' },
-            { code: '6D09', description: 'Outros transtornos por uso de substâncias' },
-            { code: '6D10', description: 'Transtornos alimentares: anorexia nervosa' },
-            { code: '6D11', description: 'Transtornos alimentares: bulimia nervosa' },
-            { code: '6D12', description: 'Transtorno de compulsão alimentar' },
-            { code: '6D13', description: 'Outros transtornos alimentares' },
-            { code: '6D20', description: 'Transtorno de insônia' },
-            { code: '6D21', description: 'Transtorno de hipersonolência' },
-            { code: '6D22', description: 'Transtorno do ritmo circadiano' },
-            { code: '6D23', description: 'Parassonias' },
-            { code: '6D30', description: 'Transtornos sexuais: disfunção erétil' },
-            { code: '6D31', description: 'Transtornos sexuais: ejaculação precoce' },
-            { code: '6D32', description: 'Transtornos sexuais: anorgasmia' },
-            { code: '6D33', description: 'Outras disfunções sexuais' },
-            { code: '6D40', description: 'Transtorno de gênero na infância' },
-            { code: '6D41', description: 'Transtorno de ansiedade na infância' },
-            { code: '6D42', description: 'Transtorno depressivo na infância' },
-            { code: '6D43', description: 'Transtorno de conduta na infância' },
-            { code: '6E00', description: 'Transtorno de apego na infância' },
-            { code: '6E01', description: 'Transtorno de ansiedade de separação' },
-            { code: '6E02', description: 'Mutismo seletivo' },
-            { code: '6E03', description: 'Transtorno de oposição desafiante' },
-            { code: '6E04', description: 'Transtorno de conduta' },
-            { code: '6E05', description: 'Transtorno de tiques' },
-            { code: '6E06', description: 'Transtorno de eliminação' },
-            { code: '6E07', description: 'Transtorno de movimento estereotipado' },
-            { code: '6E08', description: 'Outros transtornos da infância' },
-            { code: '6E09', description: 'Transtorno de aprendizagem' },
-            { code: '6E10', description: 'Transtorno de comunicação social' },
-            { code: '6E11', description: 'Transtorno do desenvolvimento motor' },
-            { code: '6E20', description: 'Transtorno de estresse pós-traumático na infância' },
-            { code: '6E30', description: 'Transtorno de humor na infância' },
-            { code: '6E40', description: 'Transtorno alimentar na infância' },
-            { code: '6E41', description: 'Outros transtornos da infância e adolescência' },
-            { code: '6F00', description: 'Transtorno de somatização' },
-            { code: '6F01', description: 'Transtorno de ansiedade somática' },
-            { code: '6F02', description: 'Transtorno de conversão (somático)' },
-            { code: '6F03', description: 'Transtorno de dor somática' },
-            { code: '6F04', description: 'Outros transtornos somáticos' }
-        ];
-        // Preencher datalist
-        window.addEventListener('DOMContentLoaded', () => {
-            const datalist = document.getElementById('cidList');
-            cid11Data.forEach(c => {
-                const option = document.createElement('option');
-                option.value = `${c.code} - ${c.description}`;
-                datalist.appendChild(option);
+        // ============================================================
+        // AGENDA
+        // ============================================================
+        function renderAgenda() {
+            const consultas = getData('consultas') || [];
+            const pacientes = getData('pacientes') || [];
+            const profissionais = getData('profissionais') || [];
+            const filterDate = document.getElementById('filterDate').value;
+            const hoje = new Date().toISOString().split('T')[0];
+            const dataFiltro = filterDate || hoje;
+            document.getElementById('filterDate').value = dataFiltro;
+            const filtradas = consultas.filter(c => c.data === dataFiltro);
+            let html = '';
+            filtradas.forEach(c => {
+                const pac = pacientes.find(p => p.id === c.pacienteId);
+                const prof = profissionais.find(p => p.id === c.profissionalId);
+                html += `<tr><td>${formatTimeBR(c.hora, c.minuto)}</td><td>${pac ? pac.nome : 'Desconhecido'}</td><td>${prof ? prof.nome : 'Desconhecido'}</td><td>${c.status}</td></tr>`;
             });
-        });
-        function searchCIDOnline() {
-            const input = document.getElementById('pacienteCID').value;
-            const match = cid11Data.find(c => input.includes(c.code));
-            if (match) {
-                document.getElementById('cidSuggestion').innerHTML = `<p>CID-11: ${match.code} - ${match.description}</p><p>Plano terapêutico sugerido: Terapia cognitivo-comportamental, acompanhamento psiquiátrico.</p>`;
-            } else {
-                document.getElementById('cidSuggestion').innerHTML = '<p>Código não encontrado. Tente buscar online (simulado).</p>';
-            }
+            if (!filtradas.length) html = '<tr><td colspan="4">Nenhuma consulta nesta data.</td></tr>';
+            document.getElementById('agendaTableBody').innerHTML = html;
         }
 
-        // ========== PROFISSIONAL ==========
-        function loadProfissionais() {
-            const profs = getData('profissionais');
-            const tbody = document.querySelector('#profissionalTable tbody');
-            tbody.innerHTML = profs.map((p, i) => {
-                return `<tr><td>${p.nome}</td><td>${p.especialidade}</td><td>${p.registro}</td><td><button class="btn" onclick="editProfissional(${i})">Editar</button></td></tr>`;
-            }).join('');
+        function createConsulta() {
+            const data = prompt('Data (AAAA-MM-DD):');
+            if (!data) return;
+            const hora = prompt('Hora (0-23):');
+            if (hora === null) return;
+            const minuto = prompt('Minuto (0-59):');
+            if (minuto === null) return;
+            const pacientes = getData('pacientes') || [];
+            const profissionais = getData('profissionais') || [];
+            if (!pacientes.length || !profissionais.length) {
+                alert('Cadastre pelo menos um paciente e um profissional primeiro.');
+                return;
+            }
+            const pacienteId = prompt('ID do paciente (consulte a lista de pacientes):');
+            if (!pacienteId) return;
+            const profissionalId = prompt('ID do profissional (consulte a lista de profissionais):');
+            if (!profissionalId) return;
+            const status = prompt('Status (Confirmada/Pendente/Cancelada):') || 'Pendente';
+            const consultas = getData('consultas') || [];
+            const newId = consultas.length ? Math.max(...consultas.map(c=>c.id)) + 1 : 1;
+            consultas.push({ id: newId, data, hora: parseInt(hora), minuto: parseInt(minuto), pacienteId: parseInt(pacienteId), profissionalId: parseInt(profissionalId), status });
+            setData('consultas', consultas);
+            renderAgenda();
         }
-        let currentProfIssionalId = null;
-        function openProfissionalModal(id) {
-            currentProfIssionalId = id !== undefined ? id : null;
+
+        // ============================================================
+        // AI-AGENDA
+        // ============================================================
+        function renderAiAgenda() {
+            const consultas = getData('consultas') || [];
+            const profissionais = getData('profissionais') || [];
+            let html = '<div class="ai-insight">';
+            if (consultas.length === 0) {
+                html += 'Nenhum dado de consulta para análise.';
+            } else {
+                const diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+                const countDia = [0,0,0,0,0,0,0];
+                consultas.forEach(c => {
+                    const d = new Date(c.data + 'T12:00:00');
+                    countDia[d.getDay()]++;
+                });
+                html += 'Distribuição de consultas por dia da semana: ';
+                diasSemana.forEach((dia, i) => {
+                    html += `${dia}: ${countDia[i]} `;
+                });
+                html += '<br/>';
+                const horarios = consultas.map(c => c.hora);
+                const mediaHora = horarios.reduce((a,b)=>a+b,0)/horarios.length;
+                html += `Horário médio das consultas: ${formatTimeBR(Math.floor(mediaHora), 0)}. `;
+                // Sugestão
+                if (countDia[0] + countDia[6] > 0) html += 'Há consultas aos finais de semana. ';
+            }
+            html += '</div>';
+            document.getElementById('aiAgendaContent').innerHTML = html;
+        }
+
+        // ============================================================
+        // PACIENTE
+        // ============================================================
+        function renderPacientes() {
+            const pacientes = getData('pacientes') || [];
+            const search = document.getElementById('pacienteSearch').value.toLowerCase();
+            const filtrados = pacientes.filter(p => p.nome.toLowerCase().includes(search));
+            let html = '';
+            filtrados.forEach(p => {
+                html += `<tr><td>${p.nome}</td><td>${p.email}</td><td>${p.telefone}</td><td><button class="btn btn-teal" onclick="openPacienteDrawer(${p.id})">Editar</button></td></tr>`;
+            });
+            if (!filtrados.length) html = '<tr><td colspan="4">Nenhum paciente encontrado.</td></tr>';
+            document.getElementById('pacienteTableBody').innerHTML = html;
+        }
+
+        function openPacienteModal() {
+            editingPacienteId = null;
+            document.getElementById('pacienteDrawerTitle').innerText = 'Novo Paciente';
+            document.getElementById('pacNome').value = '';
+            document.getElementById('pacEmail').value = '';
+            document.getElementById('pacTelefone').value = '';
+            document.getElementById('pacDtNasc').value = '';
+            document.getElementById('pacienteDrawer').classList.add('open');
+            pacienteDrawerOpen = true;
+        }
+
+        function openPacienteDrawer(id) {
+            editingPacienteId = id;
+            const pacientes = getData('pacientes') || [];
+            const pac = pacientes.find(p => p.id === id);
+            if (pac) {
+                document.getElementById('pacienteDrawerTitle').innerText = 'Editar Paciente';
+                document.getElementById('pacNome').value = pac.nome;
+                document.getElementById('pacEmail').value = pac.email;
+                document.getElementById('pacTelefone').value = pac.telefone;
+                document.getElementById('pacDtNasc').value = pac.dtNasc;
+            }
+            document.getElementById('pacienteDrawer').classList.add('open');
+            pacienteDrawerOpen = true;
+        }
+
+        function closePacienteDrawer() {
+            document.getElementById('pacienteDrawer').classList.remove('open');
+            pacienteDrawerOpen = false;
+        }
+
+        function salvarPaciente() {
+            const nome = document.getElementById('pacNome').value.trim();
+            const email = document.getElementById('pacEmail').value.trim();
+            const telefone = document.getElementById('pacTelefone').value.trim();
+            const dtNasc = document.getElementById('pacDtNasc').value;
+            if (!nome) { alert('Nome é obrigatório.'); return; }
+            let pacientes = getData('pacientes') || [];
+            if (editingPacienteId) {
+                const idx = pacientes.findIndex(p => p.id === editingPacienteId);
+                if (idx !== -1) {
+                    pacientes[idx] = { ...pacientes[idx], nome, email, telefone, dtNasc };
+                }
+            } else {
+                const newId = pacientes.length ? Math.max(...pacientes.map(p=>p.id)) + 1 : 1;
+                pacientes.push({ id: newId, nome, email, telefone, dtNasc });
+            }
+            setData('pacientes', pacientes);
+            renderPacientes();
+            closePacienteDrawer();
+        }
+
+        // Paciente tabs
+        function switchPacienteTab(tabName, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // CID-11
+        function carregarCID() {
+            const cids = [
+                '6A00 - Transtorno do Espectro Autista',
+                '6A01 - Transtorno de Déficit de Atenção/Hiperatividade',
+                '6A02 - Transtorno de Ansiedade Generalizada',
+                '6A03 - Transtorno Depressivo Recorrente',
+                '6A04 - Transtorno Bipolar',
+                '6A05 - Transtorno Obsessivo-Compulsivo',
+                '6A06 - Transtorno de Estresse Pós-Traumático',
+                '6A07 - Esquizofrenia',
+                '6A08 - Transtorno Alimentar',
+                '6A09 - Transtorno do Sono',
+                '6A10 - Transtorno de Personalidade Borderline',
+                '6A11 - Transtorno de Personalidade Antissocial',
+                '6A12 - Transtorno de Personalidade Esquiva',
+                '6A13 - Transtorno de Personalidade Dependente',
+                '6A14 - Transtorno de Personalidade Obsessivo-Compulsiva',
+                '6A15 - Transtorno de Personalidade Paranoide',
+                '6A16 - Transtorno de Personalidade Esquizóide',
+                '6A17 - Transtorno de Personalidade Esquizotípica',
+                '6A18 - Transtorno de Personalidade Histriônica',
+                '6A19 - Transtorno de Personalidade Narcisista',
+                '6A20 - Transtorno Factício',
+                '6A21 - Transtorno Dissociativo',
+                '6A22 - Transtorno de Somatização',
+                '6A23 - Transtorno de Conversão',
+                '6A24 - Transtorno Dismórfico Corporal',
+                '6A25 - Transtorno de Ansiedade Social',
+                '6A26 - Transtorno de Pânico',
+                '6A27 - Agorafobia',
+                '6A28 - Fobia Específica',
+                '6A29 - Mutismo Seletivo',
+                '6A30 - Transtorno de Adaptação',
+                '6A31 - Transtorno de Luto Complexo Persistente',
+                '6A32 - Transtorno de Exposição a Eventos Traumáticos',
+                '6A33 - Transtorno de Ansiedade de Doença',
+                '6A34 - Transtorno de Pica',
+                '6A35 - Transtorno de Ruminação',
+                '6A36 - Transtorno de Evitação/Restrição de Ingestão',
+                '6A37 - Bulimia Nervosa',
+                '6A38 - Anorexia Nervosa',
+                '6A39 - Transtorno de Compulsão Alimentar',
+                '6A40 - Insônia Crônica',
+                '6A41 - Hipersonia',
+                '6A42 - Narcolepsia',
+                '6A43 - Síndrome das Pernas Inquietas',
+                '6A44 - Transtorno do Ritmo Circadiano',
+                '6A45 - Parassonias',
+                '6A46 - Transtorno de Uso de Substâncias',
+                '6A47 - Transtorno Induzido por Substância',
+                '6A48 - Transtorno de Jogo',
+                '6A49 - Transtorno de Compra Compulsiva',
+                '6A50 - Transtorno de Adicção à Internet',
+                '6A51 - Transtorno de Déficit de Atenção/Hiperatividade Tipo Desatento',
+                '6A52 - Transtorno de Déficit de Atenção/Hiperatividade Tipo Hiperativo-Impulsivo',
+                '6A53 - Transtorno de Déficit de Atenção/Hiperatividade Tipo Combinado',
+                '6A54 - Transtorno Opositor-Desafiante',
+                '6A55 - Transtorno de Conduta',
+                '6A56 - Transtorno Explosivo Intermitente',
+                '6A57 - Transtorno de Personalidade Antissocial Início Precoce',
+                '6A58 - Transtorno de Personalidade Antissocial Início Tardio',
+                '6A59 - Transtorno de Personalidade Borderline Impulsivo',
+                '6A60 - Transtorno de Personalidade Borderline Limítrofe',
+                '6A61 - Transtorno de Personalidade Esquizotípica',
+                '6A62 - Transtorno de Personalidade Paranoide',
+                '6A63 - Transtorno de Personalidade Esquizóide',
+                '6A64 - Transtorno de Personalidade Histriônica',
+                '6A65 - Transtorno de Personalidade Narcisista',
+                '6A66 - Transtorno de Personalidade Evitativa',
+                '6A67 - Transtorno de Personalidade Dependente',
+                '6A68 - Transtorno de Personalidade Obsessivo-Compulsiva',
+                '6A69 - Transtorno de Personalidade Passivo-Agressivo',
+                '6A70 - Transtorno de Personalidade Depressivo',
+                '6A71 - Transtorno de Personalidade Sádico',
+                '6A72 - Transtorno de Personalidade Autoderrotista',
+                '6A73 - Outros Transtornos de Personalidade Específicos',
+                '6A74 - Transtorno de Personalidade Não Especificado',
+                '6A75 - Transtorno Psicótico Agudo e Transitório',
+                '6A76 - Transtorno Delirante',
+                '6A77 - Transtorno de Ideias Supervalorizadas',
+                '6A78 - Transtorno Esquizoafetivo',
+                '6A79 - Transtorno Psicótico Induzido por Substância',
+                '6A80 - Catatonia',
+                '6A81 - Transtorno Bipolar Tipo I',
+                '6A82 - Transtorno Bipolar Tipo II',
+                '6A83 - Transtorno Ciclotímico',
+                '6A84 - Transtorno Depressivo Maior',
+                '6A85 - Transtorno Depressivo Persistente (Distimia)',
+                '6A86 - Transtorno Disfórico Pré-Menstrual',
+                '6A87 - Transtorno Depressivo Induzido por Substância',
+                '6A88 - Transtorno de Ansiedade Generalizada',
+                '6A89 - Transtorno de Ansiedade Social',
+                '6A90 - Transtorno de Pânico',
+                '6A91 - Agorafobia',
+                '6A92 - Fobia Específica',
+                '6A93 - Transtorno de Ansiedade de Separação',
+                '6A94 - Mutismo Seletivo',
+                '6A95 - Transtorno de Ansiedade Induzido por Substância',
+                '6A96 - Transtorno Obsessivo-Compulsivo',
+                '6A97 - Transtorno Dismórfico Corporal',
+                '6A98 - Transtorno de Acumulação',
+                '6A99 - Tricotilomania',
+                '6A9A - Transtorno de Escoriação',
+                '6A9B - Transtorno de Tique',
+                '6A9C - Síndrome de Tourette',
+                '6A9D - Transtorno de Movimento Estereotipado'
+            ];
+            const datalist = document.getElementById('cidList');
+            datalist.innerHTML = cids.map(c => `<option value="${c}">`).join('');
+        }
+        carregarCID();
+
+        function buscarCidOnline() {
+            const input = document.getElementById('cidInput').value.trim();
+            const resultDiv = document.getElementById('cidResult');
+            if (!input) {
+                resultDiv.innerHTML = '<span style="color:red;">Digite um código CID-11</span>';
+                return;
+            }
+            // Simulação de busca online
+            setTimeout(() => {
+                resultDiv.innerHTML = `<span style="color:green;">CID-11 encontrado: ${input} (dados fictícios)</span>`;
+                const planoSugerido = document.getElementById('planoSugerido');
+                planoSugerido.innerHTML = '<strong>Plano Terapêutico Sugerido:</strong> Baseado no CID, recomenda-se terapia cognitivo-comportamental, acompanhamento semanal e medicação conforme avaliação médica.';
+            }, 500);
+        }
+
+        // ============================================================
+        // PROFISSIONAL
+        // ============================================================
+        function renderProfissionais() {
+            const profissionais = getData('profissionais') || [];
+            let html = '';
+            profissionais.forEach(p => {
+                html += `<tr><td>${p.nome}</td><td>${p.especialidade}</td><td>${p.registro}</td><td><button class="btn btn-teal" onclick="editProfissional(${p.id})">Editar</button> <button class="btn btn-danger" onclick="deleteProfissional(${p.id})">Excluir</button></td></tr>`;
+            });
+            if (!profissionais.length) html = '<tr><td colspan="4">Nenhum profissional cadastrado.</td></tr>';
+            document.getElementById('profissionalTableBody').innerHTML = html;
+        }
+
+        function openProfissionalModal() {
+            editingProfissionalId = null;
+            document.getElementById('profModalTitle').innerText = 'Novo Profissional';
+            document.getElementById('profNome').value = '';
+            document.getElementById('profEspecialidade').value = '';
+            document.getElementById('profRegistro').value = '';
             document.getElementById('profissionalModal').classList.add('active');
-            if (id !== null) {
-                const profs = getData('profissionais');
-                const p = profs[id];
-                document.getElementById('profissionalNome').value = p.nome;
-                document.getElementById('profissionalEspecialidade').value = p.especialidade;
-                document.getElementById('profissionalRegistro').value = p.registro;
-                document.getElementById('profissionalModalTitle').textContent = 'Editar Profissional';
-            } else {
-                document.getElementById('profissionalModalTitle').textContent = 'Novo Profissional';
-                document.getElementById('profissionalNome').value = '';
-                document.getElementById('profissionalEspecialidade').value = '';
-                document.getElementById('profissionalRegistro').value = '';
-            }
         }
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-        function saveProfissional() {
-            const nome = document.getElementById('profissionalNome').value.trim();
-            const especialidade = document.getElementById('profissionalEspecialidade').value.trim();
-            const registro = document.getElementById('profissionalRegistro').value.trim();
-            if (!nome) { alert('Nome obrigatório'); return; }
-            let profs = getData('profissionais');
-            if (currentProfIssionalId !== null) {
-                profs[currentProfIssionalId] = { nome, especialidade, registro };
-            } else {
-                profs.push({ nome, especialidade, registro });
-            }
-            setData('profissionais', profs);
-            loadProfissionais();
-            closeModal('profissionalModal');
-        }
+
         function editProfissional(id) {
-            openProfissionalModal(id);
-        }
-
-        // ========== RECIBO ==========
-        function loadRecibo() {
-            // Recibo padrão
-            document.getElementById('reciboContent').innerHTML = `
-                <h3>Recibo</h3>
-                <p>Recibo de serviços prestados.</p>
-                <p>Valor: R$ 100,00</p>
-                <p>Data: ${formatDateBR(getToday())}</p>
-            `;
-        }
-        function gerarRecibo() {
-            // Simples
-            loadRecibo();
-            alert('Recibo gerado!');
-        }
-        function imprimirRecibo() {
-            window.print();
-        }
-
-        // ========== FINANCEIRO ==========
-        let currentFinanceiroId = null;
-        function loadFinanceiro() {
-            const transacoes = getData('transacoes');
-            const tbody = document.querySelector('#financeiroTable tbody');
-            tbody.innerHTML = transacoes.map((t, i) => {
-                const valor = parseFloat(t.valor).toFixed(2);
-                return `<tr><td>${formatDateBR(t.data)}</td><td>${t.descricao}</td><td>R$ ${valor}</td><td>${t.tipo}</td><td>${t.forma}</td><td><button class="btn btn-warning" onclick="editFinanceiro(${i})">Editar</button><button class="btn btn-danger" onclick="deleteFinanceiro(${i})">Excluir</button></td></tr>`;
-            }).join('');
-        }
-        function openFinanceiroModal(id) {
-            currentFinanceiroId = id !== undefined ? id : null;
-            document.getElementById('financeiroModal').classList.add('active');
-            if (id !== null) {
-                const transacoes = getData('transacoes');
-                const t = transacoes[id];
-                document.getElementById('finData').value = t.data;
-                document.getElementById('finDescricao').value = t.descricao;
-                document.getElementById('finValor').value = t.valor;
-                document.getElementById('finTipo').value = t.tipo;
-                document.getElementById('finForma').value = t.forma;
-                document.getElementById('financeiroModalTitle').textContent = 'Editar Transação';
-            } else {
-                document.getElementById('financeiroModalTitle').textContent = 'Nova Transação';
-                document.getElementById('finData').value = getToday();
-                document.getElementById('finDescricao').value = '';
-                document.getElementById('finValor').value = '';
-                document.getElementById('finTipo').value = 'Receita';
-                document.getElementById('finForma').value = 'Crédito';
+            editingProfissionalId = id;
+            const profissionais = getData('profissionais') || [];
+            const prof = profissionais.find(p => p.id === id);
+            if (prof) {
+                document.getElementById('profModalTitle').innerText = 'Editar Profissional';
+                document.getElementById('profNome').value = prof.nome;
+                document.getElementById('profEspecialidade').value = prof.especialidade;
+                document.getElementById('profRegistro').value = prof.registro;
+                document.getElementById('profissionalModal').classList.add('active');
             }
         }
-        function saveFinanceiro() {
-            const data = document.getElementById('finData').value;
-            const descricao = document.getElementById('finDescricao').value.trim();
-            const valor = parseFloat(document.getElementById('finValor').value);
-            const tipo = document.getElementById('finTipo').value;
-            const forma = document.getElementById('finForma').value;
-            if (!data || !descricao || isNaN(valor)) { alert('Preencha todos os campos'); return; }
-            let transacoes = getData('transacoes');
-            if (currentFinanceiroId !== null) {
-                transacoes[currentFinanceiroId] = { data, descricao, valor, tipo, forma };
+
+        function salvarProfissional() {
+            const nome = document.getElementById('profNome').value.trim();
+            const especialidade = document.getElementById('profEspecialidade').value.trim();
+            const registro = document.getElementById('profRegistro').value.trim();
+            if (!nome) { alert('Nome é obrigatório.'); return; }
+            let profissionais = getData('profissionais') || [];
+            if (editingProfissionalId) {
+                const idx = profissionais.findIndex(p => p.id === editingProfissionalId);
+                if (idx !== -1) {
+                    profissionais[idx] = { ...profissionais[idx], nome, especialidade, registro };
+                }
             } else {
-                transacoes.push({ data, descricao, valor, tipo, forma });
+                const newId = profissionais.length ? Math.max(...profissionais.map(p=>p.id)) + 1 : 1;
+                profissionais.push({ id: newId, nome, especialidade, registro });
+            }
+            setData('profissionais', profissionais);
+            renderProfissionais();
+            document.getElementById('profissionalModal').classList.remove('active');
+        }
+
+        function deleteProfissional(id) {
+            if (!confirm('Excluir profissional?')) return;
+            let profissionais = getData('profissionais') || [];
+            profissionais = profissionais.filter(p => p.id !== id);
+            setData('profissionais', profissionais);
+            renderProfissionais();
+        }
+
+        // ============================================================
+        // RECIBO
+        // ============================================================
+        function gerarRecibo() {
+            const nome = prompt('Nome do paciente:');
+            if (!nome) return;
+            const valor = prompt('Valor (R$):');
+            if (!valor) return;
+            const data = new Date().toLocaleDateString('pt-BR');
+            const reciboHTML = `
+                <div style="border:1px solid #000;padding:20px;max-width:400px;margin:auto;">
+                    <h3 style="text-align:center;">RECIBO</h3>
+                    <p><strong>Recebi de:</strong> ${nome}</p>
+                    <p><strong>Valor:</strong> R$ ${parseFloat(valor).toFixed(2)}</p>
+                    <p><strong>Data:</strong> ${data}</p>
+                    <p style="text-align:center;margin-top:30px;">_____________________________<br>Assinatura</p>
+                </div>
+            `;
+            document.getElementById('reciboPreview').innerHTML = reciboHTML;
+        }
+
+        function renderRecibo() {
+            document.getElementById('reciboPreview').innerHTML = '<p>Clique em "Gerar Recibo" para criar um.</p>';
+        }
+
+        // ============================================================
+        // FINANCEIRO
+        // ============================================================
+        function renderFinanceiro() {
+            const transacoes = getData('transacoes') || [];
+            let html = '';
+            transacoes.forEach(t => {
+                html += `<tr><td>${formatDateBR(t.data)}</td><td>${t.descricao}</td><td>${t.tipo}</td><td>${t.forma}</td><td>${formatMoney(t.valor)}</td><td><button class="btn btn-primary" onclick="editTransacao(${t.id})">Editar</button> <button class="btn btn-danger" onclick="deleteTransacao(${t.id})">Excluir</button></td></tr>`;
+            });
+            if (!transacoes.length) html = '<tr><td colspan="6">Nenhuma transação.</td></tr>';
+            document.getElementById('transacaoTableBody').innerHTML = html;
+        }
+
+        function openTransacaoModal() {
+            editingTransacaoId = null;
+            document.getElementById('transacaoModalTitle').innerText = 'Nova Transação';
+            document.getElementById('transData').value = new Date().toISOString().split('T')[0];
+            document.getElementById('transDesc').value = '';
+            document.getElementById('transTipo').value = 'Receita';
+            document.getElementById('transForma').value = 'PIX';
+            document.getElementById('transValor').value = '';
+            document.getElementById('transacaoModal').classList.add('active');
+        }
+
+        function editTransacao(id) {
+            editingTransacaoId = id;
+            const transacoes = getData('transacoes') || [];
+            const t = transacoes.find(t => t.id === id);
+            if (t) {
+                document.getElementById('transacaoModalTitle').innerText = 'Editar Transação';
+                document.getElementById('transData').value = t.data;
+                document.getElementById('transDesc').value = t.descricao;
+                document.getElementById('transTipo').value = t.tipo;
+                document.getElementById('transForma').value = t.forma;
+                document.getElementById('transValor').value = t.valor;
+                document.getElementById('transacaoModal').classList.add('active');
+            }
+        }
+
+        function salvarTransacao() {
+            const data = document.getElementById('transData').value;
+            const descricao = document.getElementById('transDesc').value.trim();
+            const tipo = document.getElementById('transTipo').value;
+            const forma = document.getElementById('transForma').value;
+            const valor = parseFloat(document.getElementById('transValor').value);
+            if (!descricao || isNaN(valor)) { alert('Preencha descrição e valor.'); return; }
+            let transacoes = getData('transacoes') || [];
+            if (editingTransacaoId) {
+                const idx = transacoes.findIndex(t => t.id === editingTransacaoId);
+                if (idx !== -1) {
+                    transacoes[idx] = { ...transacoes[idx], data, descricao, tipo, forma, valor };
+                }
+            } else {
+                const newId = transacoes.length ? Math.max(...transacoes.map(t=>t.id)) + 1 : 1;
+                transacoes.push({ id: newId, data, descricao, tipo, forma, valor });
             }
             setData('transacoes', transacoes);
-            loadFinanceiro();
-            closeModal('financeiroModal');
-        }
-        function editFinanceiro(id) {
-            openFinanceiroModal(id);
-        }
-        function deleteFinanceiro(id) {
-            if (confirm('Tem certeza que deseja excluir esta transação?')) {
-                let transacoes = getData('transacoes');
-                transacoes.splice(id, 1);
-                setData('transacoes', transacoes);
-                loadFinanceiro();
-            }
+            renderFinanceiro();
+            document.getElementById('transacaoModal').classList.remove('active');
         }
 
-        // ========== GESTÃO ==========
-        function loadGestao() {
-            const filtro = document.getElementById('gestaoFiltroForma').value;
-            const transacoes = getData('transacoes');
-            const filtered = filtro === 'Todas' ? transacoes : transacoes.filter(t => t.forma === filtro);
-            // Agrupar por forma
-            const grouped = {};
-            filtered.forEach(t => {
-                if (!grouped[t.forma]) grouped[t.forma] = { qtd: 0, total: 0 };
-                grouped[t.forma].qtd++;
-                grouped[t.forma].total += parseFloat(t.valor);
+        function deleteTransacao(id) {
+            if (!confirm('Excluir transação?')) return;
+            let transacoes = getData('transacoes') || [];
+            transacoes = transacoes.filter(t => t.id !== id);
+            setData('transacoes', transacoes);
+            renderFinanceiro();
+        }
+
+        // ============================================================
+        // GESTÃO
+        // ============================================================
+        function renderGestao() {
+            const transacoes = getData('transacoes') || [];
+            const filter = document.getElementById('gestaoFilter').value;
+            let filtradas = transacoes;
+            if (filter !== 'todas') {
+                filtradas = transacoes.filter(t => t.forma === filter);
+            }
+            const agrupado = {};
+            filtradas.forEach(t => {
+                if (!agrupado[t.forma]) agrupado[t.forma] = { qtd: 0, total: 0 };
+                agrupado[t.forma].qtd++;
+                agrupado[t.forma].total += t.valor;
             });
-            const tbody = document.querySelector('#gestaoTable tbody');
-            tbody.innerHTML = Object.entries(grouped).map(([forma, dados]) => {
-                return `<tr><td>${forma}</td><td>${dados.qtd}</td><td>R$ ${dados.total.toFixed(2)}</td></tr>`;
-            }).join('');
+            let html = '';
+            for (const forma in agrupado) {
+                html += `<tr><td>${forma}</td><td>${agrupado[forma].qtd}</td><td>${formatMoney(agrupado[forma].total)}</td></tr>`;
+            }
+            if (!html) html = '<tr><td colspan="3">Nenhum dado para o filtro.</td></tr>';
+            document.getElementById('gestaoTableBody').innerHTML = html;
         }
 
-        // ========== LGPD: Controle de acesso a documentos ==========
-        // Só admin e profissional podem ver documentos
-        // Na tab de documentos, ocultamos se não tiver permissão
-        document.addEventListener('DOMContentLoaded', function() {
-            // Verificar se o botão de documentos deve ser oculto
-            const role = currentUser.role;
-            const docBtn = document.querySelector('[data-tab="documentos"]');
-            if (role !== 'Admin' && role !== 'Psicologo' && role !== 'TO' && role !== 'Fisioterapeuta' && role !== 'Fonoaudiologo') {
-                // Ocultar a aba documentos
-                const btns = document.querySelectorAll('#pacienteDrawer .btn');
-                btns.forEach(btn => {
-                    if (btn.textContent.trim() === 'Documentos') {
-                        btn.style.display = 'none';
-                    }
-                });
-                document.getElementById('tabDocumentos').style.display = 'none';
-            }
-        });
-
-        // ========== INICIALIZAÇÃO ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDashboard();
-            // Preencher data da agenda atual
-            document.getElementById('agendaDate').value = getToday();
-            loadAgenda();
-        });
+        // ============================================================
+        // INIT: set filter date to today
+        // ============================================================
+        document.getElementById('filterDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('filterDate').addEventListener('change', renderAgenda);
     </script>
 </body>
 </html>
