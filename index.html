@@ -1,309 +1,267 @@
-
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ativamente+ Clinic PRO</title>
-
+<title>ATIVAMENTE+ Clinic Enterprise</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-:root{
---primary:#032D6B;
---secondary:#00C7C7;
---accent:#FF6B57;
---bg:#f4f7fb;
---white:#fff;
-}
-body{display:flex;background:var(--bg);color:#1f2937}
-.sidebar{
-width:260px;height:100vh;overflow:auto;position:fixed;
-background:linear-gradient(180deg,var(--primary),var(--secondary));
-padding:20px;color:white
-}
-.logo img{width:180px;background:white;padding:10px;border-radius:14px}
-.sidebar a{
-display:block;padding:12px;margin:8px 0;border-radius:10px;
-text-decoration:none;color:white;background:rgba(255,255,255,.08)
-}
+body{font-family:Arial;background:#f4f7fb;margin:0;display:flex}
+.sidebar{width:260px;background:#032D6B;color:#fff;height:100vh;padding:20px;position:fixed}
+.logo{font-size:34px;font-weight:bold;background:linear-gradient(90deg,#032D6B,#FF6B57,#00C7C7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:30px}
+.sidebar a{display:block;color:#fff;text-decoration:none;padding:12px;margin-bottom:8px;background:rgba(255,255,255,.08);border-radius:10px}
 .main{margin-left:260px;padding:25px;width:100%}
-.section,.card{
-background:white;border-radius:18px;padding:20px;
-box-shadow:0 4px 14px rgba(0,0,0,.08)
-}
-.kpis{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:18px;margin-bottom:25px
-}
-.card .value{font-size:30px;font-weight:bold;color:var(--primary)}
-.section{margin-bottom:25px}
-.section-header{
-display:flex;justify-content:space-between;
-align-items:center;margin-bottom:20px
-}
-button{
-border:none;padding:10px 14px;border-radius:10px;
-cursor:pointer;font-weight:bold
-}
-.primary{background:var(--primary);color:white}
-.success{background:#16a34a;color:white}
-.warning{background:#f59e0b;color:white}
-.danger{background:#dc2626;color:white}
-input,select,textarea{
-width:100%;padding:10px;margin-top:6px;margin-bottom:14px;
-border-radius:10px;border:1px solid #ddd
-}
-.grid-2{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px
-}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.card,.section{background:#fff;padding:20px;border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.value{font-size:30px;font-weight:bold;color:#032D6B}
+.section{margin-top:25px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.tabs{display:flex;gap:10px;overflow:auto;margin-bottom:20px}
+.tab{padding:10px 14px;background:#edf2f7;border-radius:10px;font-weight:bold;white-space:nowrap}
+input,select,textarea{width:100%;padding:10px;margin-top:6px;margin-bottom:14px;border-radius:10px;border:1px solid #ddd}
+button{border:none;padding:10px 14px;border-radius:10px;font-weight:bold;cursor:pointer}
+.primary{background:#032D6B;color:#fff}
+.warning{background:#f59e0b;color:#fff}
+.danger{background:#dc2626;color:#fff}
+.success{background:#16a34a;color:#fff}
 table{width:100%;border-collapse:collapse}
 th,td{padding:12px;border-bottom:1px solid #eee}
-.ai-box{
-padding:18px;border-radius:16px;
-background:linear-gradient(135deg,var(--primary),var(--secondary));
-color:white;margin-top:15px
-}
-.scroll-pay{
-display:flex;overflow:auto;gap:10px;padding-bottom:10px
-}
-.pay-item{
-min-width:140px;background:#e8f7f7;padding:12px;
-border-radius:12px;font-weight:bold;text-align:center
-}
-canvas{background:white;border-radius:14px;padding:10px}
-@media(max-width:900px){
-body{flex-direction:column}
-.sidebar{position:relative;width:100%;height:auto}
-.main{margin-left:0}
-.grid-2{grid-template-columns:1fr}
-}
+.payscroll{display:flex;overflow:auto;gap:10px}
+.pay{min-width:120px;background:#e6ffff;padding:10px;border-radius:10px;text-align:center;font-weight:bold}
+.aibox{background:linear-gradient(135deg,#032D6B,#00C7C7);padding:18px;border-radius:16px;color:#fff;margin-top:20px}
+@media(max-width:900px){body{flex-direction:column}.sidebar{position:relative;width:100%;height:auto}.main{margin-left:0}.grid2{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
 
 <div class="sidebar">
-
-<div class="logo">
-<img src="Ativamente+ Clinic.png">
-</div>
-
-<a href="#dashboard">Dashboard</a>
-<a href="#agenda">Agenda</a>
-<a href="#pacientes">Pacientes</a>
-<a href="#financeiro">Financeiro</a>
-<a href="#gestao">Gestão</a>
-<a href="#ia">IA Clínica</a>
-<a href="#config">Configurações</a>
-
+<div class="logo">ATIVAMENTE+</div>
+<a href="#">Dashboard</a>
+<a href="#">Agenda</a>
+<a href="#">Pacientes</a>
+<a href="#">Profissionais</a>
+<a href="#">Financeiro</a>
+<a href="#">Gestão</a>
+<a href="#">IA Clínica</a>
+<a href="#">Configurações</a>
 </div>
 
 <div class="main">
 
-<h1>Ativamente+ Clinic PRO</h1>
+<h1>ATIVAMENTE+ Clinic Enterprise</h1>
 
-<section id="dashboard" class="kpis">
-<div class="card"><h3>Atendimentos</h3><div class="value" id="kAgenda">0</div></div>
+<section class="kpis">
+<div class="card"><h3>Agenda</h3><div class="value" id="kAgenda">0</div></div>
 <div class="card"><h3>Pacientes</h3><div class="value" id="kPacientes">0</div></div>
-<div class="card"><h3>Receita</h3><div class="value" id="kReceita">R$ 0</div></div>
 <div class="card"><h3>Profissionais</h3><div class="value" id="kProfissionais">0</div></div>
+<div class="card"><h3>Financeiro</h3><div class="value" id="kReceita">R$ 0</div></div>
 </section>
 
 <section class="section">
-<h2>Dashboard Administrativo</h2>
-<canvas id="grafico" height="110"></canvas>
-<div class="ai-box">
-<h3>Visão em Tempo Real</h3>
-<p>Receitas, atendimentos, pagamentos e evolução operacional da clínica.</p>
+<h2>Dashboard + IA</h2>
+<div class="aibox">
+IA analisando dados reais da clínica em tempo real.
 </div>
 </section>
 
-<section id="agenda" class="section">
-
-<div class="section-header">
+<section class="section">
+<div style="display:flex;justify-content:space-between;align-items:center">
 <h2>Agenda Inteligente</h2>
-<button class="primary" onclick="salvarAgenda()">Novo Atendimento</button>
+<button class="primary" onclick="novoAgendamento()">Novo Atendimento</button>
 </div>
 
-<div class="grid-2">
+<div class="grid2">
 
 <div>
-<label>Paciente</label>
-<input list="listaPacientes" id="paciente">
+
+<input list="listaPacientes" id="paciente" placeholder="Paciente">
 <datalist id="listaPacientes"></datalist>
 
-<label>Profissional</label>
-<input list="listaProfissionais" id="profissional">
+<input list="listaProfissionais" id="profissional" placeholder="Profissional">
 <datalist id="listaProfissionais"></datalist>
 
-<label>Data</label>
-<input id="data">
+<input id="data" placeholder="DD/MM/AAAA">
+<input id="hora" placeholder="HH:mm">
+<input id="valor" placeholder="Valor">
 
-<label>Hora</label>
-<input id="hora">
-
-<label>Valor</label>
-<input id="valor">
-
-<label>Forma de Pagamento</label>
-
-<div class="scroll-pay">
-<div class="pay-item">Crédito</div>
-<div class="pay-item">Débito</div>
-<div class="pay-item">Pix</div>
-<div class="pay-item">Dinheiro</div>
-<div class="pay-item">Convênio</div>
-<div class="pay-item">Outros</div>
+<div class="payscroll">
+<div class="pay">Crédito</div>
+<div class="pay">Débito</div>
+<div class="pay">PIX</div>
+<div class="pay">Convênio</div>
+<div class="pay">Dinheiro</div>
+<div class="pay">Outros</div>
 </div>
 
 <select id="pagamento">
 <option>Crédito</option>
 <option>Débito</option>
-<option>Pix</option>
-<option>Dinheiro</option>
+<option>PIX</option>
 <option>Convênio</option>
+<option>Dinheiro</option>
 <option>Outros</option>
 </select>
+
+<button class="success" onclick="sugestaoIA()">AI-Agenda</button>
+
+<p id="sugestao"></p>
 
 </div>
 
 <div>
+
 <table>
 <thead>
 <tr>
 <th>Paciente</th>
+<th>Profissional</th>
 <th>Data</th>
 <th>Hora</th>
-<th>Status</th>
 </tr>
 </thead>
 <tbody id="agendaTable"></tbody>
 </table>
-</div>
 
 </div>
 
+</div>
 </section>
 
-<section id="pacientes" class="section">
+<section class="section">
 
-<div class="section-header">
-<h2>Pacientes e Prontuários</h2>
-<button class="primary" onclick="novoPaciente()">Novo Paciente</button>
+<h2>Paciente - Drawer Clínico</h2>
+
+<div class="tabs">
+<div class="tab">Perfil</div>
+<div class="tab">Histórico</div>
+<div class="tab">Exames</div>
+<div class="tab">Evolução</div>
+<div class="tab">Documentos</div>
+<div class="tab">Prescrições</div>
+<div class="tab">Atestados</div>
+<div class="tab">Faturamento</div>
+<div class="tab">Anotações</div>
 </div>
 
-<div class="grid-2">
+<div class="grid2">
 
 <div>
 
-<input id="nomePaciente" placeholder="Nome do paciente">
+<input id="nomePaciente" placeholder="Nome paciente">
 <input id="telefonePaciente" placeholder="Telefone">
-<input id="nascimentoPaciente" placeholder="Nascimento">
 
-<textarea id="prontuario" rows="6" placeholder="Lançamento diário do prontuário"></textarea>
+<input list="listaCID" placeholder="CID-11">
+<datalist id="listaCID">
+<option value="6A02 TEA">
+<option value="6D10 TDAH">
+<option value="6B00 Ansiedade">
+<option value="MB26 Depressão">
+</datalist>
 
-<button class="success" onclick="gerarIA()">Gerar Evolução com IA</button>
+<textarea id="evolucao" rows="7" placeholder="Evolução clínica"></textarea>
 
-<div class="ai-box">
-<h3>Evolução Inteligente</h3>
-<p id="resultadoIA">
-A IA clínica irá analisar evolução, regressão, plano terapêutico e hipóteses diagnósticas.
-</p>
+<button class="primary" onclick="gerarIA()">Analisar IA</button>
+
+<div class="aibox">
+<p id="resultadoIA">Aguardando análise clínica...</p>
 </div>
 
 <div style="margin-top:20px">
-<button class="primary">Imprimir Recibo</button>
-<button class="warning">Emitir Nota Fiscal</button>
-<button class="success">Baixar PDF</button>
-<button class="danger">Excluir Documento</button>
+<button class="success">Gerar Recibo</button>
+<button class="primary">PDF</button>
+<button class="warning">Imprimir</button>
+<button class="danger">Excluir</button>
 </div>
 
 </div>
 
 <div>
+
+<button class="primary" onclick="novoPaciente()">Novo Paciente</button>
+
 <table>
 <thead>
 <tr>
 <th>Paciente</th>
 <th>Telefone</th>
+<th>Ações</th>
 </tr>
 </thead>
+
 <tbody id="pacientesTable"></tbody>
+
 </table>
+
 </div>
 
 </div>
 
 </section>
 
-<section id="financeiro" class="section">
-<div class="logo">
-<img src="Ativamente+ Clinic.png" style="width:140px">
+<section class="section">
+
+<div style="display:flex;justify-content:space-between;align-items:center">
+<h2>Profissionais</h2>
+<button class="primary" onclick="novoProfissional()">Novo Profissional</button>
 </div>
 
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Registro</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="profissionaisTable"></tbody>
+</table>
+
+</section>
+
+<section class="section">
 <h2>Financeiro</h2>
 
-<div class="ai-box">
-<h3>Integração Financeira</h3>
-<p>Todos os pagamentos são integrados automaticamente na gestão financeira.</p>
+<select>
+<option>Todos</option>
+<option>Crédito</option>
+<option>Débito</option>
+<option>PIX</option>
+<option>Convênio</option>
+<option>Dinheiro</option>
+<option>Outros</option>
+</select>
+
+<div class="aibox">
+Financeiro integrado automaticamente à Gestão.
 </div>
 
 </section>
 
-<section id="gestao" class="section">
-<div class="logo">
-<img src="Ativamente+ Clinic.png" style="width:140px">
-</div>
-
+<section class="section">
 <h2>Gestão</h2>
 
-<div class="ai-box">
-<h3>Gestão Inteligente</h3>
-<p>Controle operacional, faturamento e indicadores administrativos.</p>
+<div class="kpis">
+<div class="card"><h3>PIX</h3><div class="value">R$ 5.000</div></div>
+<div class="card"><h3>Crédito</h3><div class="value">R$ 8.200</div></div>
+<div class="card"><h3>Convênio</h3><div class="value">R$ 10.300</div></div>
 </div>
 
 </section>
 
-<section id="ia" class="section">
-<h2>IA Clínica</h2>
+<section class="section">
+<h2>Configurações</h2>
 
-<div class="ai-box">
-<h3>Motor Clínico Inteligente</h3>
-<p>
-A IA identifica evolução, regressão, possíveis diagnósticos
-e propõe plano terapêutico automaticamente.
-</p>
-</div>
-
-</section>
-
-<section id="config" class="section">
-
-<div class="logo">
-<img src="Ativamente+ Clinic.png" style="width:140px">
-</div>
-
-<h2>Configurações da Clínica</h2>
-
-<div class="grid-2">
-
+<div class="grid2">
 <div>
 <input placeholder="Nome da Clínica">
 <input placeholder="CNPJ">
 <input placeholder="Telefone">
-<input placeholder="Endereço">
 </div>
 
 <div>
+<input placeholder="Endereço">
 <input placeholder="E-mail">
 <input placeholder="Instagram">
-<input placeholder="Facebook">
-<input placeholder="LinkedIn">
 </div>
-
 </div>
 
 </section>
@@ -312,40 +270,75 @@ e propõe plano terapêutico automaticamente.
 
 <script>
 
-let pacientes = [];
-let agenda = [];
+let pacientes=[];
+let profissionais=[];
+let agenda=[];
 
 function atualizarKPIs(){
-document.getElementById("kAgenda").innerText = agenda.length;
-document.getElementById("kPacientes").innerText = pacientes.length;
 
-let total = 0;
-agenda.forEach(a=> total += Number(a.valor || 0));
+document.getElementById('kAgenda').innerText=agenda.length;
+document.getElementById('kPacientes').innerText=pacientes.length;
+document.getElementById('kProfissionais').innerText=profissionais.length;
 
-document.getElementById("kReceita").innerText =
-"R$ " + total.toFixed(2);
+let total=0;
 
-document.getElementById("kProfissionais").innerText =
-new Set(agenda.map(a=>a.profissional)).size;
+agenda.forEach(a=>{
+total += Number(a.valor || 0);
+});
+
+document.getElementById('kReceita').innerText='R$ '+total.toFixed(2);
+
 }
+
+document.getElementById('data').addEventListener('input',function(e){
+
+let v=e.target.value.replace(/\D/g,'');
+
+if(v.length>2)
+v=v.slice(0,2)+'/'+v.slice(2);
+
+if(v.length>5)
+v=v.slice(0,5)+'/'+v.slice(5,9);
+
+e.target.value=v;
+
+});
+
+document.getElementById('hora').addEventListener('input',function(e){
+
+let v=e.target.value.replace(/\D/g,'');
+
+if(v.length>2)
+v=v.slice(0,2)+':'+v.slice(2,4);
+
+e.target.value=v;
+
+});
 
 function atualizarSugestoes(){
 
-const lp = document.getElementById("listaPacientes");
-lp.innerHTML = "";
+const lp=document.getElementById('listaPacientes');
+lp.innerHTML='';
 
 pacientes.forEach(p=>{
 lp.innerHTML += `<option value="${p.nome}">`;
+});
+
+const lf=document.getElementById('listaProfissionais');
+lf.innerHTML='';
+
+profissionais.forEach(p=>{
+lf.innerHTML += `<option value="${p.nome}">`;
 });
 
 }
 
 function novoPaciente(){
 
-const nome = document.getElementById("nomePaciente").value;
-const telefone = document.getElementById("telefonePaciente").value;
+const nome=document.getElementById('nomePaciente').value;
+const telefone=document.getElementById('telefonePaciente').value;
 
-if(!nome) return alert("Informe o nome");
+if(!nome) return;
 
 pacientes.push({nome,telefone});
 
@@ -357,15 +350,19 @@ atualizarKPIs();
 
 function renderPacientes(){
 
-const tbody = document.getElementById("pacientesTable");
-tbody.innerHTML = "";
+const tbody=document.getElementById('pacientesTable');
+tbody.innerHTML='';
 
-pacientes.forEach(p=>{
+pacientes.forEach((p,index)=>{
 
 tbody.innerHTML += `
 <tr>
 <td>${p.nome}</td>
 <td>${p.telefone}</td>
+<td>
+<button class="warning">Editar</button>
+<button class="danger">Excluir</button>
+</td>
 </tr>
 `;
 
@@ -373,15 +370,78 @@ tbody.innerHTML += `
 
 }
 
-function salvarAgenda(){
+function novoProfissional(){
 
-const item = {
-paciente:document.getElementById("paciente").value,
-profissional:document.getElementById("profissional").value,
-data:document.getElementById("data").value,
-hora:document.getElementById("hora").value,
-valor:document.getElementById("valor").value,
-pagamento:document.getElementById("pagamento").value
+const nome=prompt('Nome');
+const registro=prompt('Registro');
+
+if(!nome) return;
+
+profissionais.push({nome,registro});
+
+renderProfissionais();
+atualizarSugestoes();
+atualizarKPIs();
+
+}
+
+function renderProfissionais(){
+
+const tbody=document.getElementById('profissionaisTable');
+tbody.innerHTML='';
+
+profissionais.forEach((p,index)=>{
+
+tbody.innerHTML += `
+<tr>
+<td>${p.nome}</td>
+<td>${p.registro}</td>
+<td>
+<button class="warning" onclick="editarProfissional(${index})">Editar</button>
+<button class="danger" onclick="excluirProfissional(${index})">Excluir</button>
+</td>
+</tr>
+`;
+
+});
+
+}
+
+function editarProfissional(index){
+
+const nome=prompt('Editar',profissionais[index].nome);
+
+if(nome){
+
+profissionais[index].nome=nome;
+renderProfissionais();
+
+}
+
+}
+
+function excluirProfissional(index){
+
+if(confirm('Excluir?')){
+
+profissionais.splice(index,1);
+
+renderProfissionais();
+atualizarKPIs();
+
+}
+
+}
+
+function novoAgendamento(){
+
+const item={
+paciente:document.getElementById('paciente').value,
+profissional:document.getElementById('profissional').value,
+data:document.getElementById('data').value,
+hora:document.getElementById('hora').value,
+valor:document.getElementById('valor').value,
+pagamento:document.getElementById('pagamento').value
 };
 
 agenda.push(item);
@@ -393,17 +453,17 @@ atualizarKPIs();
 
 function renderAgenda(){
 
-const tbody = document.getElementById("agendaTable");
-tbody.innerHTML = "";
+const tbody=document.getElementById('agendaTable');
+tbody.innerHTML='';
 
 agenda.forEach(a=>{
 
 tbody.innerHTML += `
 <tr>
 <td>${a.paciente}</td>
+<td>${a.profissional}</td>
 <td>${a.data}</td>
 <td>${a.hora}</td>
-<td>Agendado</td>
 </tr>
 `;
 
@@ -413,54 +473,17 @@ tbody.innerHTML += `
 
 function gerarIA(){
 
-const texto = document.getElementById("prontuario").value;
-
-document.getElementById("resultadoIA").innerHTML = `
-<b>Evolução:</b> paciente apresentou melhora clínica.<br><br>
-<b>Plano Terapêutico:</b> manutenção do protocolo atual.<br><br>
-<b>Possível Diagnóstico:</b> quadro compatível com evolução positiva.<br><br>
-<b>Análise IA:</b> baseada nas anotações do prontuário.
-`;
+document.getElementById('resultadoIA').innerHTML=
+'<b>Evolução:</b> melhora clínica progressiva.<br><br><b>Plano terapêutico:</b> continuidade do protocolo.<br><br><b>Diagnóstico provável:</b> compatível com CID informado.';
 
 }
 
-/* máscara data */
+function sugestaoIA(){
 
-document.getElementById("data").addEventListener("input", function(e){
-let v = e.target.value.replace(/\D/g,"");
-if(v.length > 2) v = v.slice(0,2)+"/"+v.slice(2);
-if(v.length > 5) v = v.slice(0,5)+"/"+v.slice(5,9);
-e.target.value = v;
-});
+document.getElementById('sugestao').innerHTML=
+'IA sugere horários livres às 14:00 e 16:00.';
 
-/* máscara hora */
-
-document.getElementById("hora").addEventListener("input", function(e){
-let v = e.target.value.replace(/\D/g,"");
-if(v.length > 2) v = v.slice(0,2)+":"+v.slice(2,4);
-e.target.value = v;
-});
-
-function enviarWhatsApp(numero,mensagem){
-window.open(
-`https://wa.me/55${numero}?text=${encodeURIComponent(mensagem)}`
-);
 }
-
-const canvas = document.getElementById('grafico');
-const ctx = canvas.getContext('2d');
-
-ctx.fillStyle = '#032D6B';
-ctx.fillRect(30,50,80,40);
-
-ctx.fillStyle = '#00C7C7';
-ctx.fillRect(140,30,80,60);
-
-ctx.fillStyle = '#FF6B57';
-ctx.fillRect(250,10,80,80);
-
-ctx.fillStyle = '#16a34a';
-ctx.fillRect(360,40,80,50);
 
 </script>
 
